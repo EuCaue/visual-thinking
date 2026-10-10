@@ -417,7 +417,9 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
       elk: { 'algorithm': 'layered', 'elk.direction': dir, 'elk.spacing.nodeNode': 48,
              'elk.layered.spacing.nodeNodeBetweenLayers': 120, 'elk.layered.spacing.edgeNodeBetweenLayers': 40,
              'elk.hierarchyHandling': 'INCLUDE_CHILDREN', 'elk.padding': '[top=48,left=24,bottom=24,right=24]',
-             'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX', 'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP' } };
+             'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX', 'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
+             'elk.layered.thoroughness': 50, 'elk.layered.crossingMinimization.greedySwitch.type': 'TWO_SIDED',
+             'elk.layered.crossingMinimization.greedySwitchHierarchical.type': 'TWO_SIDED', 'elk.layered.cycleBreaking.strategy': 'GREEDY_MODEL_ORDER' } };
     try { cy.layout(opts).run(); } catch (e) { cy.layout({ name: 'breadthfirst', directed: true, padding: 40, spacingFactor: 1.4 }).run(); }
   }
   cy.on('layoutstop', function () { cy.resize(); cy.fit(undefined, 40); });
