@@ -1,6 +1,8 @@
 ---
 name: visual-thinking
 description: Use when the user asks to draw, sketch, diagram or "show visually" an architecture, flow, process, state, sequence, comparison or idea ("desenhe", "faz um desenho", "me mostre visualmente", "compare visualmente", "estou com preguiça de ler", "não entendi, desenha"), and when an explanation of how parts connect or what happens over time would take more than three paragraphs of prose.
+metadata:
+  opencode/slash: "true"
 ---
 
 # Visual thinking
