@@ -1,0 +1,541 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa shop-api</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!--
+  visual-thinking :: graph explorer template
+  Fill ONLY: <title> above and the JSON inside <script id="graph">. See formats.md for the schema.
+  Everything else (tokens, layout, controls, theme, inspector) is the design system; do not restyle.
+-->
+<style>
+/* TOKENS:BEGIN  (source of truth: templates/_tokens.css; synced into each template by scripts/sync-tokens.py)
+   Design system of visual-thinking. Semantic tokens only; components never use literal colors.
+   Light is the base; dark redefines the same tokens. Both tested for contrast (design.md). */
+:root {
+  /* type */
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --fs-xs: 12px; --fs-sm: 12.5px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px;
+  --lh-tight: 1.25; --lh-body: 1.5;
+  --track-caps: 0.05em;
+
+  /* space (4px base) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+
+  /* shape: one radius scale */
+  --r-control: 6px; --r-node: 8px; --r-panel: 10px;
+
+  /* surfaces */
+  --bg: #f6f7f9;            /* page ground, cool off-white */
+  --bg-elev: #ffffff;       /* panels */
+  --bg-inset: #eceff3;      /* wells, chips, group boxes */
+  --line: #d6dbe3;          /* hairlines */
+  --line-strong: #aeb7c4;   /* borders that must read */
+
+  /* text */
+  --fg: #171a20;
+  --fg-muted: #5a6373;      /* ≥ 4.5:1 on --bg and --bg-elev */
+  --fg-faint: #7c8696;      /* large text or non-essential only */
+
+  /* accent: one hue, used for selection, focus, links, control edges */
+  --accent: #2f5fc7;
+  --accent-fg: #ffffff;
+  --accent-soft: #e4ebfa;
+  --focus: #2f5fc7;
+
+  /* semantic state */
+  --ok: #257a4c;  --ok-soft: #e1f2e8;
+  --warn: #9a6207; --warn-soft: #f8edd5;
+  --danger: #b5382f; --danger-soft: #f9e3e0;
+
+  /* diagram: node kinds (fill, stroke) */
+  --n-entry-fill: var(--ok-soft);       --n-entry-stroke: var(--ok);
+  --n-component-fill: var(--accent-soft); --n-component-stroke: var(--accent);
+  --n-external-fill: var(--bg-inset);   --n-external-stroke: var(--line-strong);
+  --n-store-fill: var(--warn-soft);     --n-store-stroke: var(--warn);
+  --n-decision-fill: var(--bg-elev);    --n-decision-stroke: var(--accent);
+  --n-critical-fill: var(--danger-soft); --n-critical-stroke: var(--danger);
+  --n-group-fill: #ffffff;              --n-group-stroke: var(--line);
+
+  /* diagram: edge kinds */
+  --e-data: var(--warn);
+  --e-control: var(--accent);
+  --e-event: var(--ok);
+  --e-error: var(--danger);
+  --e-muted: var(--line-strong);
+
+  /* motion */
+  --t-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
+
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1216; --bg-elev: #161a20; --bg-inset: #1d222a;
+    --line: #2a303a; --line-strong: #4a5363;
+    --fg: #e7eaef; --fg-muted: #a3acba; --fg-faint: #7f8896;
+    --accent: #8fb0f3; --accent-fg: #0f1216; --accent-soft: #1d2a44; --focus: #8fb0f3;
+    --ok: #6cc695; --ok-soft: #16301f;
+    --warn: #e0b35a; --warn-soft: #332a12;
+    --danger: #ef8a7f; --danger-soft: #3a1c19;
+    --n-group-fill: #13171d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1216; --bg-elev: #161a20; --bg-inset: #1d222a;
+  --line: #2a303a; --line-strong: #4a5363;
+  --fg: #e7eaef; --fg-muted: #a3acba; --fg-faint: #7f8896;
+  --accent: #8fb0f3; --accent-fg: #0f1216; --accent-soft: #1d2a44; --focus: #8fb0f3;
+  --ok: #6cc695; --ok-soft: #16301f;
+  --warn: #e0b35a; --warn-soft: #332a12;
+  --danger: #ef8a7f; --danger-soft: #3a1c19;
+  --n-group-fill: #13171d;
+  color-scheme: dark;
+}
+
+/* base: browser surfaces carry the design too */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--fg); font: var(--fs-md)/var(--lh-body) var(--font-ui); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-soft); color: var(--fg); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-control); }
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+button, input { font: inherit; color: inherit; }
+code, .mono { font-family: var(--font-data); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* TOKENS:END */
+
+/* layout */
+body { display: flex; flex-direction: column; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-3) var(--sp-5); padding: var(--sp-4); border-bottom: 1px solid var(--line); background: var(--bg-elev); }
+.top h1 { font-size: var(--fs-xl); font-weight: 600; line-height: var(--lh-tight); }
+.top .sub { margin: var(--sp-1) 0 0; color: var(--fg-muted); font-size: var(--fs-sm); }
+.title-block { min-width: 0; flex: 1 1 320px; }
+.views { display: flex; gap: var(--sp-1); flex-wrap: wrap; }
+.views button { background: none; border: 1px solid transparent; border-radius: var(--r-control); padding: 6px 10px; color: var(--fg-muted); cursor: pointer; transition: color var(--t-fast), background var(--t-fast); }
+.views button:hover { color: var(--fg); background: var(--bg-inset); }
+.views button[aria-selected="true"] { color: var(--fg); background: var(--bg-inset); border-color: var(--line); font-weight: 500; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-left: auto; }
+.seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--r-control); overflow: hidden; }
+.seg button { background: var(--bg-elev); border: 0; padding: 6px 10px; font-size: var(--fs-sm); color: var(--fg-muted); cursor: pointer; transition: background var(--t-fast), color var(--t-fast); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--bg-inset); color: var(--fg); }
+.btn { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: var(--r-control); padding: 6px 10px; font-size: var(--fs-sm); color: var(--fg); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast); }
+.btn:hover { background: var(--bg-inset); border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.search { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: var(--r-control); padding: 6px 10px; font-size: var(--fs-sm); min-width: 180px; }
+.search::placeholder { color: var(--fg-faint); }
+.search:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px var(--accent-soft); }
+
+main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 340px; min-height: 0; }
+.canvas-wrap { position: relative; min-width: 0; min-height: 0; }
+#cy { position: absolute; inset: 0; }
+.chips { position: absolute; left: var(--sp-3); top: var(--sp-3); display: flex; flex-wrap: wrap; gap: var(--sp-1); max-width: calc(100% - 24px); }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px 3px 8px; font-size: var(--fs-xs); color: var(--fg-muted); cursor: pointer; transition: opacity var(--t-fast), border-color var(--t-fast); }
+.chip i { width: 10px; height: 10px; border-radius: 3px; border: 1.5px solid; }
+.chip[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
+.chip:hover { border-color: var(--line-strong); }
+.hintbar { position: absolute; right: var(--sp-3); bottom: var(--sp-3); font-size: var(--fs-xs); color: var(--fg-faint); background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-control); padding: 3px 8px; pointer-events: none; }
+
+aside { border-left: 1px solid var(--line); background: var(--bg-elev); overflow: auto; padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0; }
+aside h2 { font-size: var(--fs-xs); font-weight: 600; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--fg-muted); margin-bottom: var(--sp-2); }
+.name { font-size: var(--fs-lg); font-weight: 600; line-height: var(--lh-tight); }
+.sub2 { color: var(--fg-muted); margin-top: 2px; }
+.file { font-family: var(--font-data); font-size: var(--fs-sm); color: var(--accent); word-break: break-all; margin-top: var(--sp-2); }
+.tags { display: flex; gap: var(--sp-1); flex-wrap: wrap; margin-top: var(--sp-2); }
+.tag { font-size: var(--fs-xs); padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--fg-muted); }
+.tag.verified { color: var(--ok); border-color: var(--ok); }
+.tag.inferred { color: var(--warn); border-color: var(--warn); }
+.tag.unknown { color: var(--danger); border-color: var(--danger); }
+ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
+.edges { list-style: none; padding: 0; }
+.edges li { display: grid; grid-template-columns: 14px 1fr; gap: var(--sp-2); align-items: baseline; color: var(--fg-muted); font-size: var(--fs-sm); }
+.edges li b { color: var(--fg); font-weight: 500; }
+.edges li i { display: block; height: 0; border-top: 2px solid; margin-top: 8px; }
+.edges li code { font-size: var(--fs-xs); }
+.row { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-3); }
+.legend { display: grid; grid-template-columns: 16px 1fr; gap: 6px var(--sp-2); align-items: center; font-size: var(--fs-sm); color: var(--fg-muted); }
+.sw { width: 16px; height: 12px; border-radius: 3px; border: 1.5px solid; }
+.sw.line { height: 0; border: 0; border-top: 2px solid; }
+.summary dl { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-1) var(--sp-3); margin: 0; font-size: var(--fs-sm); }
+.summary dt { color: var(--fg-muted); } .summary dd { margin: 0; font-variant-numeric: tabular-nums; }
+.summary .groups button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 4px 0; color: var(--accent); cursor: pointer; font-size: var(--fs-sm); }
+.summary .groups button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.empty { color: var(--fg-muted); font-size: var(--fs-sm); }
+@media (max-width: 820px) {
+  main { grid-template-columns: 1fr; grid-template-rows: minmax(300px, 1fr) auto; }
+  aside { border-left: 0; border-top: 1px solid var(--line); max-height: 45vh; }
+  .controls { margin-left: 0; }
+}
+</style>
+
+<header class="top">
+  <div class="title-block">
+    <h1 id="title"></h1>
+    <p class="sub" id="subtitle"></p>
+  </div>
+  <nav class="views" id="views" aria-label="Vistas" hidden></nav>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Nível de informação">
+      <button type="button" data-level="1" aria-pressed="false" title="Nomes e grupos">Mapa</button>
+      <button type="button" data-level="2" aria-pressed="true" title="Responsabilidades e rótulos das arestas">Contexto</button>
+      <button type="button" data-level="3" aria-pressed="false" title="Arquivos, passos e status">Detalhes</button>
+    </div>
+    <input class="search" id="q" type="search" placeholder="Buscar nó ou arquivo" aria-label="Buscar nó ou arquivo">
+    <button type="button" class="btn" id="btnDir" title="Alternar direção do layout">Direção</button>
+    <button type="button" class="btn" id="btnFit" title="Ajustar à tela (f)">Ajustar</button>
+    <button type="button" class="btn" id="btnTheme" title="Tema: automático, claro, escuro" aria-live="polite">Tema: auto</button>
+  </div>
+</header>
+<main>
+  <section class="canvas-wrap">
+    <div id="cy" role="img" aria-label="Diagrama interativo"></div>
+    <div class="chips" id="chips" role="group" aria-label="Filtrar por tipo"></div>
+    <div class="hintbar" id="hint">arraste · roda = zoom · clique = inspecionar · esc = limpar</div>
+  </section>
+  <aside>
+    <section id="detail"></section>
+    <section><h2>Legenda</h2><div class="legend" id="legend"></div></section>
+    <section id="annotations" hidden><h2>Anotações</h2><ul id="annList"></ul></section>
+  </aside>
+</main>
+
+<script id="graph" type="application/json">
+{
+  "title": "Pedido pago gera email via fila, em dois processos",
+  "subtitle": "shop-api · lido em src/ e docs/ · 2026-10-10",
+  "views": [
+    {
+      "id": "overview", "title": "Visão geral", "direction": "RIGHT",
+      "groups": [
+        { "id": "api", "label": "Processo API", "file": "src/api/server.js", "view": "api" },
+        { "id": "worker", "label": "Processo worker", "file": "src/workers/emailWorker.js", "view": "worker" }
+      ],
+      "nodes": [
+        { "id": "client", "label": "Cliente", "sub": "envia Bearer JWT", "kind": "external", "status": "verified" },
+        { "id": "stripe", "label": "Stripe", "sub": "cobra cartão, chama webhook", "kind": "external", "status": "verified" },
+        { "id": "smtp", "label": "SMTP", "sub": "porta 587", "kind": "external", "status": "verified" },
+        { "id": "orders", "label": "POST /orders", "sub": "cria pedido, abre PaymentIntent", "kind": "entry", "group": "api", "file": "src/api/orders.js", "status": "verified" },
+        { "id": "hooks", "label": "POST /webhooks/stripe", "sub": "marca pago, enfileira recibo", "kind": "critical", "group": "api", "file": "src/api/webhooks.js", "status": "verified",
+          "notes": ["Sem checagem de idempotência: evento duplicado gera dois emails."], "evidence": "webhooks.js:12-16 não consulta event.id antes de enfileirar (inferido)." },
+        { "id": "mail", "label": "emailWorker", "sub": "consome fila, envia SMTP", "kind": "component", "group": "worker", "file": "src/workers/emailWorker.js", "status": "verified" },
+        { "id": "pg", "label": "Postgres", "sub": "products, orders, users", "kind": "store", "status": "verified" },
+        { "id": "redis", "label": "Redis", "sub": "fila BullMQ email", "kind": "queue", "status": "verified" }
+      ],
+      "edges": [
+        { "from": "client", "to": "orders", "label": "POST /orders {items}", "kind": "control", "step": 1 },
+        { "from": "orders", "to": "pg", "label": "priceItems, insertOrder", "kind": "data", "step": 2 },
+        { "from": "orders", "to": "stripe", "label": "createIntent", "kind": "control", "step": 3 },
+        { "from": "stripe", "to": "hooks", "label": "payment_intent.succeeded", "kind": "event", "step": 4 },
+        { "from": "hooks", "to": "pg", "label": "status = paid", "kind": "data", "step": 5 },
+        { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6 },
+        { "from": "redis", "to": "mail", "label": "5 tentativas, backoff 2s", "kind": "event", "step": 7 },
+        { "from": "mail", "to": "pg", "label": "getOrder, getUser", "kind": "data", "step": 8 },
+        { "from": "mail", "to": "smtp", "label": "sendMail", "kind": "control", "step": 9 }
+      ],
+      "annotations": [
+        "db.updateOrder tem corpo vazio (src/db/index.js:10): status paid não persiste hoje. Verificado.",
+        "API responde 200 ao Stripe antes do email sair; o envio é promessa do worker.",
+        "Worker parado: jobs acumulam no Redis, nenhum email sai, API não percebe."
+      ]
+    },
+    {
+      "id": "api", "title": "Processo API", "direction": "DOWN",
+      "groups": [ { "id": "srv", "label": "src/api/server.js", "file": "src/api/server.js" } ],
+      "nodes": [
+        { "id": "json", "label": "express.json", "sub": "parse de corpo JSON em todas as rotas", "kind": "component", "group": "srv", "file": "src/api/server.js", "status": "verified" },
+        { "id": "auth", "label": "requireAuth", "sub": "valida Bearer JWT, 401 se inválido", "kind": "component", "group": "srv", "file": "src/api/auth.js", "status": "verified" },
+        { "id": "raw", "label": "express.raw", "sub": "corpo cru para assinatura Stripe", "kind": "component", "group": "srv", "file": "src/api/server.js", "status": "verified" },
+        { "id": "orders", "label": "orders.js", "sub": "POST /, GET /:id", "kind": "entry", "file": "src/api/orders.js", "status": "verified" },
+        { "id": "hooks", "label": "webhooks.js", "sub": "POST /", "kind": "entry", "file": "src/api/webhooks.js", "status": "verified" },
+        { "id": "pay", "label": "services/payments", "sub": "createIntent, verifyWebhook", "kind": "component", "file": "src/services/payments.js", "status": "verified" },
+        { "id": "db", "label": "db/index.js", "sub": "pool pg, SQL direto", "kind": "component", "file": "src/db/index.js", "status": "verified" },
+        { "id": "upd", "label": "db.updateOrder", "sub": "corpo vazio: nada persiste", "kind": "critical", "file": "src/db/index.js", "status": "verified", "evidence": "src/db/index.js:10 contém só o comentário /* dynamic SET ... */." },
+        { "id": "q", "label": "workers/queue", "sub": "Queue email, enqueueEmail", "kind": "component", "file": "src/workers/queue.js", "status": "verified" }
+      ],
+      "edges": [
+        { "from": "json", "to": "auth", "label": "/orders", "kind": "control" },
+        { "from": "auth", "to": "orders", "label": "req.user", "kind": "control" },
+        { "from": "json", "to": "raw", "label": "/webhooks/stripe", "kind": "control" },
+        { "from": "raw", "to": "hooks", "label": "Buffer", "kind": "control" },
+        { "from": "orders", "to": "db", "label": "priceItems, insertOrder, getOrder", "kind": "data" },
+        { "from": "orders", "to": "pay", "label": "createIntent", "kind": "control" },
+        { "from": "orders", "to": "upd", "label": "stripeIntentId ou failed", "kind": "data" },
+        { "from": "hooks", "to": "pay", "label": "verifyWebhook", "kind": "control" },
+        { "from": "hooks", "to": "upd", "label": "status paid", "kind": "data" },
+        { "from": "hooks", "to": "q", "label": "enqueueEmail", "kind": "event" }
+      ],
+      "annotations": [ "express.json roda antes de express.raw na mesma rota: o webhook recebe objeto, não Buffer. Inferido do body-parser, não executado." ]
+    },
+    {
+      "id": "worker", "title": "Processo worker", "direction": "RIGHT",
+      "nodes": [
+        { "id": "redis", "label": "Redis", "sub": "fila email", "kind": "queue", "status": "verified" },
+        { "id": "w", "label": "emailWorker.js", "sub": "Worker email, 1 handler", "kind": "entry", "file": "src/workers/emailWorker.js", "status": "verified" },
+        { "id": "db", "label": "db/index.js", "sub": "getOrder, getUser", "kind": "component", "file": "src/db/index.js", "status": "verified" },
+        { "id": "pg", "label": "Postgres", "sub": "orders, users", "kind": "store", "status": "verified" },
+        { "id": "smtp", "label": "nodemailer", "sub": "SMTP_HOST:587", "kind": "external", "status": "verified" }
+      ],
+      "edges": [
+        { "from": "redis", "to": "w", "label": "job send {orderId}", "kind": "event", "step": 1 },
+        { "from": "w", "to": "db", "label": "getOrder, getUser", "kind": "data", "step": 2 },
+        { "from": "db", "to": "pg", "label": "SELECT", "kind": "data", "step": 3 },
+        { "from": "w", "to": "smtp", "label": "sendMail", "kind": "control", "step": 4 }
+      ]
+    }
+  ]
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.4/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/elkjs@0.9.3/lib/elk.bundled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-elk@2.2.0/dist/cytoscape-elk.js"></script>
+<script>
+(function () {
+  'use strict';
+  var G = JSON.parse(document.getElementById('graph').textContent);
+  var views = G.views || [Object.assign({ id: 'main', title: G.title }, G)];
+  var root = document.documentElement;
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+  // ---------- theme: system until the viewer picks; pick persisted when storage works
+  var THEMES = ['auto', 'light', 'dark'];
+  function readTheme() { try { return localStorage.getItem('vt-theme') || 'auto'; } catch (e) { return 'auto'; } }
+  function applyTheme(t) {
+    if (t === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t);
+    $('btnTheme').textContent = 'Tema: ' + ({ auto: 'auto', light: 'claro', dark: 'escuro' })[t];
+    try { localStorage.setItem('vt-theme', t); } catch (e) {}
+    if (ready) restyle();
+  }
+  var ready = false;
+  var theme = readTheme(); applyTheme(theme);
+  $('btnTheme').onclick = function () { theme = THEMES[(THEMES.indexOf(theme) + 1) % 3]; applyTheme(theme); };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { if (theme === 'auto' && ready) restyle(); });
+
+  // ---------- tokens read live so the canvas follows the theme
+  var tok = function (n) { return getComputedStyle(root).getPropertyValue(n).trim(); };
+  var KINDS = {
+    entry:     { fill: '--n-entry-fill', stroke: '--n-entry-stroke', shape: 'round-rectangle', label: 'Entrada: rota, comando, handler' },
+    component: { fill: '--n-component-fill', stroke: '--n-component-stroke', shape: 'round-rectangle', label: 'Componente interno' },
+    external:  { fill: '--n-external-fill', stroke: '--n-external-stroke', shape: 'round-rectangle', label: 'Sistema externo', dash: true },
+    store:     { fill: '--n-store-fill', stroke: '--n-store-stroke', shape: 'barrel', label: 'Banco de dados' },
+    queue:     { fill: '--n-store-fill', stroke: '--n-store-stroke', shape: 'round-hexagon', label: 'Fila ou broker' },
+    decision:  { fill: '--n-decision-fill', stroke: '--n-decision-stroke', shape: 'diamond', label: 'Decisão' },
+    error:     { fill: '--n-critical-fill', stroke: '--n-critical-stroke', shape: 'round-rectangle', label: 'Saída de erro', dash: true },
+    critical:  { fill: '--n-critical-fill', stroke: '--n-critical-stroke', shape: 'round-rectangle', label: 'Ponto crítico' }
+  };
+  var EDGES = {
+    data:    { color: '--e-data', style: 'solid', label: 'Dados: leitura ou escrita' },
+    control: { color: '--e-control', style: 'solid', label: 'Chamada síncrona' },
+    event:   { color: '--e-event', style: 'dashed', label: 'Evento ou mensagem assíncrona' },
+    error:   { color: '--e-error', style: 'dotted', label: 'Caminho de erro' }
+  };
+  var K = function (n) { return KINDS[n.data('kind')] || KINDS.component; };
+  // basis of the drawing: what "verified" means here. code = read in the repo, docs = per documentation or spec, proposal = designed, not built
+  var BASIS = {
+    code:     { verified: 'Verificado no código', inferred: 'Inferido (borda tracejada)', unknown: 'Desconhecido (borda pontilhada)' },
+    docs:     { verified: 'Conforme documentação', inferred: 'Interpretação (borda tracejada)', unknown: 'Não documentado (borda pontilhada)' },
+    proposal: { verified: 'Decidido', inferred: 'Sugerido (borda tracejada)', unknown: 'Em aberto (borda pontilhada)' }
+  };
+  var STATUS = BASIS[G.basis] || BASIS.code;
+
+  // ---------- state
+  var level = 2, dir = 'RIGHT', current = null, hiddenKinds = {}, focused = null;
+  $('title').textContent = G.title || ''; $('subtitle').textContent = G.subtitle || '';
+  document.title = document.title || G.title || 'Diagrama';
+
+  // ---------- views (tabs)
+  var viewsEl = $('views');
+  if (views.length > 1) {
+    viewsEl.hidden = false;
+    views.forEach(function (v) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = v.title || v.id; b.setAttribute('role', 'tab');
+      b.onclick = function () { loadView(v.id); }; b.dataset.view = v.id; viewsEl.appendChild(b);
+    });
+  }
+
+  // ---------- cytoscape
+  var cy = window.vtCy = cytoscape({ container: $('cy'), wheelSensitivity: 0.2, minZoom: 0.15, maxZoom: 3 });
+  ready = true;
+  function nodeLabel(d) {
+    var parts = [d.name];
+    if (level >= 2 && d.sub) parts.push(d.sub);
+    if (level >= 3 && d.file) parts.push(d.file);
+    return parts.join('\n');
+  }
+  function edgeLabel(d) {
+    if (level < 2) return '';
+    return (level >= 3 && d.step != null ? d.step + '  ' : '') + (d.rawLabel || '');
+  }
+  function stylesheet() {
+    var fontUi = tok('--font-ui'), fontData = tok('--font-data');
+    var s = [
+      { selector: 'node', style: {
+        'label': function (n) { return nodeLabel(n.data()); }, 'text-wrap': 'wrap', 'text-max-width': 190, 'text-valign': 'center', 'text-halign': 'center',
+        'font-family': fontUi, 'font-size': 12, 'line-height': 1.3, 'color': tok('--fg'), 'text-margin-y': 0,
+        'background-color': function (n) { return tok(K(n).fill); },
+        'border-color': function (n) { return tok(K(n).stroke); },
+        'border-width': 1.5, 'border-style': function (n) { var st = n.data('status'); return st === 'inferred' ? 'dashed' : st === 'unknown' ? 'dotted' : (K(n).dash ? 'dashed' : 'solid'); },
+        'opacity': function (n) { return n.data('status') === 'unknown' ? 0.7 : 1; },
+        'shape': function (n) { return K(n).shape; }, 'width': 'label', 'height': 'label', 'padding': '12px',
+        'transition-property': 'opacity, border-width', 'transition-duration': '140ms'
+      } },
+      { selector: 'node[kind = "critical"]', style: { 'border-width': 2.5 } },
+      { selector: 'node[?isGroup]', style: {
+        'label': 'data(name)', 'background-color': tok('--n-group-fill'), 'background-opacity': 1, 'border-color': tok('--n-group-stroke'), 'border-width': 1,
+        'shape': 'round-rectangle', 'text-valign': 'top', 'text-halign': 'left', 'font-size': 11, 'font-weight': 600, 'text-transform': 'uppercase',
+        'color': tok('--fg-muted'), 'padding': '26px', 'text-margin-y': -8, 'text-margin-x': 12, 'text-wrap': 'none'
+      } },
+      { selector: 'edge', style: {
+        'curve-style': 'bezier', 'target-arrow-shape': 'triangle', 'arrow-scale': 1, 'width': 1.5,
+        'line-color': function (e) { return tok(EDGES[e.data('kind')].color); }, 'target-arrow-color': function (e) { return tok(EDGES[e.data('kind')].color); },
+        'line-style': function (e) { return EDGES[e.data('kind')].style; },
+        'label': function (e) { return edgeLabel(e.data()); }, 'font-family': fontData, 'font-size': 11, 'color': tok('--fg-muted'),
+        'text-background-color': tok('--bg'), 'text-background-opacity': 1, 'text-background-padding': 3, 'text-background-shape': 'roundrectangle',
+        'text-rotation': 'autorotate', 'text-margin-y': -2,
+        'transition-property': 'opacity, width', 'transition-duration': '140ms'
+      } },
+      { selector: '.dim', style: { 'opacity': 0.18 } },
+      { selector: 'edge.hl', style: { 'width': 2.5, 'z-index': 9 } },
+      { selector: 'node.sel', style: { 'border-width': 2.5, 'border-color': tok('--accent') } },
+      { selector: '.gone', style: { 'display': 'none' } }
+    ];
+    return s;
+  }
+  function restyle() { cy.style().fromJson(stylesheet()).update(); buildLegend(); }
+
+  function layout(animate) {
+    var opts = { name: 'elk', nodeDimensionsIncludeLabels: true, fit: true, padding: 40, animate: !!animate && !matchMedia('(prefers-reduced-motion: reduce)').matches, animationDuration: 250,
+      elk: { 'algorithm': 'layered', 'elk.direction': dir, 'elk.spacing.nodeNode': 48,
+             'elk.layered.spacing.nodeNodeBetweenLayers': 120, 'elk.layered.spacing.edgeNodeBetweenLayers': 40,
+             'elk.hierarchyHandling': 'INCLUDE_CHILDREN', 'elk.padding': '[top=48,left=24,bottom=24,right=24]',
+             'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX', 'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP' } };
+    try { cy.layout(opts).run(); } catch (e) { cy.layout({ name: 'breadthfirst', directed: true, padding: 40, spacingFactor: 1.4 }).run(); }
+  }
+  cy.on('layoutstop', function () { cy.resize(); cy.fit(undefined, 40); });
+
+  function loadView(id) {
+    var v = views.filter(function (x) { return x.id === id; })[0] || views[0];
+    current = v; dir = v.direction || 'RIGHT'; focused = null; hiddenKinds = {};
+    Array.prototype.forEach.call(viewsEl.children, function (b) { b.setAttribute('aria-selected', b.dataset.view === v.id ? 'true' : 'false'); });
+    var els = [];
+    (v.groups || []).forEach(function (g) { els.push({ data: { id: 'g_' + g.id, name: g.label, isGroup: true, file: g.file || '', view: g.view || '', sub: '' } }); });
+    (v.nodes || []).forEach(function (n) {
+      if (!KINDS[n.kind]) n.kind = 'component';
+      els.push({ data: { id: n.id, name: n.label, sub: n.sub || '', file: n.file || '', kind: n.kind, status: n.status || 'verified',
+        notes: n.notes || [], evidence: n.evidence || '', view: n.view || '', parent: n.group ? 'g_' + n.group : undefined } });
+    });
+    (v.edges || []).forEach(function (e, i) {
+      if (!EDGES[e.kind]) e.kind = 'control';
+      els.push({ data: { id: 'e' + i, source: e.from, target: e.to, rawLabel: e.label || '', kind: e.kind, step: e.step } });
+    });
+    cy.elements().remove(); cy.add(els); restyle(); layout(false); buildChips(); showSummary();
+    var ann = $('annotations'); var list = $('annList'); list.innerHTML = '';
+    if (v.annotations && v.annotations.length) { ann.hidden = false; v.annotations.forEach(function (a) { var li = document.createElement('li'); li.textContent = a; list.appendChild(li); }); } else ann.hidden = true;
+  }
+
+  // ---------- legend and chips are built from what the view uses
+  function buildLegend() {
+    var L = $('legend'); L.innerHTML = '';
+    var used = {}; cy.nodes('[!isGroup]').forEach(function (n) { used[n.data('kind')] = 1; });
+    Object.keys(KINDS).forEach(function (k) { if (!used[k]) return; var sw = document.createElement('div'); sw.className = 'sw'; sw.style.background = tok(KINDS[k].fill); sw.style.borderColor = tok(KINDS[k].stroke); if (KINDS[k].dash) sw.style.borderStyle = 'dashed'; var t = document.createElement('div'); t.textContent = KINDS[k].label; L.appendChild(sw); L.appendChild(t); });
+    var ue = {}; cy.edges().forEach(function (e) { ue[e.data('kind')] = 1; });
+    Object.keys(EDGES).forEach(function (k) { if (!ue[k]) return; var sw = document.createElement('div'); sw.className = 'sw line'; sw.style.borderTopColor = tok(EDGES[k].color); sw.style.borderTopStyle = EDGES[k].style; var t = document.createElement('div'); t.textContent = EDGES[k].label; L.appendChild(sw); L.appendChild(t); });
+    var us = {}; cy.nodes('[!isGroup]').forEach(function (n) { us[n.data('status')] = 1; });
+    Object.keys(STATUS).forEach(function (s) { if (!us[s] || s === 'verified') return; var sw = document.createElement('div'); sw.className = 'sw'; sw.style.borderColor = tok('--line-strong'); sw.style.borderStyle = s === 'inferred' ? 'dashed' : 'dotted'; var t = document.createElement('div'); t.textContent = STATUS[s]; L.appendChild(sw); L.appendChild(t); });
+  }
+  function buildChips() {
+    var C = $('chips'); C.innerHTML = '';
+    var used = {}; cy.nodes('[!isGroup]').forEach(function (n) { used[n.data('kind')] = (used[n.data('kind')] || 0) + 1; });
+    if (Object.keys(used).length < 2) return;
+    Object.keys(KINDS).forEach(function (k) { if (!used[k]) return;
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'true');
+      b.innerHTML = '<i style="background:' + tok(KINDS[k].fill) + ';border-color:' + tok(KINDS[k].stroke) + '"></i>' + esc(KINDS[k].label.split(':')[0]) + ' <span class="mono">' + used[k] + '</span>';
+      b.onclick = function () { hiddenKinds[k] = !hiddenKinds[k]; b.setAttribute('aria-pressed', hiddenKinds[k] ? 'false' : 'true'); applyFilters(); };
+      C.appendChild(b); });
+  }
+  function applyFilters() {
+    var q = $('q').value.trim().toLowerCase();
+    cy.nodes('[!isGroup]').forEach(function (n) {
+      var hide = !!hiddenKinds[n.data('kind')];
+      n.toggleClass('gone', hide);
+      var hit = !q || (n.data('name') + ' ' + n.data('sub') + ' ' + n.data('file')).toLowerCase().indexOf(q) >= 0;
+      n.toggleClass('dim', !hide && !hit && !focused);
+    });
+    cy.edges().forEach(function (e) { e.toggleClass('gone', e.source().hasClass('gone') || e.target().hasClass('gone')); });
+  }
+
+  // ---------- inspector
+  var detail = $('detail');
+  function showSummary() {
+    var v = current, n = cy.nodes('[!isGroup]'), e = cy.edges();
+    var crit = n.filter('[kind = "critical"]').length, inf = n.filter('[status = "inferred"]').length, unk = n.filter('[status = "unknown"]').length;
+    var html = '<div class="summary"><div class="name">' + esc(v.title || G.title) + '</div>';
+    html += '<dl style="margin-top:12px"><dt>Nós</dt><dd>' + n.length + '</dd><dt>Ligações</dt><dd>' + e.length + '</dd>';
+    if (crit) html += '<dt>Pontos críticos</dt><dd>' + crit + '</dd>';
+    if (inf || unk) html += '<dt>' + (G.basis === 'proposal' ? 'Sugeridos ou em aberto' : 'Não verificados') + '</dt><dd>' + (inf + unk) + '</dd>';
+    html += '</dl>';
+    var groups = cy.nodes('[?isGroup]');
+    if (groups.length) { html += '<h2 style="margin-top:20px">Grupos</h2><div class="groups">'; groups.forEach(function (g) { html += '<button type="button" data-g="' + esc(g.id()) + '">' + esc(g.data('name')) + (g.data('view') ? ' ›' : '') + '</button>'; }); html += '</div>'; }
+    html += '<p class="empty" style="margin-top:16px">Selecione um nó para ver responsabilidade, arquivo, evidência e ligações.</p></div>';
+    detail.innerHTML = html;
+    detail.querySelectorAll('[data-g]').forEach(function (b) { b.onclick = function () { var g = cy.getElementById(b.dataset.g); if (g.data('view')) loadView(g.data('view')); else { cy.animate({ fit: { eles: g, padding: 60 }, duration: 250 }); } }; });
+  }
+  function show(n) {
+    var d = n.data(), html = '<div class="name">' + esc(d.name) + '</div>';
+    if (d.sub) html += '<div class="sub2">' + esc(d.sub) + '</div>';
+    if (d.file) html += '<div class="file">' + esc(d.file) + '</div>';
+    if (!d.isGroup) html += '<div class="tags"><span class="tag ' + esc(d.status) + '">' + esc(STATUS[d.status].split(' (')[0]) + '</span><span class="tag">' + esc(KINDS[d.kind].label.split(':')[0]) + '</span></div>';
+    if (d.evidence) html += '<h2 style="margin-top:20px">Evidência</h2><p style="margin:0;font-size:var(--fs-sm)">' + esc(d.evidence) + '</p>';
+    if (d.notes && d.notes.length) { html += '<h2 style="margin-top:20px">Notas</h2><ul>'; d.notes.forEach(function (s) { html += '<li>' + esc(s) + '</li>'; }); html += '</ul>'; }
+    var outs = n.outgoers('edge'), ins = n.incomers('edge');
+    var li = function (e, other) { return '<li><i style="border-color:' + tok(EDGES[e.data('kind')].color) + ';border-top-style:' + EDGES[e.data('kind')].style + '"></i><span><b>' + esc(other.data('name')) + '</b> <code>' + esc(e.data('rawLabel')) + '</code></span></li>'; };
+    if (outs.length) { html += '<h2 style="margin-top:20px">Sai para</h2><ul class="edges">'; outs.forEach(function (e) { html += li(e, e.target()); }); html += '</ul>'; }
+    if (ins.length) { html += '<h2 style="margin-top:20px">Recebe de</h2><ul class="edges">'; ins.forEach(function (e) { html += li(e, e.source()); }); html += '</ul>'; }
+    html += '<div class="row">';
+    if (!d.isGroup) html += '<button type="button" class="btn" id="btnFocus" aria-pressed="' + (focused === n.id()) + '">Isolar vizinhança</button>';
+    if (d.view) html += '<button type="button" class="btn" id="btnView">Abrir vista ›</button>';
+    html += '</div>';
+    detail.innerHTML = html;
+    var bf = $('btnFocus'); if (bf) bf.onclick = function () { toggleFocus(n); bf.setAttribute('aria-pressed', focused === n.id()); };
+    var bv = $('btnView'); if (bv) bv.onclick = function () { loadView(d.view); };
+  }
+  function toggleFocus(n) {
+    if (focused === n.id()) { focused = null; cy.elements().removeClass('gone'); applyFilters(); cy.fit(undefined, 40); return; }
+    focused = n.id(); var keep = n.closedNeighborhood().union(n.ancestors());
+    cy.elements().not(keep).addClass('gone'); keep.removeClass('dim'); cy.animate({ fit: { eles: keep, padding: 60 }, duration: 250 });
+  }
+  function clearSel() { cy.nodes().removeClass('sel'); if (focused) { focused = null; cy.elements().removeClass('gone'); applyFilters(); } showSummary(); }
+  cy.on('tap', 'node', function (ev) { cy.nodes().removeClass('sel'); ev.target.addClass('sel'); show(ev.target); });
+  cy.on('dbltap', 'node', function (ev) { if (ev.target.data('view')) loadView(ev.target.data('view')); });
+  cy.on('tap', function (ev) { if (ev.target === cy) clearSel(); });
+  cy.on('mouseover', 'node[!isGroup]', function (ev) { var nb = ev.target.closedNeighborhood(); cy.elements().not(nb).not('[?isGroup]').addClass('dim'); nb.edges().addClass('hl'); });
+  cy.on('mouseout', 'node', function () { cy.elements().removeClass('hl'); cy.elements().removeClass('dim'); applyFilters(); });
+
+  // ---------- controls
+  document.querySelectorAll('[data-level]').forEach(function (b) { b.onclick = function () {
+    level = +b.dataset.level; document.querySelectorAll('[data-level]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    cy.style().update(); layout(true);
+  }; });
+  $('btnFit').onclick = function () { cy.fit(undefined, 40); };
+  $('btnDir').onclick = function () { dir = dir === 'RIGHT' ? 'DOWN' : 'RIGHT'; layout(true); };
+  $('q').addEventListener('input', applyFilters);
+  document.addEventListener('keydown', function (ev) {
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') { if (ev.key === 'Escape') { $('q').value = ''; applyFilters(); $('q').blur(); } return; }
+    if (ev.key === 'f') cy.fit(undefined, 40);
+    if (ev.key === 'Escape') clearSel();
+    if (ev.key === '/') { ev.preventDefault(); $('q').focus(); }
+  });
+  if (matchMedia('(pointer: coarse)').matches) $('hint').hidden = true;
+
+  loadView(views[0].id);
+})();
+</script>

@@ -6,7 +6,12 @@ Files:
 
 - `SKILL.md`: when to draw, when not to, how to investigate a repo before drawing it, output contract, visual language.
 - `examples.md`: generic versus annotated versions of the same diagrams.
-- `formats.md`: Mermaid, D2, Graphviz, SVG, HTML and ASCII notes, and how to detect what renders.
+- `formats.md`: the templates, their slots and schema, delivery per tool, Mermaid conventions.
+- `design.md`: the design system (type, semantic color tokens, surfaces, levels of information, theme rules).
+- `templates/graph.html`: interactive explorer (Cytoscape + ELK): views, three information levels, filters, search, inspector with evidence, theme toggle.
+- `templates/svg.html`: composed SVG for comparisons, timelines and annotated screens, with tooltip, inspector and theme toggle.
+- `templates/mermaid.html`: Mermaid viewer themed from the same tokens.
+- `templates/_tokens.css`, `scripts/sync-tokens.py`, `scripts/contrast.py`: the token source and its checks.
 
 Install (Claude Code, following the `~/.agents/skills` convention used on this machine):
 
@@ -14,4 +19,4 @@ Install (Claude Code, following the `~/.agents/skills` convention used on this m
 ln -sfn "$PWD" ~/.agents/skills/visual-thinking && ln -sfn ../../.agents/skills/visual-thinking ~/.claude/skills/visual-thinking
 ```
 
-Validation: the skill was built with the Superpowers writing-skills loop. Baseline runs without the skill produced ASCII-only, single crowded diagrams and prose that restated the drawing. With the skill, agents investigate the repo, pick Mermaid, label edges, tag inferences, deliver a file when the user will share the result, and answer one-hop questions in prose without a diagram.
+Validation: the skill was built with the Superpowers writing-skills loop. Baseline runs without the skill produced ASCII-only, single crowded diagrams and prose that restated the drawing. With the skill, agents investigate the repo, build the interactive HTML page, label edges, tag inferences, deliver a file when the user will share the result, and answer one-hop questions in prose without a diagram.

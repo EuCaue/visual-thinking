@@ -1,0 +1,225 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recibo por email</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!--
+  visual-thinking :: Mermaid viewer (sequence, state, timeline, mind map)
+  Fill ONLY: <title>, <h1>, the <pre id="src"> source and the annotation list. See formats.md.
+-->
+<style>
+/* TOKENS:BEGIN  (source of truth: templates/_tokens.css; synced into each template by scripts/sync-tokens.py)
+   Design system of visual-thinking. Semantic tokens only; components never use literal colors.
+   Light is the base; dark redefines the same tokens. Both tested for contrast (design.md). */
+:root {
+  /* type */
+  --font-ui: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --fs-xs: 12px; --fs-sm: 12.5px; --fs-md: 14px; --fs-lg: 16px; --fs-xl: 20px;
+  --lh-tight: 1.25; --lh-body: 1.5;
+  --track-caps: 0.05em;
+
+  /* space (4px base) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+
+  /* shape: one radius scale */
+  --r-control: 6px; --r-node: 8px; --r-panel: 10px;
+
+  /* surfaces */
+  --bg: #f6f7f9;            /* page ground, cool off-white */
+  --bg-elev: #ffffff;       /* panels */
+  --bg-inset: #eceff3;      /* wells, chips, group boxes */
+  --line: #d6dbe3;          /* hairlines */
+  --line-strong: #aeb7c4;   /* borders that must read */
+
+  /* text */
+  --fg: #171a20;
+  --fg-muted: #5a6373;      /* ≥ 4.5:1 on --bg and --bg-elev */
+  --fg-faint: #7c8696;      /* large text or non-essential only */
+
+  /* accent: one hue, used for selection, focus, links, control edges */
+  --accent: #2f5fc7;
+  --accent-fg: #ffffff;
+  --accent-soft: #e4ebfa;
+  --focus: #2f5fc7;
+
+  /* semantic state */
+  --ok: #257a4c;  --ok-soft: #e1f2e8;
+  --warn: #9a6207; --warn-soft: #f8edd5;
+  --danger: #b5382f; --danger-soft: #f9e3e0;
+
+  /* diagram: node kinds (fill, stroke) */
+  --n-entry-fill: var(--ok-soft);       --n-entry-stroke: var(--ok);
+  --n-component-fill: var(--accent-soft); --n-component-stroke: var(--accent);
+  --n-external-fill: var(--bg-inset);   --n-external-stroke: var(--line-strong);
+  --n-store-fill: var(--warn-soft);     --n-store-stroke: var(--warn);
+  --n-decision-fill: var(--bg-elev);    --n-decision-stroke: var(--accent);
+  --n-critical-fill: var(--danger-soft); --n-critical-stroke: var(--danger);
+  --n-group-fill: #ffffff;              --n-group-stroke: var(--line);
+
+  /* diagram: edge kinds */
+  --e-data: var(--warn);
+  --e-control: var(--accent);
+  --e-event: var(--ok);
+  --e-error: var(--danger);
+  --e-muted: var(--line-strong);
+
+  /* motion */
+  --t-fast: 140ms cubic-bezier(0.2, 0, 0, 1);
+
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1216; --bg-elev: #161a20; --bg-inset: #1d222a;
+    --line: #2a303a; --line-strong: #4a5363;
+    --fg: #e7eaef; --fg-muted: #a3acba; --fg-faint: #7f8896;
+    --accent: #8fb0f3; --accent-fg: #0f1216; --accent-soft: #1d2a44; --focus: #8fb0f3;
+    --ok: #6cc695; --ok-soft: #16301f;
+    --warn: #e0b35a; --warn-soft: #332a12;
+    --danger: #ef8a7f; --danger-soft: #3a1c19;
+    --n-group-fill: #13171d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1216; --bg-elev: #161a20; --bg-inset: #1d222a;
+  --line: #2a303a; --line-strong: #4a5363;
+  --fg: #e7eaef; --fg-muted: #a3acba; --fg-faint: #7f8896;
+  --accent: #8fb0f3; --accent-fg: #0f1216; --accent-soft: #1d2a44; --focus: #8fb0f3;
+  --ok: #6cc695; --ok-soft: #16301f;
+  --warn: #e0b35a; --warn-soft: #332a12;
+  --danger: #ef8a7f; --danger-soft: #3a1c19;
+  --n-group-fill: #13171d;
+  color-scheme: dark;
+}
+
+/* base: browser surfaces carry the design too */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--fg); font: var(--fs-md)/var(--lh-body) var(--font-ui); -webkit-font-smoothing: antialiased; }
+::selection { background: var(--accent-soft); color: var(--fg); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-control); }
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 8px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+button, input { font: inherit; color: inherit; }
+code, .mono { font-family: var(--font-data); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* TOKENS:END */
+
+body { display: flex; flex-direction: column; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-3) var(--sp-5); padding: var(--sp-4); border-bottom: 1px solid var(--line); background: var(--bg-elev); }
+.top h1 { font-size: var(--fs-xl); font-weight: 600; line-height: var(--lh-tight); flex: 1 1 320px; min-width: 0; }
+.controls { display: flex; gap: var(--sp-2); margin-left: auto; }
+.btn { background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: var(--r-control); padding: 6px 10px; font-size: var(--fs-sm); color: var(--fg); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast); }
+.btn:hover { background: var(--bg-inset); border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: 0; }
+#view { overflow: hidden; cursor: grab; position: relative; touch-action: none; }
+#view:active { cursor: grabbing; }
+#stage { transform-origin: 0 0; position: absolute; left: 0; top: 0; }
+#stage svg { max-width: none !important; height: auto; display: block; }
+aside { border-left: 1px solid var(--line); background: var(--bg-elev); overflow: auto; padding: var(--sp-4); }
+aside h2 { font-size: var(--fs-xs); font-weight: 600; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--fg-muted); margin-bottom: var(--sp-2); }
+ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var(--fs-sm); }
+pre#src { display: none; }
+.toast { position: absolute; left: 50%; bottom: var(--sp-4); transform: translateX(-50%); background: var(--bg-elev); color: var(--fg); border: 1px solid var(--line-strong); padding: 6px 12px; border-radius: var(--r-control); font-size: var(--fs-sm); opacity: 0; transition: opacity var(--t-fast); pointer-events: none; }
+.toast.on { opacity: 1; }
+@media (max-width: 820px) { main { grid-template-columns: 1fr; grid-template-rows: minmax(300px, 1fr) auto; } aside { border-left: 0; border-top: 1px solid var(--line); max-height: 40vh; } .controls { margin-left: 0; } }
+</style>
+
+<header class="top">
+  <h1 id="title">Pagamento confirmado gera email de recibo via fila</h1>
+  <div class="controls">
+    <button type="button" class="btn" id="fit" title="Ajustar à tela (f)">Ajustar</button>
+    <button type="button" class="btn" id="copy" title="Copiar fonte Mermaid">Copiar fonte</button>
+    <button type="button" class="btn" id="btnTheme" title="Tema: automático, claro, escuro" aria-live="polite">Tema: auto</button>
+  </div>
+</header>
+<main>
+  <div id="view"><div id="stage"></div><div class="toast" id="toast">Fonte copiada</div></div>
+  <aside>
+    <h2>Anotações</h2>
+    <ul id="annotations">
+      <li>API responde 200 ao Stripe antes do email sair.</li>
+      <li>Retry mora na fila: 5 tentativas, backoff exponencial 2s (src/workers/queue.js).</li>
+      <li>Inferido: evento duplicado do Stripe gera dois emails.</li>
+    </ul>
+  </aside>
+</main>
+
+<pre id="src">
+sequenceDiagram
+  participant S as Stripe
+  participant W as webhooks.js
+  participant DB as Postgres
+  participant Q as Redis fila email
+  participant K as emailWorker
+  S->>W: POST payment_intent.succeeded
+  W->>W: verifyWebhook
+  Note over W: assinatura inválida: 400, fim
+  W->>DB: updateOrder(status = paid)
+  W->>Q: add job send
+  W-->>S: 200
+  Q->>K: job send (5 tentativas)
+  K->>DB: getOrder, getUser
+  K->>K: sendMail via SMTP
+</pre>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+  const root = document.documentElement, $ = id => document.getElementById(id);
+  const tok = n => getComputedStyle(root).getPropertyValue(n).trim();
+  const src = $('src').textContent.trim();
+  const stage = $('stage'), view = $('view');
+  let s = 1, tx = 0, ty = 0, svgEl = null;
+
+  // theme: system until picked; persisted when storage works
+  const THEMES = ['auto', 'light', 'dark'];
+  const readTheme = () => { try { return localStorage.getItem('vt-theme') || 'auto'; } catch (e) { return 'auto'; } };
+  let theme = readTheme();
+  const isDark = () => root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  async function applyTheme(t) {
+    if (t === 'auto') root.removeAttribute('data-theme'); else root.dataset.theme = t;
+    $('btnTheme').textContent = 'Tema: ' + ({ auto: 'auto', light: 'claro', dark: 'escuro' })[t];
+    try { localStorage.setItem('vt-theme', t); } catch (e) {}
+    await render();
+  }
+  $('btnTheme').onclick = () => { theme = THEMES[(THEMES.indexOf(theme) + 1) % 3]; applyTheme(theme); };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (theme === 'auto') render(); });
+
+  async function render() {
+    mermaid.initialize({ startOnLoad: false, securityLevel: 'loose', fontFamily: tok('--font-ui'),
+      theme: 'base', themeVariables: {
+        darkMode: isDark(), background: tok('--bg'), fontFamily: tok('--font-ui'), fontSize: '13px',
+        primaryColor: tok('--accent-soft'), primaryTextColor: tok('--fg'), primaryBorderColor: tok('--accent'),
+        secondaryColor: tok('--bg-inset'), tertiaryColor: tok('--bg-elev'), lineColor: tok('--fg-muted'), textColor: tok('--fg'),
+        noteBkgColor: tok('--warn-soft'), noteTextColor: tok('--fg'), noteBorderColor: tok('--warn'),
+        actorBkg: tok('--bg-elev'), actorBorder: tok('--line-strong'), actorTextColor: tok('--fg'), actorLineColor: tok('--line-strong'),
+        signalColor: tok('--fg-muted'), signalTextColor: tok('--fg'), labelBoxBkgColor: tok('--bg-inset'), labelBoxBorderColor: tok('--line-strong'), labelTextColor: tok('--fg'), loopTextColor: tok('--fg'),
+        activationBkgColor: tok('--accent-soft'), activationBorderColor: tok('--accent'), sequenceNumberColor: tok('--accent-fg'),
+        edgeLabelBackground: tok('--bg'), clusterBkg: tok('--bg-inset'), clusterBorder: tok('--line'), titleColor: tok('--fg')
+      } });
+    const { svg } = await mermaid.render('d' + Date.now(), src);
+    stage.innerHTML = svg; svgEl = stage.querySelector('svg'); fit();
+  }
+  const apply = () => { stage.style.transform = `translate(${tx}px,${ty}px) scale(${s})`; };
+  function fit() {
+    if (!svgEl) return;
+    const b = svgEl.getBBox(), vw = view.clientWidth, vh = view.clientHeight;
+    svgEl.setAttribute('width', b.width + 24); svgEl.setAttribute('height', b.height + 24);
+    s = Math.min(vw / (b.width + 64), vh / (b.height + 64), 1.6); tx = (vw - (b.width + 24) * s) / 2; ty = (vh - (b.height + 24) * s) / 2; apply();
+  }
+  view.addEventListener('wheel', e => { e.preventDefault(); const k = e.deltaY < 0 ? 1.1 : 0.9; const r = view.getBoundingClientRect(); const mx = e.clientX - r.left, my = e.clientY - r.top; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s *= k; apply(); }, { passive: false });
+  let drag = null;
+  view.addEventListener('pointerdown', e => { drag = { x: e.clientX - tx, y: e.clientY - ty }; view.setPointerCapture(e.pointerId); });
+  view.addEventListener('pointermove', e => { if (!drag) return; tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(); });
+  view.addEventListener('pointerup', () => { drag = null; });
+  $('fit').onclick = fit;
+  $('copy').onclick = async () => { try { await navigator.clipboard.writeText(src); const t = $('toast'); t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1400); } catch (e) { const ta = document.createElement('textarea'); ta.value = src; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); } };
+  document.addEventListener('keydown', e => { if (e.key === 'f') fit(); });
+  addEventListener('resize', fit);
+  await applyTheme(theme);
+</script>

@@ -1,101 +1,91 @@
-# Formats and media
+# Formats and templates
 
-## Detect what renders
+The deliverable is a page built from `templates/`. All three templates share one design system (`templates/_tokens.css`, explained in [design.md](design.md)): IBM Plex Sans and Mono, semantic color tokens, light and dark themes with a persisted toggle, one radius scale, focus states, reduced motion. Fill the slots; never restyle.
 
-| Surface | Renders | Use |
-|---|---|---|
-| Chat that renders Markdown with Mermaid (claude.ai, GitHub, most docs sites) | fenced `mermaid` | Mermaid inline |
-| Harness with an inline widget tool (`show_widget` or similar) | SVG, HTML | hand-written SVG for custom layouts, Mermaid otherwise in a file |
-| Harness with a file-send or artifact tool that lists Mermaid, SVG, HTML as renderable | files | write `.md`, `.svg` or `.html`, then send or publish |
-| Terminal only, no renderer | text | ASCII, last resort |
-| `mmdc`, `d2`, `dot` on PATH (check with `command -v`) | files to SVG | only when the user asks for an exported image or the repo already stores diagrams that way |
+## Delivery
 
-When the user needs to keep, share, or edit the result, write a file even if the chat also renders it.
+| Tool present | Do |
+|---|---|
+| Artifact or similar publish tool | Publish the page (title: short name; icon: `diagram`). Give the link. |
+| File-send tool that renders HTML inline | Write the page to a temp directory, send it with inline rendering. |
+| Browser tool | Open the page once; check light and dark with the theme button; click a node. |
+| None of the above | Write to `docs/diagrams/<slug>.html` in the project and give the path. |
 
-## Mermaid
+The templates are HTML fragments (no `doctype`, `html`, `head`, `body` tags) so the artifact skeleton can wrap them; browsers open them directly as files too. Scripts and fonts load from cdnjs, jsdelivr and Google Fonts with pinned versions, which the artifact CSP allows.
 
-Default when it renders. Keep one diagram under about 12 nodes; split otherwise.
+## templates/graph.html: interactive explorer
 
-```mermaid
-flowchart LR
-  %% one class per meaning, reused across every diagram in one answer:
-  %% ext = external system, store = data store or queue,
-  %% crit = critical or failure point, inferred = not verified in code
-  classDef ext fill:#f4f4f4,stroke:#888,stroke-dasharray:4 2
-  classDef store fill:#eef3ff,stroke:#4a6fd6
-  classDef crit stroke:#c0392b,stroke-width:2px
-  classDef inferred stroke-dasharray:2 2,color:#777
+Cytoscape + ELK layered layout. Views as tabs, three information levels, kind filters, search, direction toggle, theme toggle, inspector with responsibility, file, status, evidence, notes and edges, neighborhood isolation, keyboard (`f` fit, `/` search, `Esc` clear).
 
-  subgraph P1["Processo: API (src/api/server.js)"]
-    A[orders.js<br/>cria pedido]
-    B{total ok?}
-  end
-  X[Stripe]:::ext
-  D[(Postgres)]:::store
-  A -->|priceItems| D
-  A --> B
-  B -->|sim: createIntent| X
-  B -->|"não: 400 'empty cart'"| E[resposta 400]:::crit
-```
+Fill only `<title>` and the JSON inside `<script id="graph" type="application/json">`:
 
-Conventions:
-
-- `subgraph` for a boundary (process, service, host). Title names the boundary and its file.
-- `[(...)]` for stores and queues, `{...}` for decisions, `[...]` for components, `((...))` for events.
-- Quote labels that contain `:`, `(`, `)` or `/`.
-- `;` ends a statement anywhere, including inside a sequence message or an edge label. Use `,` instead.
-- `%%` comments go on their own line.
-- Line breaks inside a node: `<br/>`.
-- `sequenceDiagram` for time order; `Note over X: ...` for failure exits; `-->>` for replies.
-- `stateDiagram-v2` for lifecycles; put guards on transitions (`pending --> paid : webhook ok`).
-- `timeline` for calendar order; `mindmap` for loose ideas; `classDiagram` only for real type relations.
-- Direction: `LR` for flows, `TB` for layers and trees.
-
-## D2
-
-Use when Mermaid layout fights you (nested boundaries, many edges) and the result will be rendered to a file. Needs `d2` on PATH.
-
-```d2
-direction: right
-api: "API\nsrc/api/server.js" { orders; webhooks }
-redis: Redis { shape: cylinder }
-worker: emailWorker
-api.webhooks -> redis: enfileira job
-redis -> worker: job send
-```
-
-Render: `d2 diagram.d2 diagram.svg`.
-
-## Graphviz
-
-Use for dependency graphs and anything with automatic layout of many edges. Needs `dot` on PATH.
-
-```dot
-digraph deps {
-  rankdir=LR; node [shape=box, fontname="Helvetica"];
-  "orders.js" -> "db/index.js" [label="priceItems, insertOrder"];
-  "orders.js" -> "services/payments.js" [label="createIntent"];
+```json
+{
+  "title": "Pedido pago gera email via fila, em dois processos",
+  "subtitle": "shop-api · lido em src/ e docs/ · 2026-10-10",
+  "basis": "code",
+  "views": [
+    {
+      "id": "overview", "title": "Visão geral", "direction": "RIGHT",
+      "groups": [ { "id": "api", "label": "Processo API", "file": "src/api/server.js", "view": "api" } ],
+      "nodes": [
+        { "id": "hooks", "label": "POST /webhooks/stripe", "sub": "marca pago, enfileira recibo",
+          "kind": "critical", "group": "api", "file": "src/api/webhooks.js", "status": "verified",
+          "evidence": "webhooks.js:12-16 não consulta event.id antes de enfileirar (inferido).",
+          "notes": ["Evento duplicado gera dois emails."] },
+        { "id": "redis", "label": "Redis", "sub": "fila BullMQ email", "kind": "queue", "status": "verified" }
+      ],
+      "edges": [ { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6 } ],
+      "annotations": [ "API responde 200 ao Stripe antes do email sair." ]
+    },
+    { "id": "api", "title": "Processo API", "direction": "DOWN", "nodes": [], "edges": [] }
+  ]
 }
 ```
 
-Render: `dot -Tsvg deps.dot -o deps.svg`.
+A single-view page may put `direction`, `groups`, `nodes`, `edges`, `annotations` at the top level instead of `views`.
 
-## Hand-written SVG
+Rules:
 
-Use for layouts the generators cannot express: timelines with bands, annotated screens, side-by-side with aligned rows.
+- `basis`: `code` (read in the repo), `docs` (per documentation or spec), `proposal` (designed, not built). It changes how status tags read: verified becomes "Verificado no código", "Conforme documentação" or "Decidido"; unknown becomes "Desconhecido", "Não documentado" or "Em aberto".
+- `direction`: `RIGHT` for flows, `DOWN` for layers and trees.
+- `groups`: one per process, service or host. `label` names the boundary; `file` its entry point; `view` links to the view that details it (double-click or the inspector button opens it).
+- `nodes.kind`: `entry`, `component`, `external`, `store`, `queue`, `decision`, `error`, `critical`. `status`: `verified`, `inferred`, `unknown`. `sub` is required. `file` is the path the reader opens. `evidence` says what proves the claim or why it is inferred. `notes` hold failure modes.
+- `edges.kind`: `data`, `control`, `event`, `error`. `label` is required. `step` numbers edges for flows and shows at level 3.
+- One view under 12 nodes plus groups. Split into views before crossing edges.
+- Ids: letters, digits, `_`. Node ids are per view. Strings may hold any Unicode; escape quotes.
 
-- `viewBox="0 0 W H"`, CSS `max-width:100%; height:auto`. Size to the content.
-- Strokes and text in `currentColor`; one literal hue for the element that carries meaning.
-- Arrowheads via `<defs><marker>` and `marker-end="url(#arrow)"`.
-- Text 11 to 13px at drawn scale, short labels; sentences go in the caption.
-- Align to a grid; shared baselines, even gaps.
-- No `<script>`, `<style>` blocks, `<foreignObject>`, or external images.
-- Wrap in `<figure>` with `<figcaption>` stating the one claim the figure makes.
+## templates/svg.html: composed drawing
 
-## HTML/CSS
+Hand-placed SVG on an 8px grid with the design system's classes, a hover tooltip and click-to-inspect for any element with `data-name`, an optional criteria table, annotations, theme toggle. Use it for comparisons (same layout per option, the differing edge gets class `diff`), timelines with bands, annotated screens, or to embed an SVG produced by `d2` or `dot`.
 
-Only when interaction adds something the reader uses: toggling layers, stepping through a sequence, hovering for file references. Static content stays Mermaid or SVG.
+Fill `<title>`, `<h1>`, the `<figure>` (SVG, `viewBox` sized to content, `figcaption` stating the one claim), the table and the annotation list.
 
-## ASCII
+Classes: `.node.entry|component|external|store|critical` (add `.inferred` for dashed), `.edge.data|control|event|error` (add `.diff` to thicken the edge that differs), `.panel` and `.panel-lbl` for option boxes, `.band` for a time band, `.lbl`, `.lbl-muted`, `.lbl-mono`, `.elbl` for edge labels with a background halo. Arrowheads: `marker-end` is set by the edge class. Interactivity: `data-name`, `data-sub`, `data-file`, `data-note` on a `<g>`.
 
-Last resort. Rules: monospace fence, boxes aligned on a column grid, every arrow labeled on the same line, one diagram per fence, under 60 columns wide so it survives narrow panes.
+Geometry: nodes 56px tall, widths in multiples of 8, 24px between a node and its label, 80px or more between columns. Text 12px for names, 11px for secondary labels. Nothing crosses; move a node before crossing an edge.
+
+## templates/mermaid.html: viewer
+
+Renders one Mermaid source with pan, zoom, copy-source and theme toggle; Mermaid theme variables come from the tokens, so both themes match the other templates. Fill `<title>`, `<h1>`, `<pre id="src">` and the annotation `<ul>`.
+
+Source conventions:
+
+- `sequenceDiagram` for time order; `Note over X: ...` for failure exits; `-->>` for replies; `alt`/`else` for branches; `participant W as webhooks.js<br/>POST /webhooks/stripe` to carry the file.
+- `stateDiagram-v2` for lifecycles with guards on transitions (`pending --> paid : webhook ok`).
+- `timeline` for calendar order; `mindmap` for loose ideas.
+- `;` ends a statement anywhere, including inside a message or label. Use `,` instead.
+- Quote labels that contain `:`, `(`, `)` or `/`. `%%` comments on their own line.
+- Under about 12 participants or states; split otherwise.
+
+## Mermaid in Markdown docs
+
+Only when the user asks for a `.md` the repo will render (GitHub, docs site). Write the same diagram as a fenced `mermaid` block in that file, in addition to the page, never instead of it. Use `subgraph` for boundaries, `[(...)]` for stores, `{...}` for decisions, `<br/>` for line breaks, `LR` for flows and `TB` for layers.
+
+## D2 and Graphviz
+
+`d2 in.d2 out.svg` and `dot -Tsvg in.dot -o out.svg` need a binary on PATH (`command -v d2`, `command -v dot`). Use them for large dependency graphs or when the repo already keeps diagrams in that format. Paste the resulting `<svg>` into `templates/svg.html` and add `data-name` to the nodes that matter, so the page keeps the inspector and the theme.
+
+## Maintenance
+
+`python3 scripts/sync-tokens.py` copies `_tokens.css` into the templates; `--check` reports drift. `python3 scripts/contrast.py` checks the token pairs in both themes. ASCII diagrams are not a deliverable.

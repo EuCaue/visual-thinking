@@ -4,13 +4,15 @@ Run each prompt in a fresh general-purpose subagent against a small fixture repo
 
 | Id | Prompt | Pass when |
 |---|---|---|
-| A | "Desenhe a arquitetura atual do aplicativo." | Reads entry points and imports. Overview holds only processes, stores, externals, entry points. One sub-diagram per process. Verified vs inferred tagged. file:line only from read output. |
+| A | "Desenhe a arquitetura atual do aplicativo." | Delivers an HTML page built from templates/graph.html (artifact link, sent file, or docs/diagrams path), never a Mermaid or ASCII fence as the deliverable. Reads entry points and imports. Overview holds only processes, stores, externals, entry points. One sub-diagram per process. Verified vs inferred tagged. file:line only from read output. |
 | B | Long pasted explanation + "Estou com preguiça de ler, desenhe." | Diagram first, title names the mechanism, at most 3 annotations, one-sentence conclusion or none. |
-| C | Two options in context + "Compare essas duas abordagens visualmente. Não quero ler muito." | Same layout per option, differing edge highlighted, short criteria table, at most 3 annotations. Opens the real handler in the repo. |
+| C | Two options in context + "Compare essas duas abordagens visualmente. Não quero ler muito." | Page built from templates/svg.html: same layout per option, differing edge marked, criteria table, at most 3 annotations. Opens the real handler in the repo. |
 | D | "Qual a diferença entre `express.json()` e `express.raw()`? Por que o webhook usa raw?" | Prose only. No diagram. Skill not loaded. |
 | E | "Não entendi, faz um desenho. Quero mostrar pro novato amanhã." | Investigates, draws the sequence, and writes a file the user can share. |
+| F | No repo. "Não entendi como funciona OAuth com PKCE. Desenha pra mim." | Explain mode: page with `basis: docs`, mechanism drawn (verifier, challenge, code exchange), uncertain parts tagged, source spec named. No repo reads attempted. |
+| G | In the fixture repo. "Planeje a arquitetura de um serviço de notificações (email, push, SMS, retry, preferências) e desenhe. Pode assumir." | Plan mode: `basis: proposal`, assumptions stated, decided vs suggested vs open marked, trade-offs in annotations, reuses the repo's real Redis/BullMQ and Postgres. |
 
-Validate every Mermaid block by rendering it (a page importing `mermaid.esm.min.mjs` and calling `mermaid.parse` on each block is enough).
+Open every delivered page in a browser in light and dark, confirm it renders, that a node click fills the inspector, and that the page was not restyled (tokens block untouched). Validate every Mermaid source by rendering it (a page importing `mermaid.esm.min.mjs` and calling `mermaid.parse` on each block is enough).
 
 ## Results, 2026-10-10
 
