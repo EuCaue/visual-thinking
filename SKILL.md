@@ -55,7 +55,7 @@ Match complexity to the subject: a three-node flow is one small graph or one com
 ## Build the page
 
 1. Copy the template from this skill's `templates/` directory. Fill only the marked slots: the JSON in `<script id="graph">` (graph), the `<figure>` SVG plus annotations and table (svg), the `<h1>`, `<pre id="src">` and annotations (mermaid). Set `<title>` to a short name. Do not restyle: tokens, type, theme, controls and inspector are the design system. Schema and slot rules: [formats.md](formats.md).
-2. Put information on three levels and keep nothing essential behind a click: level 1 names and groups, level 2 responsibilities and edge labels (default), level 3 files, steps and status. Per node: `sub` (responsibility), `file`, `status`, `evidence` for anything inferred, `notes` for failure modes.
+2. Write a `summary` for the page and for each view: one or two sentences on what it does and for whom, in the user's words. Put information on three levels and keep nothing essential behind a click: level 1 names and groups, level 2 responsibilities and edge labels (default), level 3 files, steps and status. Per node: `sub` (responsibility), `file`, `status`, `evidence` for anything inferred, `notes` for failure modes.
 3. Verify: open the page in the browser tool when one exists and look once at light and dark (the theme button cycles them); click a node and check the inspector fills; otherwise at least check the JSON parses. Every control on the page works because the template implements it; do not add controls the template does not have.
 4. Set `basis` at the top of the JSON (`code`, `docs`, `proposal`); the page words its status tags from it.
 5. Deliver, in this order of preference:
@@ -88,7 +88,7 @@ The overview is a map, never the complete drawing, even when the whole system wo
 
 ## Visual language
 
-- Every edge carries a label: a verb, a payload, or a timing (`enfileira job`, `POST /orders`, `a cada 30s`).
+- Every edge carries a short label, at most 4 words: a verb, a payload, or a timing (`enfileira job`, `POST /orders`, `a cada 30s`). Longer explanations go in the edge's `detail`, which the inspector shows.
 - Every node carries a responsibility (`sub`), not only a name (`emailWorker: consome fila, envia SMTP`).
 - Kinds carry meaning: `entry`, `component`, `external`, `store`, `queue`, `decision`, `error`, `critical`. Edge kinds: `data`, `control`, `event`, `error`. The design system colors them; do not invent colors or add a legend entry the tokens do not define.
 - Generous spacing, aligned groups, no crossing edges; split into views before crossing.

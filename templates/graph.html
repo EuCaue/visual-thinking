@@ -169,6 +169,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
 .summary .groups button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 4px 0; color: var(--accent); cursor: pointer; font-size: var(--fs-sm); }
 .summary .groups button:hover { text-decoration: underline; text-underline-offset: 3px; }
 .empty { color: var(--fg-muted); font-size: var(--fs-sm); }
+.prose { margin: 0; font-size: var(--fs-sm); line-height: var(--lh-body); max-width: 60ch; }
 @media (max-width: 820px) {
   main { grid-template-columns: 1fr; grid-template-rows: minmax(300px, 1fr) auto; }
   aside { border-left: 0; border-top: 1px solid var(--line); max-height: 45vh; }
@@ -211,9 +212,12 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
 {
   "title": "Pedido pago gera email via fila, em dois processos",
   "subtitle": "shop-api · lido em src/ e docs/ · 2026-10-10",
+  "basis": "code",
+  "summary": "Loja Node em dois processos: a API recebe pedidos e o webhook do Stripe; um worker separado envia o recibo por email a partir de uma fila no Redis. Postgres guarda produtos, pedidos e usuários.",
   "views": [
     {
       "id": "overview", "title": "Visão geral", "direction": "RIGHT",
+      "summary": "Caminho de um pedido: cliente cria, Stripe cobra e avisa por webhook, API marca pago e enfileira, worker envia o email.",
       "groups": [
         { "id": "api", "label": "Processo API", "file": "src/api/server.js", "view": "api" },
         { "id": "worker", "label": "Processo worker", "file": "src/workers/emailWorker.js", "view": "worker" }
@@ -236,7 +240,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
         { "from": "stripe", "to": "hooks", "label": "payment_intent.succeeded", "kind": "event", "step": 4 },
         { "from": "hooks", "to": "pg", "label": "status = paid", "kind": "data", "step": 5 },
         { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6 },
-        { "from": "redis", "to": "mail", "label": "5 tentativas, backoff 2s", "kind": "event", "step": 7 },
+        { "from": "redis", "to": "mail", "label": "job send", "kind": "event", "step": 7, "detail": "5 tentativas, backoff exponencial a partir de 2s (src/workers/queue.js)" },
         { "from": "mail", "to": "pg", "label": "getOrder, getUser", "kind": "data", "step": 8 },
         { "from": "mail", "to": "smtp", "label": "sendMail", "kind": "control", "step": 9 }
       ],
@@ -248,6 +252,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
     },
     {
       "id": "api", "title": "Processo API", "direction": "DOWN",
+      "summary": "Express com duas rotas. O corpo cru só existe na rota do webhook, porque a assinatura do Stripe é calculada sobre os bytes originais.",
       "groups": [ { "id": "srv", "label": "src/api/server.js", "file": "src/api/server.js" } ],
       "nodes": [
         { "id": "json", "label": "express.json", "sub": "parse de corpo JSON em todas as rotas", "kind": "component", "group": "srv", "file": "src/api/server.js", "status": "verified" },
@@ -276,6 +281,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
     },
     {
       "id": "worker", "title": "Processo worker", "direction": "RIGHT",
+      "summary": "Um processo com um Worker BullMQ: lê o job, busca pedido e usuário, envia o email. Retentativa vem da configuração da fila.",
       "nodes": [
         { "id": "redis", "label": "Redis", "sub": "fila email", "kind": "queue", "status": "verified" },
         { "id": "w", "label": "emailWorker.js", "sub": "Worker email, 1 handler", "kind": "entry", "file": "src/workers/emailWorker.js", "status": "verified" },
@@ -395,14 +401,17 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
         'color': tok('--fg-muted'), 'padding': '26px', 'text-margin-y': -8, 'text-margin-x': 12, 'text-wrap': 'none'
       } },
       { selector: 'edge', style: {
-        'curve-style': 'bezier', 'target-arrow-shape': 'triangle', 'arrow-scale': 1, 'width': 1.5,
+        'curve-style': 'taxi', 'taxi-direction': dir === 'DOWN' ? 'downward' : 'rightward', 'taxi-turn': '55%', 'taxi-turn-min-distance': 16,
+        'target-arrow-shape': 'triangle', 'arrow-scale': 1, 'width': 1.5,
         'line-color': function (e) { return tok(EDGES[e.data('kind')].color); }, 'target-arrow-color': function (e) { return tok(EDGES[e.data('kind')].color); },
         'line-style': function (e) { return EDGES[e.data('kind')].style; },
-        'label': function (e) { return edgeLabel(e.data()); }, 'font-family': fontData, 'font-size': 11, 'color': tok('--fg-muted'),
-        'text-background-color': tok('--bg'), 'text-background-opacity': 1, 'text-background-padding': 3, 'text-background-shape': 'roundrectangle',
-        'text-rotation': 'autorotate', 'text-margin-y': -2,
+        'label': function (e) { return edgeLabel(e.data()); }, 'font-family': fontData, 'font-size': 12, 'color': tok('--fg'),
+        'text-wrap': 'wrap', 'text-max-width': 150, 'text-rotation': 'none',
+        'text-background-color': tok('--bg-elev'), 'text-background-opacity': 1, 'text-background-padding': 4, 'text-background-shape': 'roundrectangle',
+        'text-border-width': 1, 'text-border-color': tok('--line'), 'text-border-opacity': 1,
         'transition-property': 'opacity, width', 'transition-duration': '140ms'
       } },
+      { selector: 'edge.loop, edge[source = target]', style: { 'curve-style': 'bezier' } },
       { selector: '.dim', style: { 'opacity': 0.18 } },
       { selector: 'edge.hl', style: { 'width': 2.5, 'z-index': 9 } },
       { selector: 'node.sel', style: { 'border-width': 2.5, 'border-color': tok('--accent') } },
@@ -428,16 +437,21 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
     var v = views.filter(function (x) { return x.id === id; })[0] || views[0];
     current = v; dir = v.direction || 'RIGHT'; focused = null; hiddenKinds = {};
     Array.prototype.forEach.call(viewsEl.children, function (b) { b.setAttribute('aria-selected', b.dataset.view === v.id ? 'true' : 'false'); });
-    var els = [];
-    (v.groups || []).forEach(function (g) { els.push({ data: { id: 'g_' + g.id, name: g.label, isGroup: true, file: g.file || '', view: g.view || '', sub: '' } }); });
+    var els = [], nodeIds = {}, used = {};
+    (v.nodes || []).forEach(function (n) { nodeIds[n.id] = 1; if (n.group) used[n.group] = 1; });
+    (v.groups || []).forEach(function (g) {
+      if (!used[g.id]) { console.warn('visual-thinking: group "' + g.id + '" has no nodes and was dropped'); return; }
+      els.push({ data: { id: 'g_' + g.id, name: g.label, isGroup: true, file: g.file || '', view: g.view || '', sub: g.sub || '' } });
+    });
     (v.nodes || []).forEach(function (n) {
       if (!KINDS[n.kind]) n.kind = 'component';
       els.push({ data: { id: n.id, name: n.label, sub: n.sub || '', file: n.file || '', kind: n.kind, status: n.status || 'verified',
-        notes: n.notes || [], evidence: n.evidence || '', view: n.view || '', parent: n.group ? 'g_' + n.group : undefined } });
+        notes: n.notes || [], evidence: n.evidence || '', view: n.view || '', parent: n.group && used[n.group] ? 'g_' + n.group : undefined } });
     });
     (v.edges || []).forEach(function (e, i) {
+      if (!nodeIds[e.from] || !nodeIds[e.to]) { console.warn('visual-thinking: edge ' + e.from + ' -> ' + e.to + ' references a missing node and was dropped'); return; }
       if (!EDGES[e.kind]) e.kind = 'control';
-      els.push({ data: { id: 'e' + i, source: e.from, target: e.to, rawLabel: e.label || '', kind: e.kind, step: e.step } });
+      els.push({ data: { id: 'e' + i, source: e.from, target: e.to, rawLabel: e.label || '', detail: e.detail || '', kind: e.kind, step: e.step } });
     });
     cy.elements().remove(); cy.add(els); restyle(); layout(false); buildChips(); showSummary();
     var ann = $('annotations'); var list = $('annList'); list.innerHTML = '';
@@ -481,7 +495,9 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
     var v = current, n = cy.nodes('[!isGroup]'), e = cy.edges();
     var crit = n.filter('[kind = "critical"]').length, inf = n.filter('[status = "inferred"]').length, unk = n.filter('[status = "unknown"]').length;
     var html = '<div class="summary"><div class="name">' + esc(v.title || G.title) + '</div>';
-    html += '<dl style="margin-top:12px"><dt>Nós</dt><dd>' + n.length + '</dd><dt>Ligações</dt><dd>' + e.length + '</dd>';
+    var summary = v.summary || (v === views[0] ? G.summary : '');
+    if (summary) html += '<h2 style="margin-top:16px">O que é</h2><p class="prose">' + esc(summary) + '</p>';
+    html += '<dl style="margin-top:16px"><dt>Nós</dt><dd>' + n.length + '</dd><dt>Ligações</dt><dd>' + e.length + '</dd>';
     if (crit) html += '<dt>Pontos críticos</dt><dd>' + crit + '</dd>';
     if (inf || unk) html += '<dt>' + (G.basis === 'proposal' ? 'Sugeridos ou em aberto' : 'Não verificados') + '</dt><dd>' + (inf + unk) + '</dd>';
     html += '</dl>';
@@ -499,7 +515,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
     if (d.evidence) html += '<h2 style="margin-top:20px">Evidência</h2><p style="margin:0;font-size:var(--fs-sm)">' + esc(d.evidence) + '</p>';
     if (d.notes && d.notes.length) { html += '<h2 style="margin-top:20px">Notas</h2><ul>'; d.notes.forEach(function (s) { html += '<li>' + esc(s) + '</li>'; }); html += '</ul>'; }
     var outs = n.outgoers('edge'), ins = n.incomers('edge');
-    var li = function (e, other) { return '<li><i style="border-color:' + tok(EDGES[e.data('kind')].color) + ';border-top-style:' + EDGES[e.data('kind')].style + '"></i><span><b>' + esc(other.data('name')) + '</b> <code>' + esc(e.data('rawLabel')) + '</code></span></li>'; };
+    var li = function (e, other) { return '<li><i style="border-color:' + tok(EDGES[e.data('kind')].color) + ';border-top-style:' + EDGES[e.data('kind')].style + '"></i><span><b>' + esc(other.data('name')) + '</b> <code>' + esc(e.data('rawLabel')) + '</code>' + (e.data('detail') ? '<br><span style="font-size:var(--fs-xs)">' + esc(e.data('detail')) + '</span>' : '') + '</span></li>'; };
     if (outs.length) { html += '<h2 style="margin-top:20px">Sai para</h2><ul class="edges">'; outs.forEach(function (e) { html += li(e, e.target()); }); html += '</ul>'; }
     if (ins.length) { html += '<h2 style="margin-top:20px">Recebe de</h2><ul class="edges">'; ins.forEach(function (e) { html += li(e, e.source()); }); html += '</ul>'; }
     html += '<div class="row">';
@@ -528,7 +544,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
     cy.style().update(); layout(true);
   }; });
   $('btnFit').onclick = function () { cy.fit(undefined, 40); };
-  $('btnDir').onclick = function () { dir = dir === 'RIGHT' ? 'DOWN' : 'RIGHT'; layout(true); };
+  $('btnDir').onclick = function () { dir = dir === 'RIGHT' ? 'DOWN' : 'RIGHT'; restyle(); layout(true); };
   $('q').addEventListener('input', applyFilters);
   document.addEventListener('keydown', function (ev) {
     if (document.activeElement && document.activeElement.tagName === 'INPUT') { if (ev.key === 'Escape') { $('q').value = ''; applyFilters(); $('q').blur(); } return; }

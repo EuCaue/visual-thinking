@@ -24,9 +24,11 @@ Fill only `<title>` and the JSON inside `<script id="graph" type="application/js
   "title": "Pedido pago gera email via fila, em dois processos",
   "subtitle": "shop-api · lido em src/ e docs/ · 2026-10-10",
   "basis": "code",
+  "summary": "Loja Node em dois processos: a API recebe pedidos e o webhook do Stripe; um worker separado envia o recibo por email a partir de uma fila no Redis.",
   "views": [
     {
       "id": "overview", "title": "Visão geral", "direction": "RIGHT",
+      "summary": "Caminho de um pedido: cliente cria, Stripe cobra e avisa por webhook, API marca pago e enfileira, worker envia o email.",
       "groups": [ { "id": "api", "label": "Processo API", "file": "src/api/server.js", "view": "api" } ],
       "nodes": [
         { "id": "hooks", "label": "POST /webhooks/stripe", "sub": "marca pago, enfileira recibo",
@@ -35,7 +37,7 @@ Fill only `<title>` and the JSON inside `<script id="graph" type="application/js
           "notes": ["Evento duplicado gera dois emails."] },
         { "id": "redis", "label": "Redis", "sub": "fila BullMQ email", "kind": "queue", "status": "verified" }
       ],
-      "edges": [ { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6 } ],
+      "edges": [ { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6, "detail": "BullMQ, 5 tentativas, backoff 2s" } ],
       "annotations": [ "API responde 200 ao Stripe antes do email sair." ]
     },
     { "id": "api", "title": "Processo API", "direction": "DOWN", "nodes": [], "edges": [] }
@@ -48,10 +50,11 @@ A single-view page may put `direction`, `groups`, `nodes`, `edges`, `annotations
 Rules:
 
 - `basis`: `code` (read in the repo), `docs` (per documentation or spec), `proposal` (designed, not built). It changes how status tags read: verified becomes "Verificado no código", "Conforme documentação" or "Decidido"; unknown becomes "Desconhecido", "Não documentado" or "Em aberto".
+- `summary` (top level and per view): one or two sentences saying what the system or the view does and for whom. Shown in the inspector before any node is selected. Required.
 - `direction`: `RIGHT` for flows, `DOWN` for layers and trees.
-- `groups`: one per process, service or host. `label` names the boundary; `file` its entry point; `view` links to the view that details it (double-click or the inspector button opens it).
+- `groups`: one per process, service or host, and every group holds at least one node (an empty group is dropped with a console warning). `label` names the boundary; `file` its entry point; `view` links to the view that details it (double-click or the inspector button opens it).
 - `nodes.kind`: `entry`, `component`, `external`, `store`, `queue`, `decision`, `error`, `critical`. `status`: `verified`, `inferred`, `unknown`. `sub` is required. `file` is the path the reader opens. `evidence` says what proves the claim or why it is inferred. `notes` hold failure modes.
-- `edges.kind`: `data`, `control`, `event`, `error`. `label` is required. `step` numbers edges for flows and shows at level 3.
+- `edges.kind`: `data`, `control`, `event`, `error`. `label` is required and short: at most 4 words or 28 characters (`job send`, `POST /orders`, `a cada 30s`). Anything longer goes in `detail`, shown in the inspector. `step` numbers edges for flows and shows at level 3.
 - One view under 12 nodes plus groups. Split into views before crossing edges.
 - Ids: letters, digits, `_`. Node ids are per view. Strings may hold any Unicode; escape quotes.
 
