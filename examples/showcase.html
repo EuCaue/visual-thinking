@@ -185,14 +185,14 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
 @media (max-width: 820px) {
   main { grid-template-columns: 1fr; grid-template-rows: minmax(320px, 1fr) auto; }
   aside { width: auto; border-left: 0; border-top: 1px solid var(--line); max-height: 42vh; padding: var(--sp-4); }
-  .top { flex-wrap: wrap; padding: var(--sp-4); } .float.tl { right: var(--sp-5); } .search { width: 100%; }
+  .top { flex-wrap: wrap; padding: var(--sp-4); } .top .seg { order: 3; flex: 1 1 100%; overflow-x: auto; scrollbar-width: none; } .top .seg::-webkit-scrollbar { display: none; } .top .seg button { white-space: nowrap; } .float.tl { right: var(--sp-5); } .search { width: 100%; }
 }
 
 /* ---------- drawing: every color is a token; theme change is pure CSS */
 #world { transition: opacity var(--t-base); } #world.fade { opacity: 0; }
 #canvas text { font-family: var(--font-ui); fill: var(--fg); pointer-events: none; }
 #canvas .mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
-.blk { animation: blk-in var(--d-slow) var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); }
+.blk { animation: blk-in var(--d-slow) var(--ease); }
 @keyframes blk-in { from { opacity: 0; } to { opacity: 1; } }
 .blk-title { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
 .blk-cap { font-size: 11.5px; fill: var(--fg-muted); }
@@ -1479,7 +1479,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
     var seq = ++renderSeq, v = current, lay = v.layout || {}, type = lay.type || 'stack', gap = lay.gap == null ? 44 : lay.gap, cols = lay.columns || 2;
     world.innerHTML = ''; blockPos = []; setStatus('');
     var busy = setTimeout(function () { if (seq === renderSeq) setStatus('Calculando layout…'); }, 300);
-    var groups = (v.blocks || []).map(function (b, i) { var gb = el('g', { 'class': 'blk', 'data-block': b.id || '' }, world); gb.style.setProperty('--i', i); return { b: b, g: gb }; });
+    var groups = (v.blocks || []).map(function (b, i) { var gb = el('g', { 'class': 'blk', 'data-block': b.id || '' }, world); return { b: b, g: gb }; });
     return Promise.all(groups.map(function (x) { return renderBlock(x.b, x.g); })).then(function (sizes) {
       clearTimeout(busy); if (seq !== renderSeq) return;
       var x = 0, y = 0, rowH = 0, maxW = 0, colW = 0;
