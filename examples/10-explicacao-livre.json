@@ -1,0 +1,43 @@
+{
+  "title": "Um CDN responde da borda e só vai à origem quando a cópia venceu",
+  "subtitle": "Como um cache de borda atende uma página · exemplo",
+  "basis": "docs",
+  "source": "Documentação do provedor de CDN e a RFC 9111 (HTTP Caching)",
+  "summary": "A primeira visita paga a viagem até a origem; as seguintes são servidas da borda mais próxima enquanto o TTL vale. Cache-Control decide quanto tempo, e a purga encurta esse tempo quando o conteúdo muda.",
+  "views": [
+    {
+      "id": "main", "title": "Explicação",
+      "layout": { "type": "stack", "gap": 40 },
+      "blocks": [
+        { "type": "free", "id": "f", "title": "Duas visitas à mesma página", "width": 840, "height": 420, "elements": [
+          { "type": "group", "x": 0, "y": 0, "w": 400, "h": 400, "label": "Primeira visita: cache vazio" },
+          { "type": "rect", "id": "u1", "x": 32, "y": 56, "w": 120, "h": 56, "text": "Navegador", "sub": "em São Paulo", "kind": "external" },
+          { "type": "rect", "id": "e1", "x": 240, "y": 56, "w": 128, "h": 56, "text": "Borda SP", "sub": "cache MISS", "kind": "component" },
+          { "type": "rect", "id": "o1", "x": 240, "y": 240, "w": 128, "h": 56, "text": "Origem", "sub": "na Virgínia, 140 ms", "kind": "store" },
+          { "type": "arrow", "from": "u1", "to": "e1", "label": "GET /pagina", "kind": "control" },
+          { "type": "arrow", "from": "e1", "to": "o1", "label": "GET /pagina", "kind": "control", "detail": "Só acontece quando a borda não tem cópia válida." },
+          { "type": "arrow", "from": "o1", "to": "e1", "label": "200, max-age=600", "kind": "data", "route": "curve" },
+          { "type": "badge", "x": 32, "y": 150, "text": "~180 ms", "kind": "warn" },
+          { "type": "text", "x": 32, "y": 330, "w": 340, "size": "sm", "text": "A borda guarda a resposta por 600 s, o tempo que Cache-Control pediu." },
+
+          { "type": "group", "x": 440, "y": 0, "w": 400, "h": 400, "label": "Segunda visita, 2 min depois" },
+          { "type": "rect", "id": "u2", "x": 472, "y": 56, "w": 120, "h": 56, "text": "Navegador", "sub": "qualquer um de SP", "kind": "external" },
+          { "type": "rect", "id": "e2", "x": 680, "y": 56, "w": 128, "h": 56, "text": "Borda SP", "sub": "cache HIT, age 120", "kind": "ok" },
+          { "type": "rect", "id": "o2", "x": 680, "y": 240, "w": 128, "h": 56, "text": "Origem", "sub": "não é chamada", "kind": "plain" },
+          { "type": "arrow", "from": "u2", "to": "e2", "label": "GET /pagina", "kind": "control" },
+          { "type": "arrow", "from": "e2", "to": "o2", "label": "nada", "kind": "plain", "dashed": true },
+          { "type": "badge", "x": 472, "y": 150, "text": "~12 ms", "kind": "ok" },
+          { "type": "text", "x": 472, "y": 330, "w": 340, "size": "sm", "text": "Depois de 600 s a cópia vence e a próxima visita volta ao cenário da esquerda." }
+        ] },
+        { "type": "steps", "id": "s", "title": "O que decide se a borda responde sozinha", "stepWidth": 180, "items": [
+          { "title": "Tem cópia?", "text": "a URL e as chaves de variação (Vary) batem", "kind": "decision" },
+          { "title": "Ainda vale?", "text": "age < max-age, ou revalida com ETag", "kind": "decision" },
+          { "title": "Serve da borda", "text": "HIT, latência de rede local", "kind": "ok" },
+          { "title": "Senão, busca na origem", "text": "MISS, guarda a resposta nova", "kind": "warn" }
+        ] },
+        { "type": "callout", "id": "c", "kind": "note", "text": "Purgar a URL zera o TTL na borda sem esperar os 600 s; é assim que um deploy derruba a cópia antiga antes do prazo." }
+      ],
+      "annotations": [ "Latências são valores típicos SP ↔ Virgínia; medidas reais dependem do provedor e da hora.", "stale-while-revalidate permite servir a cópia vencida enquanto busca a nova; ficou fora do desenho por simplicidade." ]
+    }
+  ]
+}

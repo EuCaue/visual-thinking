@@ -1,0 +1,371 @@
+{
+  "title": "Setembro: receita cresce, mas o churn do plano básico sobe",
+  "subtitle": "Métricas do produto, setembro de 2026 · exemplo",
+  "basis": "docs",
+  "source": "Painel financeiro e de produto, fechamento de 2026-09-30",
+  "period": "setembro de 2026, comparado com agosto",
+  "summary": "Receita recorrente e contas ativas sobem; o churn do plano básico passa de 3% e puxa o churn total. A região Sul concentra o crescimento novo.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Visão do mês",
+      "layout": {
+        "type": "grid",
+        "columns": 2,
+        "gap": 48
+      },
+      "blocks": [
+        {
+          "type": "kpi",
+          "id": "k",
+          "items": [
+            {
+              "label": "Receita recorrente",
+              "value": 184300,
+              "delta": "+6,1% vs. ago",
+              "spark": [
+                151,
+                156,
+                160,
+                163,
+                168,
+                171,
+                174,
+                178,
+                184.3
+              ],
+              "sparkUnit": " mil",
+              "prefix": "R$ "
+            },
+            {
+              "label": "Contas ativas",
+              "value": 2140,
+              "delta": "+92 no mês",
+              "spark": [
+                1820,
+                1860,
+                1905,
+                1940,
+                1980,
+                2010,
+                2048,
+                2090,
+                2140
+              ]
+            },
+            {
+              "label": "Churn mensal",
+              "value": 2.8,
+              "unit": "%",
+              "delta": "+0,5 pp",
+              "deltaKind": "danger",
+              "spark": [
+                2.4,
+                2.3,
+                2.5,
+                2.2,
+                2.3,
+                2.4,
+                2.3,
+                2.3,
+                2.8
+              ],
+              "sparkUnit": "%"
+            },
+            {
+              "label": "Ticket médio",
+              "value": 86,
+              "delta": "+R$ 2",
+              "spark": [
+                80,
+                81,
+                81,
+                82,
+                83,
+                83,
+                84,
+                84,
+                86
+              ],
+              "prefix": "R$ "
+            }
+          ],
+          "full": true
+        },
+        {
+          "type": "chart",
+          "id": "mrr",
+          "title": "Receita recorrente por plano",
+          "kind": "stackedBar",
+          "height": 240,
+          "width": 560,
+          "y": {
+            "label": "mil R$",
+            "unit": " mil"
+          },
+          "series": [
+            {
+              "name": "Básico",
+              "data": [
+                [
+                  "mai",
+                  61
+                ],
+                [
+                  "jun",
+                  62
+                ],
+                [
+                  "jul",
+                  63
+                ],
+                [
+                  "ago",
+                  64
+                ],
+                [
+                  "set",
+                  63
+                ]
+              ]
+            },
+            {
+              "name": "Pro",
+              "data": [
+                [
+                  "mai",
+                  78
+                ],
+                [
+                  "jun",
+                  81
+                ],
+                [
+                  "jul",
+                  84
+                ],
+                [
+                  "ago",
+                  87
+                ],
+                [
+                  "set",
+                  92
+                ]
+              ]
+            },
+            {
+              "name": "Enterprise",
+              "data": [
+                [
+                  "mai",
+                  24
+                ],
+                [
+                  "jun",
+                  26
+                ],
+                [
+                  "jul",
+                  27
+                ],
+                [
+                  "ago",
+                  27
+                ],
+                [
+                  "set",
+                  29
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "churn",
+          "title": "Churn por plano",
+          "kind": "line",
+          "height": 220,
+          "width": 560,
+          "marks": [
+            "line",
+            "point"
+          ],
+          "y": {
+            "label": "% de contas",
+            "unit": "%",
+            "min": 0
+          },
+          "series": [
+            {
+              "name": "Básico",
+              "data": [
+                [
+                  "mai",
+                  2.9
+                ],
+                [
+                  "jun",
+                  2.7
+                ],
+                [
+                  "jul",
+                  2.8
+                ],
+                [
+                  "ago",
+                  2.9
+                ],
+                [
+                  "set",
+                  3.6
+                ]
+              ]
+            },
+            {
+              "name": "Pro",
+              "data": [
+                [
+                  "mai",
+                  1.8
+                ],
+                [
+                  "jun",
+                  1.9
+                ],
+                [
+                  "jul",
+                  1.7
+                ],
+                [
+                  "ago",
+                  1.8
+                ],
+                [
+                  "set",
+                  1.9
+                ]
+              ]
+            },
+            {
+              "name": "Enterprise",
+              "data": [
+                [
+                  "mai",
+                  0.6
+                ],
+                [
+                  "jun",
+                  0.5
+                ],
+                [
+                  "jul",
+                  0.6
+                ],
+                [
+                  "ago",
+                  0.5
+                ],
+                [
+                  "set",
+                  0.5
+                ]
+              ]
+            }
+          ],
+          "refLines": [
+            {
+              "y": 3,
+              "label": "limite de alerta"
+            }
+          ],
+          "annotations": [
+            {
+              "x": "set",
+              "y": 3.6,
+              "text": "reajuste do básico"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "reg",
+          "title": "Contas novas por região em setembro",
+          "kind": "bar",
+          "orientation": "horizontal",
+          "width": 560,
+          "y": {
+            "label": "contas novas",
+            "unit": ""
+          },
+          "series": [
+            {
+              "name": "Novas",
+              "data": [
+                [
+                  "Sul",
+                  41
+                ],
+                [
+                  "Sudeste",
+                  29
+                ],
+                [
+                  "Nordeste",
+                  12
+                ],
+                [
+                  "Centro-Oeste",
+                  6
+                ],
+                [
+                  "Norte",
+                  4
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "src",
+          "title": "Origem das contas novas",
+          "kind": "donut",
+          "width": 200,
+          "height": 200,
+          "y": {
+            "label": "contas"
+          },
+          "series": [
+            {
+              "name": "Origem",
+              "data": [
+                [
+                  "Busca orgânica",
+                  38
+                ],
+                [
+                  "Indicação",
+                  27
+                ],
+                [
+                  "Anúncios",
+                  19
+                ],
+                [
+                  "Parcerias",
+                  8
+                ]
+              ]
+            }
+          ]
+        }
+      ],
+      "annotations": [
+        "O reajuste do plano básico entrou em 2026-09-01; o churn do mês já reflete os cancelamentos de quem não aceitou o preço novo.",
+        "Receita em R$ mil nos gráficos; valor absoluto nos indicadores."
+      ]
+    }
+  ]
+}

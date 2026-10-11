@@ -7,7 +7,9 @@ metadata:
 
 # Visual thinking
 
-Draw as the engineer who has to live with the system: a picture earns its place when it shows something the reader would otherwise assemble from prose. The representation comes from the information, never from a favorite template. The deliverable is a page the user can open, explore and share, built on one design system ([design.md](design.md)). Text in chat only adds what the drawing cannot carry.
+Draw as the engineer who has to live with the system: a picture earns its place when it shows something the reader would otherwise assemble from prose. The representation comes from the information, never from a favorite template. The deliverable is a standalone HTML page the user can open, explore and share, built on one design system ([design.md](design.md)). Text in chat only adds what the drawing cannot carry.
+
+The skill is a contract between any agent and a renderer: agent reads intent, writes a scene (JSON), the template renders it. Nothing here depends on a particular agent, harness or publishing tool.
 
 ## Decide first
 
@@ -35,8 +37,8 @@ Five prompts with five intents must produce five different pictures. If the resu
 
 | Mode | Trigger | What changes |
 |---|---|---|
-| Explain | "não entendi X", a concept, protocol or algorithm, no repo | Draw the mechanism from documentation or knowledge. `basis: "docs"`. Tag what you are not sure of as `inferred`; name the spec or doc. |
-| Document | "arquitetura atual", "como funciona aqui", a file or feature | Investigate first. `basis: "code"`. |
+| Explain | "não entendi X", a concept, protocol or algorithm, no repo | Draw the mechanism from documentation or knowledge. `basis: "docs"`. Tag what you are not sure of as `inferred`; name the spec or doc in `source`. |
+| Document | "arquitetura atual", "como funciona aqui", a file or feature | Investigate first. `basis: "code"`, `source` names the directories read, `date` the day. |
 | Plan | "planeje", "proponha", "como você faria" | One question when goal, scale or constraints are missing; otherwise state assumptions. `basis: "proposal"`: decided `verified`, suggestions `inferred`, open questions `unknown`. Trade-offs in annotations. Reuse real components where they exist. |
 | Compare | two or more options, before and after | Comparison strategies in strategy.md: matrix, aligned cards, side by side with the difference marked, bars for metrics. Never a wall of cards, never boxes and arrows. |
 | Summarize | a pasted text plus "preguiça de ler", "resume visualmente" | Draw only what the text says. Nothing added, nothing inferred beyond the text. |
@@ -52,20 +54,20 @@ Five prompts with five intents must produce five different pictures. If the resu
 
 | Template | Use for |
 |---|---|
-| `templates/canvas.html` | The default. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut), kpi, matrix, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas, graph. Views as tabs. |
-| `templates/graph.html` | A system explorer when the whole deliverable is one architecture with several process views and a deep inspector. |
-| `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts. |
-| `templates/mermaid.html` | Sequence diagrams, state machines, Gantt-like timelines. |
+| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut), kpi, matrix, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas, graph (architecture with groups, typed edges, three information levels, legend as filter). Views as tabs; one inspector per block. |
+| `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
+| `templates/mermaid.html` | Sequence diagrams and state machines. |
 
-Schemas, slots and rules: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference renders: `examples/showcase.json` (eight prompts, eight pictures; build with `python3 scripts/build-scene.py`).
+Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, ten prompts, ten different pictures (`sh scripts/build-examples.sh`).
 
 ## Build the page
 
-1. Copy the template. Fill only the marked slots (the scene JSON, the figure, or the Mermaid source) and the `<title>`. Do not restyle: tokens, type, theme, controls and inspector are the design system.
-2. Write a `summary` for the page and for each view: one or two sentences on what it shows and for whom. Every block has a `title` that says what the reader will learn, not the chart type. Edge labels at most 4 words; longer explanations go in `detail`. Groups hold at least one node.
-3. Keep nothing essential behind a click: the default view answers the question. Interaction adds depth (inspector, tooltips, filters, levels), never the core.
-4. Verify: open the page in the browser tool when one exists and look once at light and dark; click one element and check the inspector; check that the JSON parses. Then the visual check: do the blocks look different from each other and right for the data, with no overlap, no clipped text, no crossing edges?
-5. Deliver, in this order: an artifact tool (publish, give the link); a file-send tool (write to a temp directory, send with inline rendering); otherwise `docs/diagrams/<slug>.html` in the project and the path. If the user says they will show, send, present or document the result, also write it to `docs/diagrams/`.
+1. Write the scene JSON. Fill only the schema: `title` (the finding), `subtitle`, `basis`, `source`, `date`, `summary`, views, blocks. Do not restyle: tokens, type, theme, controls and inspector are the design system.
+2. Fill the three levels. Level 1 is the drawing: every block has a `title` that says what the reader learns, axes carry a label or `unit`, edges carry a label of at most 4 words, nodes carry `sub`. Level 2 and 3 are the fields the inspector reads: `note`, `detail`, `evidence`, `notes`, `text`, `source`. Write a `summary` for the page and for each view: one or two sentences on what it shows and for whom. Groups hold at least one node.
+3. Keep nothing essential behind a click: the default view answers the question. Interaction adds depth, never the core.
+4. Build: `python3 scripts/build-scene.py scene.json out.html "Title"` (standalone document). Without Python, copy the template and replace the JSON in `<script id="scene">` and the `<title>`.
+5. Verify when a browser tool exists: open the page, look once at light and dark, click one element and read the inspector, check the legend names every color and line style on screen, and that no console error appears. Then the reading test: would someone who never saw the prompt understand what is compared, measured or connected, and in what unit?
+6. Deliver with whatever the harness offers, in this order: a publish tool (use `--fragment` when the tool wraps pages in its own document; give the link); a file-send tool with inline rendering; otherwise `docs/diagrams/<slug>.html` in the project and the path. If the user says they will show, send, present or document the result, also write it to `docs/diagrams/`.
 
 The chat never carries a diagram as a code fence. Never render a static image unless asked. In Mermaid, `;` ends a statement.
 
@@ -83,8 +85,8 @@ Two separate triggers; either one means an overview view plus one view per part,
 |---|---|
 | Every request becomes nodes and edges | Run strategy.md; a comparison is a matrix or aligned cards, a trend is a line, a magnitude is bars |
 | Chart chosen by habit (pie for everything, radar for comparisons) | Anti-choices in strategy.md |
-| Restyling the template or inventing colors | Fill the slots only |
-| Unlabeled edges, nodes without responsibility | Label what moves; give every node a `sub` |
+| Restyling the template or inventing colors | Fill the schema only |
+| Unlabeled edges, nodes without responsibility, axes without unit | Label what moves; give every node a `sub`; give `y.unit` or a label |
 | Whole system in one drawing | Overview view plus one view per part |
 | Prose after the drawing repeats it | Annotations add only what the drawing cannot show |
 | Data invented to fill a chart | Ask for the numbers or leave the block out |

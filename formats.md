@@ -1,25 +1,32 @@
 # Formats and templates
 
-The deliverable is a page built from `templates/`. All four templates share one design system (`templates/_tokens.css`, explained in [design.md](design.md)): IBM Plex Sans and Mono, semantic color tokens, light and dark themes with a persisted toggle, one radius scale, focus states, reduced motion. Fill the slots; never restyle.
+The deliverable is a page built from `templates/`. The three templates share one design system (`templates/_tokens.css`, explained in [design.md](design.md)): IBM Plex Sans and Mono, semantic color tokens, light and dark themes with a persisted toggle, one radius scale, focus states, reduced motion. Fill the slots; never restyle.
 
 ## Delivery
 
+The skill assumes nothing about the agent or harness. Any agent that can write a file, and optionally open a browser or publish a page, can produce the same result.
+
 | Tool present | Do |
 |---|---|
-| Artifact or similar publish tool | Publish the page (title: short name; icon: `diagram`). Give the link. |
-| File-send tool that renders HTML inline | Write the page to a temp directory, send it with inline rendering. |
-| Browser tool | Open the page once; check light and dark with the theme button; click a node. |
-| None of the above | Write to `docs/diagrams/<slug>.html` in the project and give the path. |
+| A publish or artifact tool that wraps HTML in its own document skeleton | Build with `--fragment` (or copy the template as it is) and publish. Title: a short name. Give the link. |
+| A tool that sends or renders a file | Build the standalone page, send it with inline rendering. |
+| A browser tool | Open the page once; check light and dark with the theme button; click one element and read the inspector. |
+| None of the above | Write `docs/diagrams/<slug>.html` in the project and give the path. |
 
-The templates are HTML fragments (no `doctype`, `html`, `head`, `body` tags) so the artifact skeleton can wrap them; browsers open them directly as files too. Scripts and fonts load from cdnjs, jsdelivr and Google Fonts with pinned versions, which the artifact CSP allows.
+Build: `python3 scripts/build-scene.py scene.json out.html "Title"` injects the scene JSON into `templates/canvas.html` and wraps it as a complete document (`<!doctype html>`, `html`, `head`, `body`), so the file opens from disk or any static host. `--fragment` keeps the template as a fragment (no document tags) for publish tools that add their own skeleton. Without Python, copy the template and replace the JSON inside `<script id="scene">` and the `<title>` by hand; the fragment opens in a browser as well.
+
+The page depends on two libraries loaded from CDNs with pinned versions (d3 7.9.0 on cdnjs for scales, shapes and number and date formats; elkjs 0.9.3 on jsDelivr for graph and tree layout) and on IBM Plex from Google Fonts. No build step. Everything else (CSS, runtime, data) is inside the file. Offline, charts, trees and graphs show a one-line message instead of drawing.
 
 ## templates/canvas.html: composable canvas (default)
 
-A scene is one or more views; a view is a layout of blocks. The runtime measures text, lays out, draws in SVG, animates, and gives every page the same controls: views as a segmented control, search, zoom and fit, theme toggle, inspector with the view summary and the selected element, tooltips on data marks, scrub on line charts, legend that toggles series, level of detail on zoom, keyboard (`f`, `+`, `-`, `/`, arrows, `Esc`).
+A scene is one or more views; a view is a layout of blocks. The runtime measures text, lays out, draws in SVG, animates, and gives every page the same controls: views as a segmented control, search (`/`), zoom, fit and pinch, theme toggle, keyboard (`f`, `+`, `-`, arrows, `Esc`, `1` `2` `3` levels and `d` direction when a view holds a graph).
+
+Every block owns its inspector: the right panel (a bottom sheet on phones) shows the view summary at rest, the block's own summary when its title is clicked, and the selected element's details when something inside is clicked. A legend is computed from what was drawn (series, element kinds, connection kinds, status, marks) and filters where filtering makes sense. Hover gives the short version (tooltip), click the full one. Nothing essential hides: the drawing answers the question; the inspector adds depth.
 
 ```json
 {
-  "title": "Svelte troca runtime por build", "subtitle": "Comparação · fontes nos rodapés", "basis": "docs",
+  "title": "Svelte troca runtime por build", "subtitle": "Comparação · fontes nos rodapés",
+  "basis": "docs", "source": "Documentação oficial, benchmarks de 2025", "date": "2026-10-11", "period": "versões estáveis em out/2026",
   "summary": "Uma ou duas frases sobre o que a página mostra e para quem.",
   "views": [
     { "id": "main", "title": "Comparar", "summary": "O que esta vista responde.",
@@ -30,77 +37,38 @@ A scene is one or more views; a view is a layout of blocks. The runtime measures
 }
 ```
 
-`layout.type`: `stack` (one below the other, narrative order), `row` (side by side, for things to compare), `grid` with `columns`. Every block has `type`, `id`, `title` (what the reader learns), optional `caption` (source, scope) and `width`.
+Scene fields: `title` (the finding), `subtitle` (scope, date, source in short), `basis` (`code`, `docs`, `proposal`; sets the status vocabulary), `source`, `date`, `period` (shown under the summary), `summary`, `views`, optional top-level `annotations` for the first view.
 
-| Block | Fields | Notes |
+`layout.type`: `stack` (one below the other, narrative order), `row` (side by side, for things to compare), `grid` with `columns` (a block with `"full": true` takes a whole row). On screens under 700px every layout stacks and graphs flow top-down.
+
+Every block has `type`, `id`, `title` (what the reader learns; it is also the click target for the block inspector), optional `caption` (source, scope, shown under the drawing), optional `width`.
+
+| Block | Fields | What the reader gets |
 |---|---|---|
-| `chart` | `kind`: `line`, `area`, `bar`, `stackedBar`, `scatter`, `dot`, `histogram`, `donut`; `series: [{name, data: [[x, y], ...]}]` (`values: [...]` for histogram; `data: [[label, value]]` for donut; `[[x, y, label]]` for scatter); `x: {type: category|number|time, label}`; `y: {label, min, max}`; `marks`: subset of `line`, `point`, `area`, `bar`, `label`; `refLines: [{y or x, label}]`; `annotations: [{x, y, text, side}]`; `height`; `legend` | Bars start at zero. Up to 6 series. Legend toggles series. Line and area get a scrub tooltip. |
-| `kpi` | `items: [{label, value, unit, delta, deltaKind: ok|danger|neutral, spark: [..]}]` | Numbers first, no tiles. |
-| `matrix` | `columns: [{label, sub}]`, `rows: [{label, cells: [...], best: max|min, unit, bars}]`; a cell is a string, number, boolean or `{value, note, unit}` | Numbers get an inline bar scaled to the row max; `best` marks the winner; `note` shows on hover. |
-| `cards` | `items: [{title, meta, points: [{kind: pro|con|neutral, text}]}]`, `cardWidth` | Pros and cons, before and after. Same criteria order in every card. |
-| `timeline` | `events: [{date, title, text, kind: milestone}]`, `periods: [{from, to, label}]`, `orientation` | Horizontal up to 7 events, vertical beyond. |
-| `steps` | `items: [{title, text, kind}]`, `stepWidth` | Linear pipeline. Decisions belong in `graph`. |
-| `tree` | `root: {label, text, kind, children: [...]}`, `direction: DOWN|RIGHT`, `layout: tree|mindmap` | `mindmap` is radial with the topic in the center. |
-| `quadrant` | `x: {label, low, high}`, `y: {label, low, high}`, `quadrants: [4 labels]`, `items: [{label, x, y}]` with x and y in 0..1 | Position on two criteria. |
-| `spectrum` | `min`, `max` (labels), `items: [{label, value 0..1}]` | Position on one criterion. |
-| `cycle` | `items: [{label, text}]` | Repeating stages. |
-| `funnel` | `items: [{label, value}]`, `shape: funnel|pyramid`, `unit` | Shows the conversion per stage. |
-| `venn` | `sets: [{label, items}]` (2 or 3), `overlaps: [{sets: [0, 1], label, items}]` | |
+| `chart` | `kind`: `line`, `area`, `bar`, `stackedBar`, `scatter`, `dot`, `histogram`, `donut`. `series: [{name, data: [[x, y], ...], unit}]` (`values: [...]` for histogram; `[[label, value, note]]` for donut; `[[x, y, label]]` for scatter). `x: {type: category|number|time, label}`; `y: {label, unit, min, max}`; `unit` (block level); `marks`: subset of `line`, `point`, `area`, `bar`, `label`; `curve: "smooth"`; `orientation: horizontal|vertical` (bars and dot plots go horizontal by themselves when category labels are long); `labels: false`; `endLabels: false`; `legend: false`; `refLines: [{y or x, label}]`; `annotations: [{x, y, text, side}]`; `height`, `width`; `source` | Axes with unit, gridlines, baseline at zero for bars and areas, values written on bars when few, name and last value at the end of each line, reference lines, annotated events. Hover: scrub with every series at that x, or the mark's value with delta from the previous point. Click a mark: value, previous, change, share of total, position in the series, the other series at the same x. Click the title: period, unit, per-series min, max, last and change, references, events, source. Legend toggles series; the chart glides to the new scale. |
+| `kpi` | `items: [{label, value, prefix, unit, delta, deltaKind: ok|danger|neutral, spark: [...], sparkUnit, text}]` | Numbers first, no tiles; two per row on phones. Click: value, change, sparkline min, max and trend. |
+| `matrix` | `columns: [{label, sub, text}]`, `rows: [{label, cells: [...], best: max|min|<column index>, unit, bars, text}]`; a cell is a string, number, boolean or `{value, note, unit}` | Numbers get an inline bar scaled to the row maximum; the best cell is bold; booleans are a check or a dash; each column header says in how many rows it wins. Hover a cell: its note. Click a column: every criterion for that option. Click a criterion: the options ranked. |
+| `cards` | `items: [{title, meta, text, points: [{kind: pro|con|neutral, text, detail}]}]`, `cardWidth` | Aligned columns with + and − points. Click a card: points grouped as for, against and notes, with the balance. |
+| `timeline` | `events: [{date, title, text, detail, kind: milestone}]`, `periods: [{from, to, label}]`, `orientation` | Horizontal up to 7 events, vertical beyond; periods as bands. Click an event: position, time since the previous and since the start, period, neighbors. Click the title: range, counts, periods, events. |
+| `steps` | `items: [{title, text, detail, kind}]`, `stepWidth` | Numbered pipeline. Click: step n of N, detail, previous and next. Decisions belong in `graph`. |
+| `tree` | `root: {label, text, detail, kind, children: [...]}`, `direction: DOWN|RIGHT`, `layout: tree|mindmap` | Click a node: path from the root, level, counts below, parent and children. Click the title: levels, item and leaf counts, first level. |
+| `quadrant` | `x: {label, low, high}`, `y: {label, low, high}`, `quadrants: [4 labels]`, `items: [{label, x, y, text, detail}]` with x and y in 0..1 | Click an item: its quadrant and both coordinates in words. Click the title: counts per quadrant. |
+| `spectrum` | `min`, `max` (labels), `items: [{label, value 0..1, text, detail}]` | Click: position and order between the two extremes. |
+| `cycle` | `items: [{label, text, detail}]` | Click: stage n of N, what comes before and after. |
+| `funnel` | `items: [{label, value, text, detail}]`, `shape: funnel|pyramid`, `unit` | Each stage shows the share of the previous one; click adds the share of the first; the title shows the total conversion. |
+| `venn` | `sets: [{label, items, text}]` (2 or 3), `overlaps: [{sets: [0, 1], label, items, text}]` | Click a set or an intersection: its items. |
 | `callout` | `kind: note|warn|danger|ok`, `label`, `text` | The one sentence the reader must not miss. |
 | `text` | `text`, `width` | A paragraph when the drawing needs it. |
-| `free` | `width`, `height`, `elements: [...]` with `rect`, `ellipse`, `text`, `badge`, `group`, `line`, `arrow` (`from`/`to` by id or `x1, y1, x2, y2`, `route: straight|orthogonal|curve`, `label`, `dashed`), `path` | Coordinates on an 8px grid. For what no block expresses. |
-| `graph` | `direction`, `groups`, `nodes` (`id, label, sub, kind, group, file, status, notes, evidence`), `edges` (`from, to, label, kind, detail`) | Same vocabulary as graph.html; labels placed by ELK. |
+| `free` | `width`, `height`, `elements: [...]` with `rect` and `ellipse` (`id, x, y, w, h, text, sub, kind, detail`), `text` (`size: lg|sm`, `mono`), `badge`, `group`, `line` and `arrow` (`from`/`to` by id or `x1, y1, x2, y2`, `route: straight|orthogonal|curve`, `label`, `detail`, `kind`, `dashed`), `path` | Coordinates on an 8px grid. Click a shape: its detail and its connections. For what no block expresses. |
+| `graph` | `direction`, `groups: [{id, label, sub, text, file, view}]`, `nodes: [{id, label, sub, kind, group, file, status, evidence, notes, detail, view}]`, `edges: [{from, to, label, kind, detail, step}]` | ELK layered layout, orthogonal edges, labels placed by the engine so they never cover a node. Three levels (`Mapa`, `Contexto`, `Detalhes`): names only; responsibilities and edge labels; files, step numbers and status marks. Hover a node: its neighborhood stays lit. Click a node: responsibility, file, kind, status, evidence, notes, outgoing and incoming edges (clickable), isolate neighborhood. Click an edge or its label: kind, step, detail, both ends. Click a group label: its members and a button to open the view it points to (double-click does the same). Legend counts kinds, connections and status, and hides kinds. |
 
-Rules: one block answers the question first; others add context. Charts never invent data. Donut only up to 5 parts. Bars and lines never exceed 6 series. A block the data does not support is left out, not filled.
+Graph rules: `kind` is one of `entry`, `component`, `external`, `store`, `queue`, `decision`, `error`, `critical`; `status` one of `verified`, `inferred`, `unknown` (wording follows `basis`); `sub` is required; `label` on edges is required and short (at most 4 words or 28 characters), the rest goes in `detail`; `step` numbers a flow; a group holds at least one node (empty groups are dropped with a console warning); one view stays under 12 nodes plus groups, with a `views` entry per process and `view` on the group that details it. Ids: letters, digits, `_`; node ids are per view.
 
-## templates/graph.html: interactive explorer
-
-ELK layered layout rendered as SVG by the page itself: ELK sizes the layout from measured text, routes edges orthogonally and places edge labels as part of the layout, so labels never sit on top of nodes or other edges. Views as a segmented control, three information levels, legend that doubles as kind filter, search with a no-result state, zoom and direction controls, theme toggle (pure CSS, so the drawing follows instantly), inspector with summary, responsibility, file, status, evidence, notes and clickable neighbors, neighborhood isolation, empty and loading states, keyboard (`f` fit, `+`/`-` zoom, `d` direction, arrows pan, `/` search, `Esc` clear). Layout changes glide nodes to their new place. Nodes are not draggable; the layout is the layout.
-
-Fill only `<title>` and the JSON inside `<script id="graph" type="application/json">`:
-
-```json
-{
-  "title": "Pedido pago gera email via fila, em dois processos",
-  "subtitle": "shop-api · lido em src/ e docs/ · 2026-10-10",
-  "basis": "code",
-  "summary": "Loja Node em dois processos: a API recebe pedidos e o webhook do Stripe; um worker separado envia o recibo por email a partir de uma fila no Redis.",
-  "views": [
-    {
-      "id": "overview", "title": "Visão geral", "direction": "RIGHT",
-      "summary": "Caminho de um pedido: cliente cria, Stripe cobra e avisa por webhook, API marca pago e enfileira, worker envia o email.",
-      "groups": [ { "id": "api", "label": "Processo API", "file": "src/api/server.js", "view": "api" } ],
-      "nodes": [
-        { "id": "hooks", "label": "POST /webhooks/stripe", "sub": "marca pago, enfileira recibo",
-          "kind": "critical", "group": "api", "file": "src/api/webhooks.js", "status": "verified",
-          "evidence": "webhooks.js:12-16 não consulta event.id antes de enfileirar (inferido).",
-          "notes": ["Evento duplicado gera dois emails."] },
-        { "id": "redis", "label": "Redis", "sub": "fila BullMQ email", "kind": "queue", "status": "verified" }
-      ],
-      "edges": [ { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6, "detail": "BullMQ, 5 tentativas, backoff 2s" } ],
-      "annotations": [ "API responde 200 ao Stripe antes do email sair." ]
-    },
-    { "id": "api", "title": "Processo API", "direction": "DOWN", "nodes": [], "edges": [] }
-  ]
-}
-```
-
-A single-view page may put `direction`, `groups`, `nodes`, `edges`, `annotations` at the top level instead of `views`.
-
-Rules:
-
-- `basis`: `code` (read in the repo), `docs` (per documentation or spec), `proposal` (designed, not built). It changes how status tags read: verified becomes "Verificado no código", "Conforme documentação" or "Decidido"; unknown becomes "Desconhecido", "Não documentado" or "Em aberto".
-- `summary` (top level and per view): one or two sentences saying what the system or the view does and for whom. Shown in the inspector before any node is selected. Required.
-- `direction`: `RIGHT` for flows, `DOWN` for layers and trees.
-- `groups`: one per process, service or host, and every group holds at least one node (an empty group is dropped with a console warning). `label` names the boundary; `file` its entry point; `view` links to the view that details it (double-click or the inspector button opens it).
-- `nodes.kind`: `entry`, `component`, `external`, `store`, `queue`, `decision`, `error`, `critical`. `status`: `verified`, `inferred`, `unknown`. `sub` is required. `file` is the path the reader opens. `evidence` says what proves the claim or why it is inferred. `notes` hold failure modes.
-- `edges.kind`: `data`, `control`, `event`, `error`. `label` is required and short: at most 4 words or 28 characters (`job send`, `POST /orders`, `a cada 30s`). Anything longer goes in `detail`, shown in the inspector. `step` numbers edges for flows and shows at level 3.
-- One view under 12 nodes plus groups. Split into views before crossing edges.
-- Ids: letters, digits, `_`. Node ids are per view. Strings may hold any Unicode; escape quotes.
+Chart rules: bars and areas start at zero; lines may start above zero only when the data never approach zero; up to 6 series; donut only up to 5 parts; a block the data does not support is left out, not filled.
 
 ## templates/svg.html: composed drawing
 
-Hand-placed SVG on an 8px grid with the design system's classes, a hover tooltip and click-to-inspect for any element with `data-name`, an optional criteria table, annotations, theme toggle. Use it for comparisons (same layout per option, the differing edge gets class `diff`), timelines with bands, annotated screens, or to embed an SVG produced by `d2` or `dot`.
+Hand-placed SVG on an 8px grid with the design system's classes, a hover tooltip and click-to-inspect for any element with `data-name`, an optional criteria table, annotations, theme toggle. Use it for exact placements the blocks cannot express: two architectures side by side with one differing edge, annotated screens, packet layouts, or to embed an SVG produced by `d2` or `dot`.
 
 Fill `<title>`, `<h1>`, the `<figure>` (SVG, `viewBox` sized to content, `figcaption` stating the one claim), the table and the annotation list.
 
@@ -116,7 +84,6 @@ Source conventions:
 
 - `sequenceDiagram` for time order; `Note over X: ...` for failure exits; `-->>` for replies; `alt`/`else` for branches; `participant W as webhooks.js<br/>POST /webhooks/stripe` to carry the file.
 - `stateDiagram-v2` for lifecycles with guards on transitions (`pending --> paid : webhook ok`).
-- `timeline` for calendar order; `mindmap` for loose ideas.
 - `;` ends a statement anywhere, including inside a message or label. Use `,` instead.
 - Quote labels that contain `:`, `(`, `)` or `/`. `%%` comments on their own line.
 - Under about 12 participants or states; split otherwise.
@@ -131,4 +98,4 @@ Only when the user asks for a `.md` the repo will render (GitHub, docs site). Wr
 
 ## Maintenance
 
-`python3 scripts/sync-tokens.py` copies `_tokens.css` into the templates; `--check` reports drift. `python3 scripts/contrast.py` checks the token pairs in both themes. ASCII diagrams are not a deliverable.
+`python3 scripts/sync-tokens.py` copies `_tokens.css` into the templates; `--check` reports drift. `python3 scripts/contrast.py` checks the token pairs in both themes. `sh scripts/build-examples.sh` rebuilds `examples/*.html` from their scenes. ASCII diagrams are not a deliverable.

@@ -1,0 +1,38 @@
+{
+  "title": "Dois anos do protótipo ao plano pago, com um reinício no meio",
+  "subtitle": "História do produto, 2023 a 2026 · exemplo",
+  "basis": "docs",
+  "source": "Changelog e atas de planejamento",
+  "summary": "Dez marcos em 31 meses. O beta fechado durou sete meses; a troca de banco adiou o beta aberto em dois. O roteiro abaixo mostra o que vem até o fim do ano.",
+  "views": [
+    {
+      "id": "main", "title": "História",
+      "layout": { "type": "stack", "gap": 48 },
+      "blocks": [
+        { "type": "timeline", "id": "t", "title": "Do protótipo ao plano pago", "orientation": "vertical", "width": 560,
+          "events": [
+            { "date": "2023-11", "title": "Protótipo", "text": "Três telas, sem backend, validado com 12 entrevistas." },
+            { "date": "2024-02", "title": "Beta fechado", "text": "40 contas convidadas, feedback semanal.", "kind": "milestone" },
+            { "date": "2024-05", "title": "Troca de banco", "text": "SQLite para Postgres; o beta fechado seguiu com migração dupla por três semanas." },
+            { "date": "2024-07", "title": "Reinício do frontend", "text": "A SPA foi reescrita em componentes menores; nenhuma funcionalidade nova por dois meses." },
+            { "date": "2024-09", "title": "Beta aberto", "text": "Cadastro livre, 1.200 contas no primeiro mês.", "kind": "milestone" },
+            { "date": "2024-12", "title": "Integração com Stripe", "text": "Pagamento por cartão; primeiro plano pago em teste." },
+            { "date": "2025-01", "title": "Plano pago", "text": "Primeira receita recorrente.", "kind": "milestone" },
+            { "date": "2025-06", "title": "v1.0", "text": "SLA publicado, suporte em horário comercial.", "kind": "milestone" },
+            { "date": "2025-11", "title": "API pública", "text": "Tokens por conta, limite de 1.000 req/min." },
+            { "date": "2026-06", "title": "Segunda região", "text": "Réplica de leitura na Europa; latência média caiu 38% para clientes europeus." }
+          ],
+          "periods": [ { "from": "2024-02", "to": "2024-09", "label": "Beta fechado" }, { "from": "2025-01", "to": "2025-06", "label": "Rumo à 1.0" } ],
+          "caption": "Datas do changelog; o texto de cada marco vem das atas." },
+        { "type": "timeline", "id": "r", "title": "Roteiro até o fim de 2026", "orientation": "horizontal", "width": 640,
+          "events": [
+            { "date": "2026-10", "title": "Auditoria SOC 2", "text": "janela de evidências aberta" },
+            { "date": "2026-11", "title": "Exportação em lote", "text": "CSV e Parquet" },
+            { "date": "2026-12", "title": "Plano Enterprise", "text": "SSO e contratos anuais", "kind": "milestone" },
+            { "date": "2027-02", "title": "Terceira região", "text": "Ásia-Pacífico" }
+          ] }
+      ],
+      "annotations": [ "O reinício do frontend em 2024-07 não aparece no changelog público; vem da ata de 2024-06-28.", "Datas futuras são compromissos do planejamento, não entregas." ]
+    }
+  ]
+}

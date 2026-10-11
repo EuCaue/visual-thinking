@@ -61,7 +61,7 @@ What the data actually is, independent of the chart you have in mind:
 | Proportion + more than 5 parts | Sorted bars with percentages, never a pie | `chart` kind `bar` |
 | Distribution + samples | Histogram; dot plot when under ~40 values and the individual values matter | `chart` kind `histogram` or `dot` |
 | Relationship + pairs of measures | Scatter, labels when under ~40 points, annotation on outliers | `chart` kind `scatter` |
-| Relationship + nodes and edges | Graph with boundaries, typed edges, labels placed by the layout engine; views per process when more than one | `graph`, or `graph.html` for a full explorer |
+| Relationship + nodes and edges | Graph with boundaries, typed edges, labels placed by the layout engine; views per process when more than one | `graph`, one view per process |
 | Sequence + request through time | Sequence diagram | `mermaid.html` |
 | Sequence + stages without branching | Pipeline of numbered steps | `steps` |
 | Sequence + decisions and exits | Flow graph with decision nodes | `graph` with `kind: decision` |

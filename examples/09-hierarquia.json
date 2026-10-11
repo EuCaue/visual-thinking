@@ -1,0 +1,31 @@
+{
+  "title": "O monorepo tem três camadas, e só uma delas pode importar a outra",
+  "subtitle": "Estrutura de pacotes e regra de dependência · exemplo",
+  "basis": "code",
+  "source": "pnpm-workspace.yaml e os package.json de cada pacote",
+  "summary": "Apps dependem de libs, libs dependem de core; nada aponta para cima. Dezenove pacotes em três camadas; o pacote ui é o mais importado.",
+  "views": [
+    {
+      "id": "main", "title": "Estrutura",
+      "layout": { "type": "stack", "gap": 48 },
+      "blocks": [
+        { "type": "tree", "id": "t", "title": "Pacotes por camada", "direction": "RIGHT",
+          "root": { "label": "monorepo", "text": "pnpm workspaces, 19 pacotes", "children": [
+            { "label": "apps", "text": "o que roda", "children": [ { "label": "web", "text": "Next.js, site e painel", "kind": "entry" }, { "label": "api", "text": "Fastify", "kind": "entry" }, { "label": "worker", "text": "filas e cron", "kind": "entry" }, { "label": "cli", "text": "ferramenta interna" } ] },
+            { "label": "libs", "text": "reutilizável entre apps", "children": [ { "label": "ui", "text": "componentes React, 41 exportados" }, { "label": "auth", "text": "sessão, JWT, permissões" }, { "label": "db", "text": "esquema e migrações" }, { "label": "email", "text": "templates e envio" }, { "label": "analytics", "text": "eventos de produto" } ] },
+            { "label": "core", "text": "sem dependência interna", "children": [ { "label": "types", "text": "contratos compartilhados" }, { "label": "config", "text": "leitura de env e defaults" }, { "label": "logger", "text": "pino com contexto" }, { "label": "errors", "text": "classes de erro e códigos" } ] },
+            { "label": "tooling", "text": "não publica código de produto", "children": [ { "label": "eslint-config" }, { "label": "tsconfig" }, { "label": "scripts", "text": "release e geração de tipos" } ] }
+          ] },
+          "caption": "Camadas de cima para baixo; a seta de dependência só aponta para a direita." },
+        { "type": "tree", "id": "org", "title": "Quem cuida de cada camada", "direction": "DOWN",
+          "root": { "label": "Plataforma", "text": "12 pessoas", "children": [
+            { "label": "Produto web", "text": "4 pessoas", "children": [ { "label": "apps/web" }, { "label": "libs/ui" } ] },
+            { "label": "Backend", "text": "5 pessoas", "children": [ { "label": "apps/api" }, { "label": "apps/worker" }, { "label": "libs/auth" }, { "label": "libs/db" } ] },
+            { "label": "Infra", "text": "3 pessoas", "children": [ { "label": "core/*" }, { "label": "tooling/*" } ] }
+          ] } },
+        { "type": "callout", "id": "c", "kind": "warn", "text": "libs/email importa apps/api para reutilizar um tipo. É a única violação da regra; o tipo deveria descer para core/types." }
+      ],
+      "annotations": [ "A regra de camadas é verificada por um lint (eslint-plugin-boundaries) configurado em tooling/eslint-config.", "libs/ui é importado por 7 pacotes; a contagem vem dos package.json." ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Postgres cobre o caso; Dynamo só compensa com escala previsível",
+  "subtitle": "Comparação para um catálogo com 2 milhões de itens e picos de leitura · exemplo",
+  "basis": "docs",
+  "source": "Documentação oficial de cada produto e benchmarks públicos de 2025",
+  "summary": "Três bancos avaliados para o mesmo serviço. Postgres e MongoDB cobrem consultas ricas; DynamoDB troca flexibilidade por latência estável e custo proporcional ao uso.",
+  "views": [
+    {
+      "id": "main", "title": "Comparar",
+      "layout": { "type": "stack", "gap": 44 },
+      "blocks": [
+        { "type": "matrix", "id": "m", "title": "Nos seis critérios do serviço",
+          "columns": [ { "label": "PostgreSQL", "sub": "16, gerenciado" }, { "label": "MongoDB", "sub": "7, Atlas" }, { "label": "DynamoDB", "sub": "on demand" } ],
+          "rows": [
+            { "label": "Modelo de dados", "cells": [ "Relacional, JSONB", "Documento", { "value": "Chave-valor, item", "note": "Consultas só por chave ou índice secundário; agregações exigem outro serviço." } ] },
+            { "label": "Consultas ad hoc", "cells": [ true, true, false ] },
+            { "label": "Latência p99 leitura (ms)", "cells": [ 12, 9, 4 ], "best": "min", "unit": " ms" },
+            { "label": "Escrita por segundo (mil)", "cells": [ 25, 40, 400 ], "best": "max" },
+            { "label": "Custo mensal estimado (US$)", "cells": [ 480, 620, { "value": 910, "note": "Com picos de leitura de 10× o normal; cai para ~300 com tráfego estável." } ], "best": "min", "unit": "" },
+            { "label": "Transações multi-item", "cells": [ true, true, { "value": true, "note": "Até 100 itens por transação." } ] }
+          ],
+          "caption": "Latência e custo medidos com o perfil de carga do catálogo; números ilustrativos." },
+        { "type": "cards", "id": "c", "title": "O que cada escolha compra e cobra", "cardWidth": 230, "items": [
+          { "title": "PostgreSQL", "meta": "o padrão", "points": [ { "kind": "pro", "text": "Consultas ricas e joins sem segundo sistema" }, { "kind": "pro", "text": "Equipe já opera" }, { "kind": "con", "text": "Escala de escrita exige sharding manual" }, { "kind": "neutral", "text": "JSONB cobre os campos flexíveis do catálogo" } ] },
+          { "title": "MongoDB", "meta": "documento", "points": [ { "kind": "pro", "text": "Esquema flexível por item" }, { "kind": "pro", "text": "Sharding nativo" }, { "kind": "con", "text": "Nova operação e novo custo de licença" }, { "kind": "con", "text": "Joins limitados ($lookup)" } ] },
+          { "title": "DynamoDB", "meta": "chave-valor", "points": [ { "kind": "pro", "text": "Latência estável em qualquer escala" }, { "kind": "pro", "text": "Zero operação" }, { "kind": "con", "text": "Modelagem por padrão de acesso; mudar consulta é migrar" }, { "kind": "con", "text": "Custo cresce com picos de leitura" } ] }
+        ] },
+        { "type": "spectrum", "id": "s", "title": "Onde cada um faz sentido", "min": "consultas variadas", "max": "acesso por chave, escala previsível", "items": [ { "label": "PostgreSQL", "value": 0.18 }, { "label": "MongoDB", "value": 0.45 }, { "label": "DynamoDB", "value": 0.86 } ] },
+        { "type": "callout", "id": "k", "kind": "note", "text": "A diferença estrutural está na linha 1: DynamoDB exige conhecer todas as consultas antes de modelar. As demais linhas são consequência disso." }
+      ],
+      "annotations": [ "Custo do Dynamo assume picos de 10× o normal; com tráfego estável ele fica abaixo dos outros dois.", "MongoDB foi avaliado no Atlas; auto-hospedado muda custo e operação." ]
+    }
+  ]
+}
