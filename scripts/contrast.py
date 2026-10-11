@@ -30,6 +30,7 @@ pairs = [  # (fg, bg, minimum)
     ("accent", "accent-soft", 3.0), ("ok", "ok-soft", 3.0), ("warn", "warn-soft", 3.0), ("danger", "danger-soft", 3.0),
     ("fg", "accent-soft", 4.5), ("fg", "ok-soft", 4.5), ("fg", "warn-soft", 4.5), ("fg", "danger-soft", 4.5),
     ("accent-fg", "accent", 4.5), ("line-strong", "bg-elev", 1.5),
+    ("s1", "bg-elev", 3.0), ("s2", "bg-elev", 3.0), ("s3", "bg-elev", 3.0), ("s4", "bg-elev", 3.0), ("s5", "bg-elev", 3.0), ("s6", "bg-elev", 3.0),
 ]
 fail = False
 for name, pal in (("light", light), ("dark", dark)):

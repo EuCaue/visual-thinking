@@ -29,3 +29,9 @@ With the evolved skill, subagents: A built one page with three views (verified i
 ## Regression, 2026-10-11
 
 Real pointer clicks on nodes and on the floating controls did nothing: the canvas called `setPointerCapture` on every `pointerdown`, so the browser retargeted the `click` to the canvas. Synthetic `dispatchEvent` clicks in earlier checks did not catch it. Fixed by starting the pan only after a 4px move and never from the floating controls. Rule for future checks: exercise controls with real pointer clicks in the browser tool, not only with scripted events.
+
+## Results, 2026-10-11, canvas
+
+Built `templates/canvas.html` (composable scene runtime) and `examples/showcase.json`: eight views for eight prompts (compare, trend, numbers, architecture, timeline, pros and cons, concept, position and proportion). Each view rendered with a different form: matrix with inline bars and a callout; line with reference line and annotations plus stacked bars; sorted bars with labels plus a histogram; graph with boundaries and typed edges; horizontal timeline with a period band plus a pipeline; aligned pro and con columns plus a spectrum; tree plus a cycle; quadrant beside a donut. Checked in the browser at 1400px: no console errors, no overlapping labels, legend toggles rebuild the chart, tooltips follow the pointer on marks.
+
+Lesson: the browser pane in the desktop app may be hidden while a script runs; then `requestAnimationFrame` never fires and CSS transitions do not advance. The runtime no longer depends on rAF or timers for content to appear (CSS keyframe for the entrance, no cross-fade when `document.hidden`).

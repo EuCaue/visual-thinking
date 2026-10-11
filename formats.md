@@ -1,6 +1,6 @@
 # Formats and templates
 
-The deliverable is a page built from `templates/`. All three templates share one design system (`templates/_tokens.css`, explained in [design.md](design.md)): IBM Plex Sans and Mono, semantic color tokens, light and dark themes with a persisted toggle, one radius scale, focus states, reduced motion. Fill the slots; never restyle.
+The deliverable is a page built from `templates/`. All four templates share one design system (`templates/_tokens.css`, explained in [design.md](design.md)): IBM Plex Sans and Mono, semantic color tokens, light and dark themes with a persisted toggle, one radius scale, focus states, reduced motion. Fill the slots; never restyle.
 
 ## Delivery
 
@@ -12,6 +12,46 @@ The deliverable is a page built from `templates/`. All three templates share one
 | None of the above | Write to `docs/diagrams/<slug>.html` in the project and give the path. |
 
 The templates are HTML fragments (no `doctype`, `html`, `head`, `body` tags) so the artifact skeleton can wrap them; browsers open them directly as files too. Scripts and fonts load from cdnjs, jsdelivr and Google Fonts with pinned versions, which the artifact CSP allows.
+
+## templates/canvas.html: composable canvas (default)
+
+A scene is one or more views; a view is a layout of blocks. The runtime measures text, lays out, draws in SVG, animates, and gives every page the same controls: views as a segmented control, search, zoom and fit, theme toggle, inspector with the view summary and the selected element, tooltips on data marks, scrub on line charts, legend that toggles series, level of detail on zoom, keyboard (`f`, `+`, `-`, `/`, arrows, `Esc`).
+
+```json
+{
+  "title": "Svelte troca runtime por build", "subtitle": "Comparação · fontes nos rodapés", "basis": "docs",
+  "summary": "Uma ou duas frases sobre o que a página mostra e para quem.",
+  "views": [
+    { "id": "main", "title": "Comparar", "summary": "O que esta vista responde.",
+      "layout": { "type": "stack", "gap": 40 },
+      "blocks": [ { "type": "matrix", "id": "m", "title": "React, Vue e Svelte", "columns": [], "rows": [] } ],
+      "annotations": [ "Texto que o desenho não carrega." ] }
+  ]
+}
+```
+
+`layout.type`: `stack` (one below the other, narrative order), `row` (side by side, for things to compare), `grid` with `columns`. Every block has `type`, `id`, `title` (what the reader learns), optional `caption` (source, scope) and `width`.
+
+| Block | Fields | Notes |
+|---|---|---|
+| `chart` | `kind`: `line`, `area`, `bar`, `stackedBar`, `scatter`, `dot`, `histogram`, `donut`; `series: [{name, data: [[x, y], ...]}]` (`values: [...]` for histogram; `data: [[label, value]]` for donut; `[[x, y, label]]` for scatter); `x: {type: category|number|time, label}`; `y: {label, min, max}`; `marks`: subset of `line`, `point`, `area`, `bar`, `label`; `refLines: [{y or x, label}]`; `annotations: [{x, y, text, side}]`; `height`; `legend` | Bars start at zero. Up to 6 series. Legend toggles series. Line and area get a scrub tooltip. |
+| `kpi` | `items: [{label, value, unit, delta, deltaKind: ok|danger|neutral, spark: [..]}]` | Numbers first, no tiles. |
+| `matrix` | `columns: [{label, sub}]`, `rows: [{label, cells: [...], best: max|min, unit, bars}]`; a cell is a string, number, boolean or `{value, note, unit}` | Numbers get an inline bar scaled to the row max; `best` marks the winner; `note` shows on hover. |
+| `cards` | `items: [{title, meta, points: [{kind: pro|con|neutral, text}]}]`, `cardWidth` | Pros and cons, before and after. Same criteria order in every card. |
+| `timeline` | `events: [{date, title, text, kind: milestone}]`, `periods: [{from, to, label}]`, `orientation` | Horizontal up to 7 events, vertical beyond. |
+| `steps` | `items: [{title, text, kind}]`, `stepWidth` | Linear pipeline. Decisions belong in `graph`. |
+| `tree` | `root: {label, text, kind, children: [...]}`, `direction: DOWN|RIGHT`, `layout: tree|mindmap` | `mindmap` is radial with the topic in the center. |
+| `quadrant` | `x: {label, low, high}`, `y: {label, low, high}`, `quadrants: [4 labels]`, `items: [{label, x, y}]` with x and y in 0..1 | Position on two criteria. |
+| `spectrum` | `min`, `max` (labels), `items: [{label, value 0..1}]` | Position on one criterion. |
+| `cycle` | `items: [{label, text}]` | Repeating stages. |
+| `funnel` | `items: [{label, value}]`, `shape: funnel|pyramid`, `unit` | Shows the conversion per stage. |
+| `venn` | `sets: [{label, items}]` (2 or 3), `overlaps: [{sets: [0, 1], label, items}]` | |
+| `callout` | `kind: note|warn|danger|ok`, `label`, `text` | The one sentence the reader must not miss. |
+| `text` | `text`, `width` | A paragraph when the drawing needs it. |
+| `free` | `width`, `height`, `elements: [...]` with `rect`, `ellipse`, `text`, `badge`, `group`, `line`, `arrow` (`from`/`to` by id or `x1, y1, x2, y2`, `route: straight|orthogonal|curve`, `label`, `dashed`), `path` | Coordinates on an 8px grid. For what no block expresses. |
+| `graph` | `direction`, `groups`, `nodes` (`id, label, sub, kind, group, file, status, notes, evidence`), `edges` (`from, to, label, kind, detail`) | Same vocabulary as graph.html; labels placed by ELK. |
+
+Rules: one block answers the question first; others add context. Charts never invent data. Donut only up to 5 parts. Bars and lines never exceed 6 series. A block the data does not support is left out, not filled.
 
 ## templates/graph.html: interactive explorer
 

@@ -54,6 +54,10 @@
   --e-error: var(--danger);
   --e-muted: var(--line-strong);
 
+  /* data series: six hues with distinct lightness so they survive grayscale; s1 = accent */
+  --s1: #2f5fc7; --s2: #d2691e; --s3: #257a4c; --s4: #8a4fbf; --s5: #b5382f; --s6: #6b7280;
+  --grid: #e8ebf0;          /* chart gridlines, lighter than hairlines */
+
   /* motion: one ease, three durations. Transitions start from the current value and stay interruptible. */
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --d-fast: 120ms; --d-base: 200ms; --d-slow: 320ms;
@@ -78,6 +82,8 @@
     --warn: #e0b35a; --warn-soft: #332a12;
     --danger: #ef8a7f; --danger-soft: #3a1c19;
     --n-group-fill: #13171d;
+    --s1: #8fb0f3; --s2: #f0a060; --s3: #6cc695; --s4: #c39bea; --s5: #ef8a7f; --s6: #9aa3b0;
+    --grid: #1f252d;
     color-scheme: dark;
   }
 }
@@ -91,6 +97,8 @@
   --warn: #e0b35a; --warn-soft: #332a12;
   --danger: #ef8a7f; --danger-soft: #3a1c19;
   --n-group-fill: #13171d;
+  --s1: #8fb0f3; --s2: #f0a060; --s3: #6cc695; --s4: #c39bea; --s5: #ef8a7f; --s6: #9aa3b0;
+  --grid: #1f252d;
   color-scheme: dark;
 }
 

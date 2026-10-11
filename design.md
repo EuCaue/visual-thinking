@@ -39,6 +39,15 @@ Two layers only. Structure (header, inspector) is `--bg-elev` separated by a 1px
 
 4px base. Controls 8px vertical, 12px horizontal. Inspector sections separated by 24px, items by 8px. Header 16px padding. More space above a heading than below it.
 
+## Data marks
+
+- Series colors `--s1` to `--s6`, distinct in lightness so they survive grayscale; `--s1` is the accent. Never more than six series.
+- Lines 2px with points when there are fewer than ~30 observations; area fills at 12% only for volumes and cumulative values; bars start at zero with 2px radius; donut ring with the total in the center.
+- Axes: one baseline in `--line-strong`, horizontal gridlines in `--grid`, ticks in `--font-data` 10.5px muted, the y label above the plot, the x label at the right end. No vertical gridlines, no frame.
+- Reference lines dashed muted with a label at the end; annotations as short text with a thin leader to the point.
+- Tooltip: a floating material with the x value, one row per series with its swatch; a scrub line follows the pointer on line charts.
+- Matrix: numbers get an inline bar scaled to the row maximum; the best cell is bolder with a stronger bar; booleans are a check or a dash, never a colored dot.
+
 ## Diagram marks
 
 - Node: fill and stroke from its kind; name in `--font-ui` weight 600; responsibility below in `--fg-muted` at level 2 and up; file path in `--font-data` at level 3.
@@ -47,6 +56,10 @@ Two layers only. Structure (header, inspector) is `--bg-elev` separated by a 1px
 - Group: `--n-group-fill` with `--line` border, label top-left in `--fs-xs` caps.
 - Selected: 2px `--accent` border plus a soft 6px ring at 22% opacity. Hover: stroke thickens to 1.5px, neighborhood keeps full opacity, everything else drops to 16%.
 - Legend doubles as the kind filter: each kind row shows its count and toggles visibility; edge and status rows are informational.
+
+## Composition
+
+Blocks sit on whitespace, not in cards. A block is a title (13px, 600), the drawing, and an optional caption (11.5px, muted). `stack` separates blocks by 40 to 48px; `row` puts things to compare side by side with 56px between them. The first block answers the question. The inspector lists the blocks of the view and centers on one when clicked.
 
 ## Levels of information
 

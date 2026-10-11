@@ -1,0 +1,133 @@
+{
+  "title": "Oito perguntas, oito desenhos",
+  "subtitle": "Cada vista responde a um pedido diferente com uma representação diferente",
+  "basis": "docs",
+  "summary": "Demonstração do canvas: comparação, tendência, arquitetura, timeline, prós e contras, conceito, posição e proporção. Mesmo design system, formas distintas.",
+  "views": [
+    {
+      "id": "compare", "title": "Comparar", "layout": { "type": "stack", "gap": 40 },
+      "summary": "\"Compare React, Vue e Svelte.\" Atributos qualitativos viram matriz; métricas viram barras na própria célula; o melhor por linha fica em destaque.",
+      "blocks": [
+        { "type": "matrix", "id": "m", "title": "React, Vue e Svelte",
+          "columns": [ { "label": "React", "sub": "Meta, 2013" }, { "label": "Vue", "sub": "Evan You, 2014" }, { "label": "Svelte", "sub": "Rich Harris, 2016" } ],
+          "rows": [
+            { "label": "Modelo de renderização", "cells": ["Virtual DOM", "Virtual DOM", "Compilado, sem runtime"] },
+            { "label": "Bundle mínimo (kB gzip)", "cells": [42, 33, 2], "best": "min", "unit": " kB" },
+            { "label": "Tempo de startup (ms)", "cells": [31, 24, 9], "best": "min", "unit": " ms" },
+            { "label": "TypeScript nativo", "cells": [true, true, true] },
+            { "label": "SSR oficial", "cells": [{ "value": true, "note": "Next.js, Remix" }, { "value": true, "note": "Nuxt" }, { "value": true, "note": "SvelteKit" }] },
+            { "label": "Vagas abertas (mil)", "cells": [38, 9, 2], "best": "max", "unit": " mil" }
+          ],
+          "caption": "Números ilustrativos do exemplo; medidas reais variam por versão e app." },
+        { "type": "callout", "id": "c", "kind": "note", "text": "A diferença estrutural está na linha 1: Svelte move o trabalho para o build. As linhas 2 e 3 são consequência disso, não vantagens independentes." }
+      ]
+    },
+    {
+      "id": "trend", "title": "Tendência", "layout": { "type": "stack", "gap": 40 },
+      "summary": "\"Mostre a evolução de usuários de janeiro a dezembro.\" Série ordenada no tempo vira linha com pontos; a meta vira linha de referência; os eventos viram anotações no ponto certo.",
+      "blocks": [
+        { "type": "chart", "id": "t", "title": "Usuários ativos por mês, 2025", "kind": "line", "height": 240, "marks": ["line", "point", "area"],
+          "x": { "type": "category" }, "y": { "label": "mil usuários", "min": 0 },
+          "series": [ { "name": "Ativos", "data": [["jan", 34], ["fev", 36], ["mar", 31], ["abr", 33], ["mai", 35], ["jun", 37], ["jul", 38], ["ago", 40], ["set", 46], ["out", 47], ["nov", 48], ["dez", 48.2]] } ],
+          "refLines": [ { "y": 40, "label": "meta 40 mil" } ],
+          "annotations": [ { "x": "mar", "y": 31, "text": "migração do login", "side": "below" }, { "x": "set", "y": 46, "text": "plano gratuito" } ] },
+        { "type": "chart", "id": "t2", "title": "Novos por canal (mil)", "kind": "stackedBar", "height": 200,
+          "x": { "type": "category" }, "y": { "min": 0 },
+          "series": [
+            { "name": "Orgânico", "data": [["T1", 3.1], ["T2", 3.6], ["T3", 5.2], ["T4", 5.9]] },
+            { "name": "Indicação", "data": [["T1", 1.2], ["T2", 1.5], ["T3", 2.8], ["T4", 3.1]] },
+            { "name": "Pago", "data": [["T1", 2.0], ["T2", 1.4], ["T3", 1.1], ["T4", 0.9]] } ] }
+      ]
+    },
+    {
+      "id": "numbers", "title": "Números", "layout": { "type": "stack", "gap": 40 },
+      "summary": "\"Qual desses valores é maior?\" Barras ordenadas com o valor escrito. Nada mais.",
+      "blocks": [
+        { "type": "chart", "id": "n", "title": "Latência p95 por região (ms)", "kind": "bar", "height": 200, "marks": ["bar", "label"], "width": 520,
+          "y": { "min": 0 }, "series": [ { "name": "p95", "data": [["São Paulo", 48], ["Virgínia", 131], ["Frankfurt", 162], ["Tóquio", 241]] } ],
+          "refLines": [ { "y": 150, "label": "SLO 150 ms" } ] },
+        { "type": "chart", "id": "n2", "title": "Distribuição dos tempos de resposta (ms)", "kind": "histogram", "height": 180, "width": 520, "bins": 8,
+          "series": [ { "name": "amostras", "values": [41, 44, 47, 48, 49, 50, 52, 53, 55, 57, 58, 60, 62, 63, 65, 68, 71, 74, 80, 88, 95, 110, 130, 160, 210] } ] }
+      ]
+    },
+    {
+      "id": "arch", "title": "Arquitetura", "layout": { "type": "stack", "gap": 36 },
+      "summary": "\"Mostre uma arquitetura com frontend, API, Redis e PostgreSQL.\" Componentes com responsabilidade, fronteiras por processo, arestas rotuladas pelo que transportam.",
+      "blocks": [
+        { "type": "graph", "id": "g", "direction": "RIGHT",
+          "groups": [ { "id": "api", "label": "Processo API" } ],
+          "nodes": [
+            { "id": "web", "label": "Frontend", "sub": "SPA, chama a API com JWT", "kind": "external" },
+            { "id": "gw", "label": "POST /orders", "sub": "valida e grava o pedido", "kind": "entry", "group": "api" },
+            { "id": "cache", "label": "Cache de catálogo", "sub": "lê preços do Redis", "kind": "component", "group": "api" },
+            { "id": "redis", "label": "Redis", "sub": "cache e fila", "kind": "queue" },
+            { "id": "pg", "label": "PostgreSQL", "sub": "pedidos, usuários", "kind": "store" },
+            { "id": "wk", "label": "Worker", "sub": "envia confirmação por email", "kind": "component" } ],
+          "edges": [
+            { "from": "web", "to": "gw", "label": "POST /orders", "kind": "control" },
+            { "from": "gw", "to": "cache", "label": "preço por SKU", "kind": "control" },
+            { "from": "cache", "to": "redis", "label": "GET sku:*", "kind": "data" },
+            { "from": "gw", "to": "pg", "label": "INSERT orders", "kind": "data" },
+            { "from": "gw", "to": "redis", "label": "job email", "kind": "event" },
+            { "from": "redis", "to": "wk", "label": "consome", "kind": "event" },
+            { "from": "wk", "to": "pg", "label": "lê pedido", "kind": "data" } ] },
+        { "type": "callout", "id": "a2", "kind": "warn", "text": "Redis acumula dois papéis, cache e fila. Uma queda derruba leitura de preço e envio de email ao mesmo tempo." }
+      ]
+    },
+    {
+      "id": "timeline", "title": "Timeline", "layout": { "type": "stack", "gap": 40 },
+      "summary": "\"Faça uma timeline da história do projeto.\" Eventos em ordem, marcos maiores, períodos como faixas.",
+      "blocks": [
+        { "type": "timeline", "id": "tl", "title": "Do protótipo ao lançamento", "orientation": "horizontal",
+          "periods": [ { "from": "2024-02", "to": "2024-09", "label": "beta fechado" } ],
+          "events": [
+            { "date": "2023-11", "title": "Protótipo", "text": "três telas, sem backend" },
+            { "date": "2024-02", "title": "Beta fechado", "text": "40 contas convidadas", "kind": "milestone" },
+            { "date": "2024-05", "title": "Troca de banco", "text": "SQLite para Postgres" },
+            { "date": "2024-09", "title": "Beta aberto", "text": "cadastro livre", "kind": "milestone" },
+            { "date": "2025-01", "title": "Plano pago", "text": "primeira receita" },
+            { "date": "2025-06", "title": "v1.0", "text": "SLA publicado", "kind": "milestone" } ] },
+        { "type": "steps", "id": "st", "title": "Pipeline de release", "items": [
+          { "title": "Build", "text": "testes e lint em cada PR" }, { "title": "Staging", "text": "deploy automático do main" }, { "title": "Canário", "text": "5% do tráfego por 1h", "kind": "accent" }, { "title": "Produção", "text": "rollout completo" } ] }
+      ]
+    },
+    {
+      "id": "proscons", "title": "Prós e contras", "layout": { "type": "stack", "gap": 40 },
+      "summary": "\"Mostre as vantagens e desvantagens dessas duas soluções.\" Colunas alinhadas, mesmos critérios, sinais + e − legíveis sem cor.",
+      "blocks": [
+        { "type": "cards", "id": "pc", "title": "Monólito modular ou microsserviços", "cardWidth": 260, "items": [
+          { "title": "Monólito modular", "meta": "um deploy, módulos com fronteiras", "points": [
+            { "kind": "pro", "text": "Um pipeline, um banco, uma transação" }, { "kind": "pro", "text": "Refatorar fronteiras é barato" }, { "kind": "pro", "text": "Latência interna zero" },
+            { "kind": "con", "text": "Escala tudo junto" }, { "kind": "con", "text": "Um bug de memória derruba tudo" } ] },
+          { "title": "Microsserviços", "meta": "n deploys, contratos por rede", "points": [
+            { "kind": "pro", "text": "Escala e deploy por serviço" }, { "kind": "pro", "text": "Times donos de serviços" },
+            { "kind": "con", "text": "Transações distribuídas" }, { "kind": "con", "text": "Observabilidade obrigatória desde o dia 1" }, { "kind": "con", "text": "Custo fixo de infraestrutura" } ] } ] },
+        { "type": "spectrum", "id": "sp", "title": "Onde cada opção faz sentido", "min": "time de 3 pessoas", "max": "20 times", "items": [
+          { "label": "monólito modular", "value": 0.2 }, { "label": "monólito + 1 ou 2 serviços", "value": 0.5 }, { "label": "microsserviços", "value": 0.85 } ] }
+      ]
+    },
+    {
+      "id": "concept", "title": "Conceito", "layout": { "type": "stack", "gap": 40 },
+      "summary": "\"Explique Kubernetes.\" Hierarquia de conceitos como árvore, e o ciclo de reconciliação como ciclo, porque é isso que ele é.",
+      "blocks": [
+        { "type": "tree", "id": "k8s", "title": "O que há dentro de um cluster", "direction": "DOWN",
+          "root": { "label": "Cluster", "children": [
+            { "label": "Control plane", "children": [ { "label": "API server" }, { "label": "etcd", "kind": "store" }, { "label": "Scheduler" }, { "label": "Controllers" } ] },
+            { "label": "Nodes", "children": [ { "label": "kubelet" }, { "label": "Pods", "children": [ { "label": "Containers" } ] }, { "label": "kube-proxy" } ] } ] } },
+        { "type": "cycle", "id": "loop", "title": "Loop de reconciliação", "items": [
+          { "label": "Estado desejado", "text": "você declara (YAML)" }, { "label": "Observar", "text": "controller lê o estado atual" }, { "label": "Comparar", "text": "diff desejado vs. atual" }, { "label": "Agir", "text": "cria, mata, reagenda" } ] }
+      ]
+    },
+    {
+      "id": "position", "title": "Posição e proporção", "layout": { "type": "row", "gap": 56 },
+      "summary": "\"Mostre onde essas tecnologias se encaixam\" e \"qual a fatia de cada uma\". Posição pede dois eixos; proporção de poucas partes pede um anel.",
+      "blocks": [
+        { "type": "quadrant", "id": "q", "title": "Bancos por modelo e consistência", "x": { "label": "modelo de dados", "low": "relacional", "high": "documento" }, "y": { "label": "consistência", "low": "eventual", "high": "forte" },
+          "quadrants": ["relacional, forte", "documento, forte", "relacional, eventual", "documento, eventual"],
+          "items": [ { "label": "PostgreSQL", "x": 0.12, "y": 0.9 }, { "label": "MySQL", "x": 0.18, "y": 0.8 }, { "label": "MongoDB", "x": 0.85, "y": 0.55 }, { "label": "DynamoDB", "x": 0.75, "y": 0.3 }, { "label": "Cassandra", "x": 0.6, "y": 0.15 }, { "label": "FaunaDB", "x": 0.8, "y": 0.85 } ] },
+        { "type": "chart", "id": "share", "title": "Tráfego por origem", "kind": "donut", "width": 260, "height": 260, "y": { "label": "visitas/dia" },
+          "series": [ { "name": "origem", "data": [["Busca", 5400], ["Direto", 2100], ["Social", 1300], ["Email", 700]] } ] }
+      ]
+    }
+  ]
+}

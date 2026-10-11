@@ -4,10 +4,13 @@ Agent skill: turn explanations, architectures, processes, ideas and comparisons 
 
 Files:
 
-- `SKILL.md`: when to draw, when not to, how to investigate a repo before drawing it, output contract, visual language.
+- `SKILL.md`: when to draw, when not to, the intent → structure → strategy decision, five modes, output contract.
+- `strategy.md`: the visual decision layer: intents, information structures, strategies, anti-choices, when to ask.
 - `examples.md`: generic versus annotated versions of the same diagrams.
 - `formats.md`: the templates, their slots and schema, delivery per tool, Mermaid conventions.
 - `design.md`: the design system (type, semantic color tokens, surfaces, levels of information, theme rules).
+- `templates/canvas.html`: the default. Composable scene of blocks (charts with scale, axis, series, marks, legend, reference lines, annotations and tooltips; matrix, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, kpi, callout, free canvas, graph), views, inspector, pan and zoom, level of detail, theme.
+- `examples/showcase.json`: eight prompts, eight pictures; `scripts/build-scene.py` injects a scene into the template.
 - `templates/graph.html`: interactive explorer (ELK layout, SVG renderer): views, three information levels, filters, search, inspector with evidence and summary, theme toggle, edge labels placed by the layout engine.
 - `templates/svg.html`: composed SVG for comparisons, timelines and annotated screens, with tooltip, inspector and theme toggle.
 - `templates/mermaid.html`: Mermaid viewer themed from the same tokens.
