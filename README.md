@@ -8,7 +8,7 @@ Files:
 - `examples.md`: generic versus annotated versions of the same diagrams.
 - `formats.md`: the templates, their slots and schema, delivery per tool, Mermaid conventions.
 - `design.md`: the design system (type, semantic color tokens, surfaces, levels of information, theme rules).
-- `templates/graph.html`: interactive explorer (Cytoscape + ELK): views, three information levels, filters, search, inspector with evidence, theme toggle.
+- `templates/graph.html`: interactive explorer (ELK layout, SVG renderer): views, three information levels, filters, search, inspector with evidence and summary, theme toggle, edge labels placed by the layout engine.
 - `templates/svg.html`: composed SVG for comparisons, timelines and annotated screens, with tooltip, inspector and theme toggle.
 - `templates/mermaid.html`: Mermaid viewer themed from the same tokens.
 - `templates/_tokens.css`, `scripts/sync-tokens.py`, `scripts/contrast.py`: the token source and its checks.

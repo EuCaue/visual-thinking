@@ -15,7 +15,7 @@ The templates are HTML fragments (no `doctype`, `html`, `head`, `body` tags) so 
 
 ## templates/graph.html: interactive explorer
 
-Cytoscape + ELK layered layout. Views as tabs, three information levels, kind filters, search, direction toggle, theme toggle, inspector with responsibility, file, status, evidence, notes and edges, neighborhood isolation, keyboard (`f` fit, `/` search, `Esc` clear).
+ELK layered layout rendered as SVG by the page itself: ELK sizes the layout from measured text, routes edges orthogonally and places edge labels as part of the layout, so labels never sit on top of nodes or other edges. Views as tabs, three information levels, kind filters, search, direction toggle, theme toggle (pure CSS, so the drawing follows instantly), inspector with responsibility, file, status, evidence, notes and edges, neighborhood isolation, keyboard (`f` fit, `/` search, `Esc` clear). Nodes are not draggable; the layout is the layout.
 
 Fill only `<title>` and the JSON inside `<script id="graph" type="application/json">`:
 

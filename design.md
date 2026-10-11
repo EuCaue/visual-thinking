@@ -43,7 +43,7 @@ Elevation is a border, never a shadow, except the tooltip (offset 0 4px, blur 16
 
 - Node: fill and stroke from its kind; name in `--font-ui` weight 600; responsibility below in `--fg-muted` at level 2 and up; file path in `--font-data` at level 3.
 - Status: verified solid border, inferred dashed, unknown dotted and 70% opacity.
-- Edge: 1.5px, arrowhead filled, color from kind; label in `--font-data` 11px with a `--bg` backing; event edges dashed, error edges dotted.
+- Edge: orthogonal route from ELK, 1.5px, arrowhead filled, color from kind; event edges dashed, error edges dotted. Label in `--font-data` 12px, horizontal, on a `--bg-elev` plate with a `--line` border, placed inline on the edge by ELK so it never overlaps a node or another label.
 - Group: `--n-group-fill` with `--line` border, label top-left in `--fs-xs` caps.
 - Selected: 2.5px `--accent` border. Hover: neighborhood keeps full opacity, everything else drops to 18%.
 
