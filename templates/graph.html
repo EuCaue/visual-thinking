@@ -636,9 +636,15 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; }
   function zoomBy(k, cx, cy, animated) { var r = wrap.getBoundingClientRect(); var mx = cx == null ? r.width / 2 : cx, my = cy == null ? r.height / 2 : cy; var ns = Math.min(3, Math.max(0.15, s * k)); k = ns / s; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s = ns; apply(animated); }
   wrap.addEventListener('wheel', function (e) { e.preventDefault(); var r = wrap.getBoundingClientRect(); zoomBy(e.deltaY < 0 ? 1.1 : 0.9, e.clientX - r.left, e.clientY - r.top, false); }, { passive: false });
   var drag = null;
-  wrap.addEventListener('pointerdown', function (e) { if (e.button !== 0) return; drag = { x: e.clientX - tx, y: e.clientY - ty, moved: false }; wrap.setPointerCapture(e.pointerId); });
-  wrap.addEventListener('pointermove', function (e) { if (!drag) return; var nx = e.clientX - drag.x, ny = e.clientY - drag.y; if (Math.abs(nx - tx) + Math.abs(ny - ty) > 2) drag.moved = true; tx = nx; ty = ny; apply(false); });
-  wrap.addEventListener('pointerup', function () { setTimeout(function () { drag = null; }, 0); });
+  // Pan starts only after the pointer moves 4px, and never from the floating controls, so clicks on nodes and buttons stay clicks.
+  wrap.addEventListener('pointerdown', function (e) { if (e.button !== 0 || e.target.closest('.float, .status')) return; drag = { x: e.clientX - tx, y: e.clientY - ty, sx: e.clientX, sy: e.clientY, id: e.pointerId, moved: false }; });
+  wrap.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    if (!drag.moved) { if (Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 4) return; drag.moved = true; try { wrap.setPointerCapture(drag.id); } catch (err) {} }
+    tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(false);
+  });
+  var endDrag = function () { var was = drag; setTimeout(function () { if (drag === was) drag = null; }, 0); };
+  wrap.addEventListener('pointerup', endDrag); wrap.addEventListener('pointercancel', endDrag);
   canvas.addEventListener('click', function (e) { if (drag && drag.moved) return; if (e.target === canvas || e.target === world) select(null); });
   new ResizeObserver(function () { if (L) fit(false); }).observe(wrap);
   function centerOn(id) { var p = lastPos[id]; if (!p) return; var vw = wrap.clientWidth, vh = wrap.clientHeight; var cx = (p.x + p.w / 2) * s + tx, cy = (p.y + p.h / 2) * s + ty; if (cx > 40 && cx < vw - 40 && cy > 40 && cy < vh - 40) return; tx = vw / 2 - (p.x + p.w / 2) * s; ty = vh / 2 - (p.y + p.h / 2) * s; apply(true); }

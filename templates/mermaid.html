@@ -239,9 +239,9 @@ sequenceDiagram
   }
   view.addEventListener('wheel', e => { e.preventDefault(); const k = e.deltaY < 0 ? 1.1 : 0.9; const r = view.getBoundingClientRect(); const mx = e.clientX - r.left, my = e.clientY - r.top; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s *= k; apply(); }, { passive: false });
   let drag = null;
-  view.addEventListener('pointerdown', e => { drag = { x: e.clientX - tx, y: e.clientY - ty }; view.setPointerCapture(e.pointerId); });
-  view.addEventListener('pointermove', e => { if (!drag) return; tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(); });
-  view.addEventListener('pointerup', () => { drag = null; });
+  view.addEventListener('pointerdown', e => { if (e.button !== 0 || e.target.closest('.float')) return; drag = { x: e.clientX - tx, y: e.clientY - ty, sx: e.clientX, sy: e.clientY, id: e.pointerId, moved: false }; });
+  view.addEventListener('pointermove', e => { if (!drag) return; if (!drag.moved) { if (Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 4) return; drag.moved = true; try { view.setPointerCapture(drag.id); } catch (err) {} } tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(); });
+  view.addEventListener('pointerup', () => { drag = null; }); view.addEventListener('pointercancel', () => { drag = null; });
   $('fit').onclick = () => fit(true); $('in').onclick = () => zoomBy(1.25, true); $('out').onclick = () => zoomBy(0.8, true);
   $('copy').onclick = async () => { try { await navigator.clipboard.writeText(src); const t = $('toast'); t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1600); } catch (e) { const ta = document.createElement('textarea'); ta.value = src; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (_) {} ta.remove(); } };
   document.addEventListener('keydown', e => { if (e.key === 'f') fit(true); else if (e.key === '+' || e.key === '=') zoomBy(1.25, true); else if (e.key === '-') zoomBy(0.8, true); });
