@@ -15,7 +15,7 @@ The templates are HTML fragments (no `doctype`, `html`, `head`, `body` tags) so 
 
 ## templates/graph.html: interactive explorer
 
-ELK layered layout rendered as SVG by the page itself: ELK sizes the layout from measured text, routes edges orthogonally and places edge labels as part of the layout, so labels never sit on top of nodes or other edges. Views as tabs, three information levels, kind filters, search, direction toggle, theme toggle (pure CSS, so the drawing follows instantly), inspector with responsibility, file, status, evidence, notes and edges, neighborhood isolation, keyboard (`f` fit, `/` search, `Esc` clear). Nodes are not draggable; the layout is the layout.
+ELK layered layout rendered as SVG by the page itself: ELK sizes the layout from measured text, routes edges orthogonally and places edge labels as part of the layout, so labels never sit on top of nodes or other edges. Views as a segmented control, three information levels, legend that doubles as kind filter, search with a no-result state, zoom and direction controls, theme toggle (pure CSS, so the drawing follows instantly), inspector with summary, responsibility, file, status, evidence, notes and clickable neighbors, neighborhood isolation, empty and loading states, keyboard (`f` fit, `+`/`-` zoom, `d` direction, arrows pan, `/` search, `Esc` clear). Layout changes glide nodes to their new place. Nodes are not draggable; the layout is the layout.
 
 Fill only `<title>` and the JSON inside `<script id="graph" type="application/json">`:
 

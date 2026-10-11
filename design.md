@@ -33,7 +33,7 @@ Contrast (checked by `scripts/contrast.py`): `--fg` and `--fg-muted` on `--bg` a
 
 ## Surfaces and shape
 
-Elevation is a border, never a shadow, except the tooltip (offset 0 4px, blur 16px, tinted). Panels: `--bg-elev` with a 1px `--line` edge. Wells, chips and group boxes: `--bg-inset`. One radius scale: controls 6px, nodes 8px, panels 10px. No nested cards: a group box in the canvas is the only container inside the canvas.
+Two layers only. Structure (header, inspector) is `--bg-elev` separated by a 1px `--line` hairline, never a shadow. Floating chrome over the canvas (level control, search, zoom group, tooltip, toast) is a translucent material (`--chrome` with backdrop blur) with one soft offset shadow (`--shadow-float`), because it sits above content and must read as above it. One radius scale: controls 8px, nodes 10px, groups and floating chrome 14px. Segmented controls carry the selected segment on `--bg-elev` inside a `--bg-inset` track. No nested cards: a group box in the canvas is the only container inside the canvas, and the inspector uses spacing and hairlines, not boxes.
 
 ## Spacing
 
@@ -45,7 +45,8 @@ Elevation is a border, never a shadow, except the tooltip (offset 0 4px, blur 16
 - Status: verified solid border, inferred dashed, unknown dotted and 70% opacity.
 - Edge: orthogonal route from ELK, 1.5px, arrowhead filled, color from kind; event edges dashed, error edges dotted. Label in `--font-data` 12px, horizontal, on a `--bg-elev` plate with a `--line` border, placed inline on the edge by ELK so it never overlaps a node or another label.
 - Group: `--n-group-fill` with `--line` border, label top-left in `--fs-xs` caps.
-- Selected: 2.5px `--accent` border. Hover: neighborhood keeps full opacity, everything else drops to 18%.
+- Selected: 2px `--accent` border plus a soft 6px ring at 22% opacity. Hover: stroke thickens to 1.5px, neighborhood keeps full opacity, everything else drops to 16%.
+- Legend doubles as the kind filter: each kind row shows its count and toggles visibility; edge and status rows are informational.
 
 ## Levels of information
 
@@ -57,7 +58,7 @@ Nothing essential hides behind a click: the default level shows every responsibi
 
 ## Motion
 
-Hover and selection transitions at `--t-fast`. Layout changes animate 250ms. Nothing moves on its own. `prefers-reduced-motion` turns transitions off.
+One ease (`--ease`, an ease-out) and three durations: `--d-fast` 120ms for hover, press and selection; `--d-base` 200ms for content swaps, theme change and fades; `--d-slow` 320ms for nodes gliding to a new layout and for programmatic zoom or fit. A re-layout keeps every node on screen and glides it from its previous place (FLIP) while edges and labels fade in, so the reader never loses the node they were looking at. Wheel zoom and drag track the pointer 1:1 with no easing. Press states scale to 0.97. Nothing moves on its own. `prefers-reduced-motion` sets the durations to zero; `prefers-reduced-transparency` makes the floating chrome opaque.
 
 ## Theme
 
