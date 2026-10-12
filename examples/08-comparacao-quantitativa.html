@@ -355,6 +355,13 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
 .vt-scenarios-bar[hidden] { display: none; }
 .vt-scen-ctrl { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-control); padding: 3px 4px 3px 10px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06); }
 .vt-scen-label { font-size: var(--fs-xs); color: var(--fg-muted); font-weight: 600; letter-spacing: var(--track-caps); text-transform: uppercase; white-space: nowrap; }
+
+/* ---------- context menu (right-click; same tokens as floats and rows) */
+.vt-menu { position: fixed; z-index: 30; min-width: 200px; max-width: 280px; padding: 4px; background: var(--chrome); -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%); border-radius: calc(var(--r-control) + 3px); box-shadow: var(--shadow-float); }
+.vt-menu button { display: flex; align-items: baseline; gap: var(--sp-2); width: 100%; text-align: left; background: none; border: 0; padding: 7px 10px; border-radius: var(--r-control); color: var(--fg); font-size: var(--fs-sm); line-height: 1.35; cursor: pointer; }
+.vt-menu button:hover { background: var(--bg-inset); }
+.vt-menu button .k { margin-left: auto; color: var(--fg-faint); font-size: var(--fs-xs); white-space: nowrap; }
+.vt-menu .sep { height: 1px; background: var(--line); margin: 4px 6px; }
 </style>
 </head>
 <body>
@@ -1878,7 +1885,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
     });
   }
   function loadView(id) {
-    var v = views.filter(function (x) { return x.id === id; })[0] || views[0]; current = v; hidden = {}; hiddenKinds = {}; clearSel(); (v.blocks || []).forEach(function (b) { b._focus = null; b._dir = null; });
+    var v = views.filter(function (x) { return x.id === id; })[0] || views[0]; current = v; hidden = {}; hiddenKinds = {}; clearSel(); closeMenu(); (v.blocks || []).forEach(function (b) { b._focus = null; b._dir = null; });
     v._scenarioSel = null; applyScenarios(v, false); renderScenarios();
     Array.prototype.forEach.call(viewsEl.children, function (bt) { bt.setAttribute('aria-selected', bt.dataset.view === v.id ? 'true' : 'false'); });
     viewHasGraph = (v.blocks || []).some(function (b) { return b.type === 'graph'; }); $('levels').hidden = !viewHasGraph;
@@ -1913,6 +1920,54 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   $('btnSearch').onclick = function () { if (sb.classList.contains('open')) closeSearch(); else openSearch(); };
   q.addEventListener('input', runSearch); q.addEventListener('blur', function () { if (!q.value) setTimeout(function () { if (document.activeElement !== q && !q.value) closeSearch(); }, 120); });
   document.addEventListener('keydown', function (ev) { var inInput = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA'); if (inInput) { if (ev.key === 'Escape') closeSearch(); return; } if (ev.key === 'f') fit(true); else if (ev.key === '+' || ev.key === '=') zoomBy(1.25, null, null, true); else if (ev.key === '-') zoomBy(0.8, null, null, true); else if (ev.key === '/') { ev.preventDefault(); openSearch(); } else if (ev.key === 'Escape') { if (sb.classList.contains('open')) closeSearch(); clearSel(); showSummary(); } else if (ev.key === 'd' && viewHasGraph) { var gbk = (current.blocks || []).filter(function (b) { return b.type === 'graph'; })[0]; gbk._dir = (gbk._dir || gbk.direction || 'RIGHT') === 'RIGHT' ? 'DOWN' : 'RIGHT'; redrawBlock(gbk); } else if (ev.key >= '1' && ev.key <= '3' && viewHasGraph) { $('levels').querySelector('[data-level="' + ev.key + '"]').click(); } else if (ev.key.indexOf('Arrow') === 0) { ev.preventDefault(); var st = 48; if (ev.key === 'ArrowLeft') tx += st; if (ev.key === 'ArrowRight') tx -= st; if (ev.key === 'ArrowUp') ty += st; if (ev.key === 'ArrowDown') ty -= st; apply(true); } });
+
+  // ---------- context menu: right-click reuses the click handlers, adds nothing new
+  var menuEl = null;
+  function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
+  function fireClick(el) { if (el) el.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+  function menuBtn(menu, label, hint, run) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = label; if (hint) { var k = document.createElement('span'); k.className = 'k'; k.textContent = hint; b.appendChild(k); } b.onclick = function (ev) { ev.stopPropagation(); closeMenu(); run(); }; menu.appendChild(b); return b; }
+  canvas.addEventListener('contextmenu', function (ev) {
+    ev.preventDefault(); closeMenu(); hideTip();
+    var t = ev.target, menu = document.createElement('div');
+    menu.className = 'vt-menu'; menu.setAttribute('role', 'menu');
+    var gb = t.closest ? t.closest('.blk') : null, bi = gb ? Array.prototype.indexOf.call(world.children, gb) : -1, b = bi >= 0 ? current.blocks[bi] : null;
+    var nd = t.closest ? t.closest('.nd[data-id], .item[data-i]') : null;
+    var ed = !nd && t.closest ? t.closest('.ed[data-from], .el[data-from]') : null;
+    if (nd) {
+      var id = nd.dataset.id || nd.dataset.i;
+      menu.setAttribute('aria-label', 'Ações do elemento');
+      menuBtn(menu, 'Inspecionar', null, function () { fireClick(nd); });
+      if (b && b.type === 'graph' && nd.dataset.id) {
+        menuBtn(menu, b._focus === nd.dataset.id ? 'Mostrar tudo' : 'Isolar vizinhança', null, function () { if (b._focus === nd.dataset.id) { b._focus = null; redrawBlock(b); } else { b._focus = nd.dataset.id; redrawBlock(b).then(function () { clickNode(gb, nd.dataset.id); }); } });
+      }
+    } else if (ed) {
+      menu.setAttribute('aria-label', 'Ações da ligação');
+      menuBtn(menu, 'Ver detalhes', null, function () { fireClick(ed); });
+      menuBtn(menu, 'Ir para a origem', null, function () { clickNode(gb, ed.dataset.from); });
+      menuBtn(menu, 'Ir para o destino', null, function () { clickNode(gb, ed.dataset.to); });
+    } else if (b) {
+      menu.setAttribute('aria-label', 'Ações do bloco');
+      menuBtn(menu, 'Ver resumo do bloco', null, function () { selectBlock(bi); });
+    } else {
+      menu.setAttribute('aria-label', 'Ações do canvas');
+      menuBtn(menu, 'Ajustar à tela', 'f', function () { fit(true); });
+      menuBtn(menu, 'Buscar no desenho', '/', function () { openSearch(); });
+      if (viewHasGraph) {
+        var sep = document.createElement('div'); sep.className = 'sep'; menu.appendChild(sep);
+        [['Mapa', '1'], ['Contexto', '2'], ['Detalhes', '3']].forEach(function (lv) {
+          menuBtn(menu, 'Nível ' + lv[0], lv[1], function () { $('levels').querySelector('[data-level="' + lv[1] + '"]').click(); });
+        });
+      }
+      menuBtn(menu, 'Alternar tema', null, function () { $('btnTheme').click(); });
+    }
+    document.body.appendChild(menu); menuEl = menu;
+    var r = menu.getBoundingClientRect(), x = Math.min(ev.clientX, window.innerWidth - r.width - 8), y = Math.min(ev.clientY, window.innerHeight - r.height - 8);
+    menu.style.left = Math.max(8, x) + 'px'; menu.style.top = Math.max(8, y) + 'px';
+    var first = menu.querySelector('button'); if (first) first.focus();
+  });
+  document.addEventListener('pointerdown', function (ev) { if (menuEl && !menuEl.contains(ev.target)) closeMenu(); }, true);
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && menuEl) { closeMenu(); ev.stopPropagation(); } }, true);
+  window.addEventListener('resize', closeMenu);
 
   // ---------- small screens: the inspector is a sheet that collapses to its handle
   $('grab').onclick = function () { aside.classList.toggle('collapsed'); setTimeout(function () { if (L && !selectedNode) fit(true); }, ms('--d-slow') + 20); };
