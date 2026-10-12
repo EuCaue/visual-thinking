@@ -526,7 +526,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
       sections: [blocks.length > 1 ? { label: 'Nesta vista', rows: blocks.map(function (x) { return { b: x.b.title, d: BLOCK_L[x.b.type] ? BLOCK_L[x.b.type](x.b) : '', onclick: function () { selectBlock(x.i); } }; }) } : null] };
   }
   function showSummary() { ACT = []; setDetail(infoHtml(summaryInfo())); }
-  var BLOCK_L = { chart: function (b) { return ({ line: 'linha', area: 'área', bar: 'barras', stackedBar: 'barras empilhadas', scatter: 'dispersão', dot: 'pontos', histogram: 'histograma', donut: 'rosca' })[b.kind || 'line'] || 'gráfico'; }, kpi: function () { return 'indicadores'; }, matrix: function (b) { return 'matriz · ' + (b.columns || []).length + ' opções'; }, decision: function (b) { return 'decisão · ' + (b.options || []).length + ' opções'; }, cards: function (b) { return (b.items || []).length + ' colunas'; }, timeline: function (b) { return (b.events || []).length + ' eventos'; }, steps: function (b) { return (b.items || []).length + ' etapas'; }, tree: function (b) { return b.layout === 'mindmap' ? 'mapa mental' : 'árvore'; }, mindmap: function () { return 'mapa mental'; }, quadrant: function () { return 'quadrante'; }, spectrum: function () { return 'espectro'; }, cycle: function (b) { return 'ciclo · ' + (b.items || []).length + ' estágios'; }, funnel: function (b) { return (b.shape === 'pyramid' ? 'pirâmide' : 'funil') + ' · ' + (b.items || []).length + ' estágios'; }, venn: function (b) { return 'venn · ' + (b.sets || []).length + ' conjuntos'; }, graph: function (b) { return 'diagrama · ' + (b.nodes || []).length + ' elementos'; }, free: function () { return 'desenho'; }, callout: function () { return 'nota'; }, text: function () { return 'texto'; } };
+  var BLOCK_L = { chart: function (b) { return ({ line: 'linha', area: 'área', bar: 'barras', stackedBar: 'barras empilhadas', scatter: 'dispersão', dot: 'pontos', histogram: 'histograma', donut: 'rosca', tornado: 'tornado' })[b.kind || 'line'] || 'gráfico'; }, kpi: function () { return 'indicadores'; }, matrix: function (b) { return 'matriz · ' + (b.columns || []).length + ' opções'; }, decision: function (b) { return 'decisão · ' + (b.options || []).length + ' opções'; }, cards: function (b) { return (b.items || []).length + ' colunas'; }, timeline: function (b) { return (b.events || []).length + ' eventos'; }, steps: function (b) { return (b.items || []).length + ' etapas'; }, tree: function (b) { return b.layout === 'mindmap' ? 'mapa mental' : 'árvore'; }, mindmap: function () { return 'mapa mental'; }, quadrant: function () { return 'quadrante'; }, spectrum: function () { return 'espectro'; }, cycle: function (b) { return 'ciclo · ' + (b.items || []).length + ' estágios'; }, funnel: function (b) { return (b.shape === 'pyramid' ? 'pirâmide' : 'funil') + ' · ' + (b.items || []).length + ' estágios'; }, venn: function (b) { return 'venn · ' + (b.sets || []).length + ' conjuntos'; }, graph: function (b) { return 'diagrama · ' + (b.nodes || []).length + ' elementos'; }, free: function () { return 'desenho'; }, callout: function () { return 'nota'; }, text: function () { return 'texto'; } };
   function selectBlock(i) { var b = current.blocks[i], gb = world.children[i]; if (!gb) return; centerBlock(i); clearSel(); gb.classList.add('sel'); var info = gb._info ? gb._info() : { title: b.title, sub: b.caption }; info.crumb = current.title || SC.title; showInfo(info); }
 
   // ---------- legend: each block records what it drew; the inspector merges the blocks of the view; filters where filtering makes sense
@@ -550,10 +550,48 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   // ---------- block: chart (d3 for scales, shapes and formats; the runtime owns the SVG)
   function seriesOf(b) { return (b.series || []).map(function (sr, i) { return Object.assign({ _i: i, _cls: 's' + ((i % 6) + 1), data: sr.data || [] }, sr); }); }
   function fmtK(k, xtype) { return xtype === 'time' ? (TLOC ? TLOC.format('%d %b %Y')(parseDate(k)) : String(k)) : xtype === 'number' ? fmtFull(+k) : String(k); }
+  function renderTornado(b, g, gb) {
+    if (!hasD3) { txt(g, 0, 14, 'A biblioteca de gráficos (d3) não carregou.', 'small muted'); return { w: 320, h: 20 }; }
+    var base = b.baseline || {};
+    var baseVal = typeof base === 'number' ? base : (base.value != null ? base.value : 0);
+    var baseLabel = (base && base.label) || 'Caso base';
+    var unit = unitOf(b);
+    var series = (b.series || []).slice().sort(function (a, c) { return Math.abs(c.high - c.low) - Math.abs(a.high - a.low); });
+    var lo = baseVal, hi = baseVal;
+    series.forEach(function (s) { lo = Math.min(lo, s.low); hi = Math.max(hi, s.high); });
+    if (lo === hi) hi = lo + 1;
+    var w = b.width || 640, rowH = 36, top = 26, bottom = 30;
+    var h = b.height || (top + series.length * rowH + bottom);
+    var catW = Math.max.apply(null, series.map(function (s) { return W(s.name, F.tick); }).concat([0]));
+    var left = catW + 14, right = 76;
+    var X = d3.scaleLinear().domain([lo, hi]).range([left, w - right]);
+    var Y = d3.scaleBand().domain(series.map(function (s) { return s.name; })).range([top, h - bottom]).paddingInner(0.35).paddingOuter(0.1);
+    X.ticks(5).forEach(function (t, i) { el('line', { x1: X(t), x2: X(t), y1: top, y2: h - bottom, 'class': i === 0 ? 'axis' : 'gridline' }, g); txt(g, X(t), h - bottom + 16, fmt(t), 'tick', 'middle'); });
+    series.forEach(function (s) { txt(g, left - 8, Y(s.name) + Y.bandwidth() / 2 + 3.5, s.name, 'tick', 'end'); });
+    var xb = X(baseVal);
+    el('line', { x1: xb, x2: xb, y1: top - 6, y2: h - bottom, 'class': 'ref', style: 'stroke:var(--line-strong)' }, g);
+    txt(g, xb, top - 10, baseLabel + ' ' + withUnit(baseVal, unit), 'ref-lbl', 'middle');
+    series.forEach(function (s) {
+      var y = Y(s.name), bh = Y.bandwidth();
+      var rl = el('rect', { 'class': 'mk-bar h', x: X(s.low), y: y, width: Math.max(1, xb - X(s.low)), height: bh, rx: 2, style: 'fill:var(--warn)' }, g);
+      var rr = el('rect', { 'class': 'mk-bar h', x: xb, y: y, width: Math.max(1, X(s.high) - xb), height: bh, rx: 2, style: 'fill:var(--accent)' }, g);
+      txt(g, X(s.low) - 5, y + bh / 2 + 3.5, s.lowLabel || withUnit(s.low, unit), 'mk-lbl', 'end');
+      txt(g, X(s.high) + 5, y + bh / 2 + 3.5, s.highLabel || withUnit(s.high, unit), 'mk-lbl', 'start');
+      var tip = function () { return tipHtml(s.name, [[{ name: 'Queda', _cls: 's2' }, (s.lowLabel || withUnit(s.low, unit)) + ' (' + deltaStr(baseVal, s.low, unit) + ')'], [{ name: 'Alta', _cls: 's1' }, (s.highLabel || withUnit(s.high, unit)) + ' (' + deltaStr(baseVal, s.high, unit) + ')']], 'Amplitude ' + withUnit(s.high - s.low, unit) + ' vs ' + baseLabel.toLowerCase() + ' ' + withUnit(baseVal, unit)); };
+      hitTip(rl, tip); hitTip(rr, tip);
+      var info = function () { return { crumb: b.title || 'Sensibilidade', title: s.name, sub: 'amplitude ' + withUnit(s.high - s.low, unit), kv: [['Caso base', withUnit(baseVal, unit) + (baseLabel ? ' · ' + baseLabel : '')], ['Queda', withUnit(s.low, unit) + ' (' + deltaStr(baseVal, s.low, unit) + ')'], ['Alta', withUnit(s.high, unit) + ' (' + deltaStr(baseVal, s.high, unit) + ')']], sections: [] }; };
+      bindSelect(rl, info); bindSelect(rr, info);
+    });
+    legendAdd('Variação', 'low', { sw: 'fill s2', label: 'Queda (low)' });
+    legendAdd('Variação', 'high', { sw: 'fill s1', label: 'Alta (high)' });
+    if (gb) gb._info = function () { return { title: b.title || 'Sensibilidade', sub: b.caption || '', kv: [['Caso base', withUnit(baseVal, unit) + (baseLabel ? ' · ' + baseLabel : '')], ['Fator determinante', series.length ? series[0].name + ' (amplitude ' + withUnit(series[0].high - series[0].low, unit) + ')' : '—']], sections: [{ label: 'Fatores por amplitude', rows: series.map(function (s) { return { sw: 'fill s1', b: s.name, d: (s.lowLabel || withUnit(s.low, unit)) + ' … ' + (s.highLabel || withUnit(s.high, unit)), v: '±' + withUnit(Math.max(baseVal - s.low, s.high - baseVal), unit) }; }) }] }; };
+    return { w: w, h: h + 6 };
+  }
   function drawChart(b, g, gb) {
     if (!hasD3) { txt(g, 0, 14, 'A biblioteca de gráficos (d3) não carregou.', 'small muted'); return { w: 320, h: 20 }; }
     var kind = b.kind || 'line';
     if (kind === 'donut') return drawDonut(b, g, gb);
+    if (kind === 'tornado') return renderTornado(b, g, gb);
     var series = seriesOf(b), unit = unitOf(b);
     if (kind === 'histogram') {
       var vals = (series[0] && (series[0].values || series[0].data.map(function (d) { return d[1]; }))) || [];
