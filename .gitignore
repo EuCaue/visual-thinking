@@ -1,0 +1,4 @@
+.ruff_cache/
+.superpowers/
+PROGRESS.md
+*.log

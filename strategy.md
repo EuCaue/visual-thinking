@@ -66,7 +66,7 @@ What the data actually is, independent of the chart you have in mind:
 | Robustness + weighted scores | Tornado sorted by swing: what moves the answer and by how much | `chart` kind `tornado` (`baseline`, `low`/`high` per factor) |
 | Consequences + a choice | Decision node with downstream consequence paths in 1st/2nd/3rd order, polarity and probability on edges; click isolates one path | `graph` with `kind: decision`, `consequence: {order, polarity}`, `prob` |
 | Scenarios + hypotheses | Same view under named hypotheses; chips swap the data without reload | view-level `scenarios` (`controls` + `overrides`) |
-| Risk + likelihood and impact | Position items on probability vs impact; tornado for the drivers | `quadrant` with `preset: risk`, `chart` kind `tornado` |
+| Risk + likelihood and impact | Position items on probability vs impact; tornado for the drivers | `quadrant` with axes labeled probability and impact, `chart` kind `tornado` |
 | Prioritize + importance and effort | Ranked `decision` with two criteria, or quadrant with quick wins named | `decision`, `quadrant` |
 | Compare + two architectures | Same layout for both, differing element marked, criteria table | `svg.html`, or two `graph` blocks in a `row` layout |
 | Change (before and after) | Two aligned columns or two graphs, difference marked | `cards` with 2 items, or `row` of two `graph` blocks |

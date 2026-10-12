@@ -1,39 +1,83 @@
 # visual-thinking
 
-Agent skill: turn explanations, architectures, processes, ideas, comparisons and data into standalone, explorable HTML pages. Loads when the user asks to draw ("desenhe", "faz um desenho", "compare visualmente", "mostre a evolução", "estou com preguiça de ler") or when a visual would replace several paragraphs of prose.
+An agent skill that turns explanations, architectures, decisions and data into standalone, explorable HTML pages. The agent reads what you need to see, writes a JSON scene, and the template renders it as a page you can open, click through and share. No build step, no framework, no account.
 
-The skill is harness-neutral. Any agent that can read these Markdown files, write a JSON scene and run (or imitate) a one-line Python build produces the same page; publishing, sending or opening the page uses whatever tool the harness has, as described in `formats.md`. The page itself depends on nothing but two pinned CDN libraries (d3, elkjs); type is the system font stack, so nothing to fetch offline but those two.
+## Why
 
-Files:
+Architecture, trade-offs and trends live badly in prose. You read three paragraphs to reconstruct one picture, and the writer has to keep every reader's mental image in sync. ASCII art in chat makes it worse: it doesn't survive a phone, and nobody can click it.
 
-- `SKILL.md`: when to draw, when not to, a fast intent → block lookup, seven modes (sketch, explain, document, plan, compare, summarize, decide), how to build and deliver, output contract.
-- `strategy.md`: the deep reference for borderline choices: intents, information structures, strategies, compositions, anti-choices, when to ask. Most requests use the lookup table in `SKILL.md` alone.
-- `formats.md`: the templates, the scene schema, what every block shows at each information level, delivery per tool.
-- `design.md`: the design system: type, semantic color, surfaces, information architecture per block, data and diagram marks, motion, responsive rules, theme.
-- `examples.md`: generic versus annotated versions of the same diagrams.
-- `templates/canvas.html`: the default runtime. Composable scene of blocks (charts with scale, axis, series, marks, legend, reference lines, annotations and tooltips, including tornado sensitivity charts; matrix, weighted decision matrices with sliders and vetoes, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, kpi, callout, free canvas with image and video elements, graph with ELK layout and three levels, decision nodes with consequence paths), views with scenario toggles, one inspector per block, computed legend, search, right-click menu, pan, zoom and pinch, theme.
-- `templates/svg.html`: composed SVG for exact placements, with tooltip, inspector and theme toggle.
-- `templates/mermaid.html`: Mermaid viewer themed from the same tokens.
-- `templates/_tokens.css`, `scripts/sync-tokens.py`, `scripts/contrast.py`: the token source and its checks.
-- `scripts/build-scene.py`: validates the scene, then injects it into the template and wraps it as a standalone document (`--fragment` for publish tools that add their own skeleton, `--validate-only` to check without writing). `scripts/build-examples.sh` rebuilds the examples.
-- `examples/`: twelve scenes, twelve different pictures: a three-process architecture, three databases compared, a time series, a product timeline, an OAuth PKCE flow, a metrics dashboard, a concept map, a quantitative comparison, a monorepo hierarchy, a free explanation of a CDN, an architectural decision with sensitivity analysis, a migration scenario and consequence map.
-- `tests/`: scenarios and results from the skill's TDD loop, plus regression tests for the validator and every canvas feature (decision, tornado, scenarios, context menu, text guards, media).
+This skill draws the picture instead, and draws it in a form that carries the load: labeled edges, units on axes, evidence tags on claims that came from reading, a right panel that answers "where did this number come from?" on click. When there is nothing worth drawing ("what's the difference between these two numbers?"), the skill answers in prose and skips the page.
 
-Install: point the agent's skills directory at this folder. Examples:
+## How it works
+
+1. The agent classifies what the reader needs (compare, weigh a decision, follow a flow, see a trend) and picks a block for it.
+2. It writes a scene: a JSON file with a title, a summary, one or more views, and blocks. Nothing is styled by hand; colors, type and layout come from the design system.
+3. `scripts/build-scene.py` validates the scene (dangling ids, unlabeled edges, out-of-range values) and emits one standalone HTML file.
+
+The full contract the agent follows lives in [SKILL.md](SKILL.md).
+
+## What it can draw
+
+| The reader needs to | Block |
+|---|---|
+| compare options on shared attributes | `matrix` |
+| weigh options with weights, vetoes and sensitivity | `decision` |
+| see what flips a decision | `chart` kind `tornado` |
+| see consequences of a choice | `graph` with decision nodes and consequence paths |
+| test alternative futures | view-level `scenarios` controls |
+| see change over time | `chart` line or area |
+| follow an architecture, flow or dependency | `graph` |
+| follow steps or a protocol | `steps`, or `mermaid.html` for sequence and state |
+| see hierarchy or organize ideas | `tree`, or `tree` with `layout: "mindmap"` |
+| situate items on criteria | `quadrant`, `spectrum` |
+| see events, conversion, proportions, numbers | `timeline`, `funnel`, `donut` and other `chart` kinds, `kpi` |
+| show an image or video | `free` with `image`/`video` elements |
+
+Reference pages for each: `examples/`. `02-comparacao-tecnologias.json` compares three databases, `05-fluxo-autenticacao.json` draws OAuth PKCE with evidence tags, `11-decisao-arquitetural.json` picks a message broker with a weighted matrix and a tornado, `12-analise-cenarios.json` runs a migration under three scenarios.
+
+## Install
 
 ```bash
-# any agent with the skills CLI (lists on skills.sh via install telemetry)
 npx skills add EuCaue/visual-thinking
 ```
 
-```bash
-# Claude Code and OpenCode (both scan ~/.agents/skills; Claude Code also scans ~/.claude/skills)
-ln -sfn "$PWD" ~/.agents/skills/visual-thinking && ln -sfn ../../.agents/skills/visual-thinking ~/.claude/skills/visual-thinking
-```
+Or point the agent's skills directory at this folder:
 
 ```bash
-# any other agent: copy or link the folder where it looks for skills, or paste SKILL.md into its instructions
-ln -sfn "$PWD" ~/.config/<agent>/skills/visual-thinking
+ln -sfn "$PWD" ~/.agents/skills/visual-thinking
 ```
 
-Validation: built with the Superpowers writing-skills loop (baseline versus with-skill subagents), browser checks of every example in light and dark, at 1400px and 375px, with real pointer clicks on nodes, edges, groups, cells, points and legend rows; the Impeccable detector (remaining findings are cross-theme false positives); `scripts/contrast.py` on 54 token pairs. See `tests/README.md`.
+## Use
+
+Write a scene JSON (start from an `examples/*.json` file), build it, open the page:
+
+```bash
+python3 scripts/build-scene.py my-scene.json my-page.html
+```
+
+On success the first output line is the absolute path of the page. `--validate-only` checks without writing; `--fragment` skips the document tags for publish tools that add their own skeleton.
+
+## Project layout
+
+- `SKILL.md`, `strategy.md`: when to draw, the intent-to-block lookup, the deep strategies and anti-choices.
+- `formats.md`: scene schema, every block's fields and what it shows at each information level, delivery per tool.
+- `design.md`: the design system the templates enforce.
+- `templates/canvas.html`, `svg.html`, `mermaid.html`: the three renderers. `canvas.html` is the default.
+- `scripts/`: build, token sync, contrast check.
+- `examples/`: twelve scenes, rebuilt by `sh scripts/build-examples.sh`.
+- `tests/`: regression tests for the validator and every canvas feature.
+
+## Limits
+
+- Charts, trees and graphs load d3 and elkjs from CDNs; offline they show a one-line message instead. Everything else renders offline.
+- A graph view stays under 12 nodes plus groups; more than that belongs in an overview view plus one view per part.
+- The agent never invents data: with no real numbers in reach, it draws the underlying structure and marks values unknown, or asks for them.
+- The repo is private for now; the skill itself has no telemetry and no network calls beyond the two CDNs.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: every scene change ships with a build, a test run and a contrast check.
+
+## Docs
+
+[SKILL.md](SKILL.md) · [strategy.md](strategy.md) · [formats.md](formats.md) · [design.md](design.md) · [examples.md](examples.md)

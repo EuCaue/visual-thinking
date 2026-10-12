@@ -71,6 +71,14 @@ At rest the inspector shows the view summary, the basis (`Lido no código`, `Bas
 
 One ease (`--ease`, an ease-out) and three durations: `--d-fast` 120ms for hover, press and selection; `--d-base` 200ms for inspector swaps and fades; `--d-slow` 320ms for lines drawing in, bars growing from the baseline, marks gliding to a new scale after a legend toggle, nodes gliding to a new layout (FLIP), and programmatic zoom or fit. Entrance and swaps use keyframes that end in the element's natural state, so a frame that is never painted (hidden tab) costs nothing. Wheel zoom, drag and pinch track the pointer 1:1 with no easing. Press states scale to 0.97. Nothing moves on its own. `prefers-reduced-motion` sets the durations to zero and disables keyframes; `prefers-reduced-transparency` makes the floating chrome opaque.
 
+## Blocks added for decisions and media
+
+- Decision matrix: one summary row per option carries the weighted total with the leader highlighted in `--accent`; options below a `vetoBelow` cut get a `--danger` badge and leave the ranking; each criterion row has a weight slider that recomputes totals, ranks and the flip-criterion note live, without redrawing the block.
+- Tornado chart: horizontal bars from a dashed baseline at the case-base value, `--warn` for the low side and `--accent` for the high side, series sorted by swing, value labels dropped when they would land on the row name or the axis.
+- Scenario bar: one segmented control per control above the canvas, reusing the `.seg` styles; switching applies the override patch and re-renders the view without a reload.
+- Right-click menu: the same floating-chrome material as the tooltip and the zoom group (`--chrome`, `--shadow-float`, 14px radius) with rows styled like inspector rows; items come from the target (inspect or isolate on elements, fit, search, levels and theme on empty canvas).
+- Media in `free`: `image` and `video` elements place a remote or page-relative file on the 8px grid; video uses its native controls and the canvas ignores presses on it, so the pan does not fight the player. Source URLs in the scene render as `--accent` links in the inspector.
+
 ## Responsive
 
 Over 1100px the header is one row; below, the view tabs drop to their own row and scroll sideways. Under 820px the inspector becomes a bottom sheet with a handle, collapsed until something is selected; controls grow to 36px targets; the theme button keeps its icon only. Under 700px of canvas width every `row` or `grid` layout stacks, graphs flow top-down, KPIs wrap two per row, and pinch zooms. The canvas never scrolls the page sideways.
