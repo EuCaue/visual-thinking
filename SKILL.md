@@ -1,6 +1,11 @@
 ---
 name: visual-thinking
-description: Use when the user asks to draw, sketch, diagram, chart or "show visually" anything (an architecture, a concept, a comparison, a trend, numbers, a timeline, a process, ideas to organize, a pasted text): "desenhe", "faz um desenho", "me mostre visualmente", "compare visualmente", "mostre a evolução", "organize essas ideias", "estou com preguiça de ler", "não entendi, desenha", "planeje e desenhe". Also when an explanation of how parts connect, how values compare or what happens over time would take more than three paragraphs of prose.
+description: >-
+  Use when the user asks to draw, sketch, diagram, chart or show visually
+  anything (an architecture, a concept, a comparison, a trend, numbers, a
+  timeline, a process, ideas to organize, a pasted text). Also when an
+  explanation of how parts connect, how values compare or what happens over
+  time would take more than three paragraphs of prose.
 metadata:
   opencode/slash: "true"
 ---
