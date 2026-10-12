@@ -10,8 +10,8 @@ Technical documentation, read and operated, not a dashboard and not a marketing 
 
 | Role | Token | Face | Size |
 |---|---|---|---|
-| UI, headings, labels | `--font-ui` | IBM Plex Sans (Google Fonts), fallback Segoe UI / system-ui | 11 to 22px |
-| Files, symbols, numbers, edge labels, ticks | `--font-data` | IBM Plex Mono, fallback ui-monospace | 10.5 to 12.5px |
+| UI, headings, labels | `--font-ui` | system font stack (`system-ui`, fallback `-apple-system` / `sans-serif`) | 11 to 22px |
+| Files, symbols, numbers, edge labels, ticks | `--font-data` | system `monospace` | 10.5 to 12.5px |
 
 Page title 22px weight 600, tracking −0.02em; inspector name 17px, tracking −0.012em; block title 13.5px weight 600; body 12.5 to 14px; captions and ticks 10.5 to 11.5px muted. Section labels in the inspector are 12px uppercase with `--track-caps`, weight 600, `--fg-faint`. Numbers use tabular figures. Mono is for code, paths and data, never as a costume.
 
