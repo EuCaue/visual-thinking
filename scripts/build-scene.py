@@ -123,9 +123,19 @@ def check_graph(b, p, w, c):
             else:
                 if "order" in cons and not isinstance(cons["order"], int):
                     p(c + f"nó '{nid}' consequence.order deve ser inteiro")
-                if cons.get("polarity") and cons["polarity"] not in ("ok", "danger", "neutral", "warn"):
-                    p(c + f"nó '{nid}' consequence.polarity desconhecido: {cons['polarity']!r}")
-        if "prob" in n and (not isinstance(n["prob"], (int, float)) or not (0 <= n["prob"] <= 1)):
+                if cons.get("polarity") and cons["polarity"] not in (
+                    "ok",
+                    "danger",
+                    "neutral",
+                    "warn",
+                ):
+                    p(
+                        c
+                        + f"nó '{nid}' consequence.polarity desconhecido: {cons['polarity']!r}"
+                    )
+        if "prob" in n and (
+            not isinstance(n["prob"], (int, float)) or not (0 <= n["prob"] <= 1)
+        ):
             p(c + f"nó '{nid}' prob deve ser número entre 0 e 1: {n['prob']!r}")
     dup = {i for i in ids if ids.count(i) > 1}
     if dup:
@@ -169,11 +179,27 @@ def check_graph(b, p, w, c):
                 p(c + f"edge {e.get('from')}→{e.get('to')} consequence deve ser objeto")
             else:
                 if "order" in cons and not isinstance(cons["order"], int):
-                    p(c + f"edge {e.get('from')}→{e.get('to')} consequence.order deve ser inteiro")
-                if cons.get("polarity") and cons["polarity"] not in ("ok", "danger", "neutral", "warn"):
-                    p(c + f"edge {e.get('from')}→{e.get('to')} consequence.polarity desconhecido: {cons['polarity']!r}")
-        if "prob" in e and (not isinstance(e["prob"], (int, float)) or not (0 <= e["prob"] <= 1)):
-            p(c + f"edge {e.get('from')}→{e.get('to')} prob deve ser número entre 0 e 1: {e['prob']!r}")
+                    p(
+                        c
+                        + f"edge {e.get('from')}→{e.get('to')} consequence.order deve ser inteiro"
+                    )
+                if cons.get("polarity") and cons["polarity"] not in (
+                    "ok",
+                    "danger",
+                    "neutral",
+                    "warn",
+                ):
+                    p(
+                        c
+                        + f"edge {e.get('from')}→{e.get('to')} consequence.polarity desconhecido: {cons['polarity']!r}"
+                    )
+        if "prob" in e and (
+            not isinstance(e["prob"], (int, float)) or not (0 <= e["prob"] <= 1)
+        ):
+            p(
+                c
+                + f"edge {e.get('from')}→{e.get('to')} prob deve ser número entre 0 e 1: {e['prob']!r}"
+            )
     if len(nodes) + len(groups) > 12:
         w(
             c
@@ -217,9 +243,19 @@ def check_decision(b, p, w, c):
                 p(c + "opção sem id")
             if not opt.get("label"):
                 p(c + f"opção '{oid or '?'}' sem label")
-            if "reversibility" in opt and opt["reversibility"] not in ("one-way", "two-way"):
-                p(c + f"opção '{oid or '?'}' reversibility desconhecido: {opt['reversibility']!r}")
-            if "vetoBelow" in opt and opt["vetoBelow"] is not None and not isinstance(opt["vetoBelow"], (int, float)):
+            if "reversibility" in opt and opt["reversibility"] not in (
+                "one-way",
+                "two-way",
+            ):
+                p(
+                    c
+                    + f"opção '{oid or '?'}' reversibility desconhecido: {opt['reversibility']!r}"
+                )
+            if (
+                "vetoBelow" in opt
+                and opt["vetoBelow"] is not None
+                and not isinstance(opt["vetoBelow"], (int, float))
+            ):
                 p(c + f"opção '{oid or '?'}' vetoBelow inválido: {opt['vetoBelow']!r}")
 
     crits = b.get("criteria")
@@ -237,23 +273,48 @@ def check_decision(b, p, w, c):
                 p(c + f"critério '{cid or '?'}' sem label")
             w_val = cr.get("weight")
             if w_val is None or not isinstance(w_val, (int, float)) or w_val < 0:
-                p(c + f"critério '{cid or '?'}' weight inválido (esperado número >= 0): {w_val!r}")
-            if "vetoBelow" in cr and cr["vetoBelow"] is not None and not isinstance(cr["vetoBelow"], (int, float)):
-                p(c + f"critério '{cid or '?'}' vetoBelow inválido (esperado número): {cr['vetoBelow']!r}")
-            if "reversibility" in cr and cr["reversibility"] not in ("one-way", "two-way"):
-                p(c + f"critério '{cid or '?'}' reversibility desconhecido: {cr['reversibility']!r}")
+                p(
+                    c
+                    + f"critério '{cid or '?'}' weight inválido (esperado número >= 0): {w_val!r}"
+                )
+            if (
+                "vetoBelow" in cr
+                and cr["vetoBelow"] is not None
+                and not isinstance(cr["vetoBelow"], (int, float))
+            ):
+                p(
+                    c
+                    + f"critério '{cid or '?'}' vetoBelow inválido (esperado número): {cr['vetoBelow']!r}"
+                )
+            if "reversibility" in cr and cr["reversibility"] not in (
+                "one-way",
+                "two-way",
+            ):
+                p(
+                    c
+                    + f"critério '{cid or '?'}' reversibility desconhecido: {cr['reversibility']!r}"
+                )
             scores = cr.get("scores")
             if scores is None or not isinstance(scores, dict):
                 p(c + f"critério '{cid or '?'}' sem scores")
             else:
                 for opt_id, sc in scores.items():
                     if not isinstance(sc, dict):
-                        p(c + f"critério '{cid or '?'}' score para '{opt_id}' deve ser objeto")
+                        p(
+                            c
+                            + f"critério '{cid or '?'}' score para '{opt_id}' deve ser objeto"
+                        )
 
     if "reversibility" in b and b["reversibility"] not in ("one-way", "two-way"):
         p(c + f"decision reversibility desconhecido: {b['reversibility']!r}")
-    if "vetoBelow" in b and b["vetoBelow"] is not None and not isinstance(b["vetoBelow"], (int, float)):
+    if (
+        "vetoBelow" in b
+        and b["vetoBelow"] is not None
+        and not isinstance(b["vetoBelow"], (int, float))
+    ):
         p(c + f"decision vetoBelow inválido: {b['vetoBelow']!r}")
+    if not b.get("weightBasis"):
+        w(c + "decision sem weightBasis (declare de onde vêm os pesos)")
 
 
 def check_block(b, p, w, c):
@@ -316,7 +377,10 @@ def check_scenarios(sc, p, c):
                 if not ctrl.get("label"):
                     p(c + f"controle de cenário '{ctrl.get('id', '?')}' sem label")
                 if "options" in ctrl and not isinstance(ctrl["options"], list):
-                    p(c + f"controle de cenário '{ctrl.get('id', '?')}' options deve ser lista")
+                    p(
+                        c
+                        + f"controle de cenário '{ctrl.get('id', '?')}' options deve ser lista"
+                    )
     if "overrides" in sc and not isinstance(sc["overrides"], dict):
         p(c + "scenarios overrides deve ser objeto")
 
