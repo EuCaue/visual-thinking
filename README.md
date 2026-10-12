@@ -22,6 +22,11 @@ Files:
 Install: point the agent's skills directory at this folder. Examples:
 
 ```bash
+# any agent with the skills CLI (lists on skills.sh via install telemetry)
+npx skills add EuCaue/visual-thinking
+```
+
+```bash
 # Claude Code and OpenCode (both scan ~/.agents/skills; Claude Code also scans ~/.claude/skills)
 ln -sfn "$PWD" ~/.agents/skills/visual-thinking && ln -sfn ../../.agents/skills/visual-thinking ~/.claude/skills/visual-thinking
 ```
