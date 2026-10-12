@@ -45,3 +45,15 @@ Built: a per-block information architecture (formats.md lists what each block sh
 Checked in the browser, light and dark, 1400px and 375px: ten examples (`examples/`), no console errors, no horizontal page scroll, real pointer clicks on a matrix column and row, a graph group, an edge label, a node, a chart point, a donut arc, a tree node, a legend toggle. The Impeccable detector reports one cross-theme pair on canvas.html (dark muted text against the light surface) and SVG text without inline fill on svg.html; both are false positives.
 
 Lesson: in the desktop app's browser pane, CSS transitions sometimes never advance, so a state that starts at opacity 0 and relies on a transition can stay invisible. Keyframes that end in the element's natural state are safe. Screenshots can also lag one frame; take two.
+
+## Regression tests, 2026-10-11/12
+
+Small headless checks, one file per feature; run them all before committing canvas or validator changes:
+
+- `test_validator_decision.py`: `decision` blocks and `tornado` charts pass `--validate-only`.
+- `test_render_decision.py`, `test_render_tornado.py`, `test_consequence_and_scenarios.py`: built pages contain the `vt-decision` component, `renderTornado`, and the scenarios bar plus `isolateConsequencePath`.
+- `test_context_menu.py`: built pages contain the `vt-menu` component and its per-target actions.
+- `test_text_guards.py`: duplicated venn intersections warn, duplicated free arrows fail, and the canvas source holds every no-overlap guard.
+- `test_media.py`: `image`/`video` free elements build, missing `src` fails, absolute local `src` warns.
+
+Visual proof stays in the browser: build every example (`sh scripts/build-examples.sh`), open each page, and check for overlapping text bounding boxes, working sliders, scenario chips, consequence isolation, the right-click menu per target, and image/video rendering with inspector source links. `python3 scripts/contrast.py` must print `ok` on every line.

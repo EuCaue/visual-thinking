@@ -11,13 +11,13 @@ Files:
 - `formats.md`: the templates, the scene schema, what every block shows at each information level, delivery per tool.
 - `design.md`: the design system: type, semantic color, surfaces, information architecture per block, data and diagram marks, motion, responsive rules, theme.
 - `examples.md`: generic versus annotated versions of the same diagrams.
-- `templates/canvas.html`: the default runtime. Composable scene of blocks (charts with scale, axis, series, marks, legend, reference lines, annotations and tooltips, including tornado sensitivity charts; matrix, weighted decision matrices with sliders and vetoes, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, kpi, callout, free canvas, graph with ELK layout and three levels, decision nodes with consequence paths), views with scenario toggles, one inspector per block, computed legend, search, pan, zoom and pinch, theme.
+- `templates/canvas.html`: the default runtime. Composable scene of blocks (charts with scale, axis, series, marks, legend, reference lines, annotations and tooltips, including tornado sensitivity charts; matrix, weighted decision matrices with sliders and vetoes, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, kpi, callout, free canvas with image and video elements, graph with ELK layout and three levels, decision nodes with consequence paths), views with scenario toggles, one inspector per block, computed legend, search, right-click menu, pan, zoom and pinch, theme.
 - `templates/svg.html`: composed SVG for exact placements, with tooltip, inspector and theme toggle.
 - `templates/mermaid.html`: Mermaid viewer themed from the same tokens.
 - `templates/_tokens.css`, `scripts/sync-tokens.py`, `scripts/contrast.py`: the token source and its checks.
 - `scripts/build-scene.py`: validates the scene, then injects it into the template and wraps it as a standalone document (`--fragment` for publish tools that add their own skeleton, `--validate-only` to check without writing). `scripts/build-examples.sh` rebuilds the examples.
 - `examples/`: twelve scenes, twelve different pictures: a three-process architecture, three databases compared, a time series, a product timeline, an OAuth PKCE flow, a metrics dashboard, a concept map, a quantitative comparison, a monorepo hierarchy, a free explanation of a CDN, an architectural decision with sensitivity analysis, a migration scenario and consequence map.
-- `tests/`: scenarios and results from the skill's TDD loop.
+- `tests/`: scenarios and results from the skill's TDD loop, plus regression tests for the validator and every canvas feature (decision, tornado, scenarios, context menu, text guards, media).
 
 Install: point the agent's skills directory at this folder. Examples:
 

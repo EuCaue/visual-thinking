@@ -47,9 +47,10 @@ Fast lookup, then draw. The default template is `canvas.html`.
 | see events in time | `timeline` |
 | see conversion through stages | `funnel` |
 | see the numbers at a glance | `kpi` |
+| show a photo, screenshot, diagram image or video | `free` with `image`/`video` elements (`src` a link or page-relative path) |
 | none of them fit | `free` |
 
-Borderline choices, compositions of several blocks, the anti-choices and the "when to ask" list: [strategy.md](strategy.md). Five prompts with five intents must produce five different pictures; boxes and arrows for a comparison or a matrix for a trend means the lookup was skipped.
+Borderline choices, compositions of several blocks, the anti-choices and the "when to ask" list: [strategy.md](strategy.md). Different prompts with different intents must produce different pictures; boxes and arrows for a comparison or a matrix for a trend means the lookup was skipped.
 
 **Assumption beats question.** Draw what the context settles, and carry every guess openly: state it in the subtitle or tag it `inferred` / `unknown` in the scene. Ask one short sentence only in two cases: two readings lead to materially different pictures, or a data-driven chart has no real numbers in reach (never invent an axis, a series or a metric; draw the underlying structure instead — matrix, steps, graph — with the values marked `unknown`, or ask for the numbers).
 
@@ -76,7 +77,7 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 
 | Template | Use for |
 |---|---|
-| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut, tornado), kpi, matrix, decision, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas, graph (architecture with groups, typed edges, three information levels, legend as filter; decision nodes with consequence paths). Views as tabs, with optional `scenarios` controls; one inspector per block. |
+| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut, tornado), kpi, matrix, decision, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas (with image and video elements), graph (architecture with groups, typed edges, three information levels, legend as filter; decision nodes with consequence paths). Views as tabs, with optional `scenarios` controls; one inspector per block; right-click menu with per-target actions. |
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 

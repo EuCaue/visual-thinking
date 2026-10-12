@@ -93,6 +93,7 @@ What the data actually is, independent of the chart you have in mind:
 | Funnel + decreasing stages | Funnel with conversion per stage; pyramid for increasing layers | `funnel` |
 | Overlap + sets | Venn for 2 or 3 sets only | `venn` |
 | Status at a glance | Numbers first: value, delta, sparkline, no tiles | `kpi` |
+| Show + photo, screenshot or clip | Image or video pinned on the grid with caption and a source link | `free` with `image`/`video` elements |
 | Anything the blocks do not fit | Free composition on an 8px grid: shapes, text, arrows, badges, groups | `free`, or `svg.html` |
 
 Compose when one strategy is not enough: a comparison matrix plus a callout; a trend plus a stacked bar of its composition; a tree plus the cycle it runs. Use `layout.type` `stack` for a narrative order, `row` for things to compare side by side, `grid` for several equal panels. Put the answer to the user's question in the first block.
