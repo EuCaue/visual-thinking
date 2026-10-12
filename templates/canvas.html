@@ -1627,6 +1627,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
   function fireClick(el) { if (el) el.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
   function menuBtn(menu, label, hint, run) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = label; if (hint) { var k = document.createElement('span'); k.className = 'k'; k.textContent = hint; b.appendChild(k); } b.onclick = function (ev) { ev.stopPropagation(); closeMenu(); run(); }; menu.appendChild(b); return b; }
+  function menuSep(menu) { var last = menu.lastElementChild; if (!last || last.className !== 'sep') { var s = document.createElement('div'); s.className = 'sep'; menu.appendChild(s); } }
   canvas.addEventListener('contextmenu', function (ev) {
     ev.preventDefault(); closeMenu(); hideTip();
     var t = ev.target, menu = document.createElement('div');
@@ -1639,11 +1640,13 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
       menu.setAttribute('aria-label', 'Ações do elemento');
       menuBtn(menu, 'Inspecionar', null, function () { fireClick(nd); });
       if (b && b.type === 'graph' && nd.dataset.id) {
+        menuSep(menu);
         menuBtn(menu, b._focus === nd.dataset.id ? 'Mostrar tudo' : 'Isolar vizinhança', null, function () { if (b._focus === nd.dataset.id) { b._focus = null; redrawBlock(b); } else { b._focus = nd.dataset.id; redrawBlock(b).then(function () { clickNode(gb, nd.dataset.id); }); } });
       }
     } else if (ed) {
       menu.setAttribute('aria-label', 'Ações da ligação');
       menuBtn(menu, 'Ver detalhes', null, function () { fireClick(ed); });
+      menuSep(menu);
       menuBtn(menu, 'Ir para a origem', null, function () { clickNode(gb, ed.dataset.from); });
       menuBtn(menu, 'Ir para o destino', null, function () { clickNode(gb, ed.dataset.to); });
     } else if (b) {
@@ -1654,11 +1657,12 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
       menuBtn(menu, 'Ajustar à tela', 'f', function () { fit(true); });
       menuBtn(menu, 'Buscar no desenho', '/', function () { openSearch(); });
       if (viewHasGraph) {
-        var sep = document.createElement('div'); sep.className = 'sep'; menu.appendChild(sep);
+        menuSep(menu);
         [['Mapa', '1'], ['Contexto', '2'], ['Detalhes', '3']].forEach(function (lv) {
           menuBtn(menu, 'Nível ' + lv[0], lv[1], function () { $('levels').querySelector('[data-level="' + lv[1] + '"]').click(); });
         });
       }
+      menuSep(menu);
       menuBtn(menu, 'Alternar tema', null, function () { $('btnTheme').click(); });
     }
     document.body.appendChild(menu); menuEl = menu;

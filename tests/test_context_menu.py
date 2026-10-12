@@ -21,6 +21,7 @@ def test_context_menu():
     assert "contextmenu" in content
     assert "Isolar vizinhança" in content
     assert "Ajustar à tela" in content
+    assert "menuSep" in content, "seções do menu"
 
 
 if __name__ == "__main__":
