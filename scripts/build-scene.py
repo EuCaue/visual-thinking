@@ -227,6 +227,13 @@ def check_free(b, p, c):
                 p(c + f"{t} aponta para elemento inexistente: {e['from']!r}")
             if e.get("to") and e["to"] not in by_id:
                 p(c + f"{t} aponta para elemento inexistente: {e['to']!r}")
+    pairs = [
+        (e.get("from"), e.get("to"))
+        for e in (b.get("elements") or [])
+        if e.get("type") in ("line", "arrow") and e.get("from") and e.get("to")
+    ]
+    if len(set(pairs)) != len(pairs):
+        p(c + "duas setas com as mesmas pontas; rótulos colidem, some ou inverta uma")
 
 
 def check_decision(b, p, w, c):
@@ -354,6 +361,15 @@ def check_block(b, p, w, c):
         n = len(b.get("sets") or [])
         if n not in (2, 3):
             p(c + f"venn com {n} conjuntos; use 2 ou 3")
+        seen = set()
+        for o in b.get("overlaps") or []:
+            key = tuple(sorted((o.get("sets") or [])))
+            if key in seen:
+                w(
+                    c
+                    + f"venn com interseção duplicada {list(key)}; rótulos colidem, una as duas"
+                )
+            seen.add(key)
     elif t == "kpi":
         if not b.get("items"):
             p(c + "kpi sem items")
