@@ -69,10 +69,10 @@ On success the first output line is the absolute path of the page. `--validate-o
 
 ## Limits
 
-- Charts, trees and graphs load d3 and elkjs from CDNs; offline they show a one-line message instead. Everything else renders offline.
+- Charts, trees and graphs load d3 and elkjs from CDNs; offline they show a one-line message instead. Everything else renders offline. A build with `--self-contained` inlines both libraries into the file, so it works fully offline.
 - A graph view stays under 12 nodes plus groups; more than that belongs in an overview view plus one view per part.
 - The agent never invents data: with no real numbers in reach, it draws the underlying structure and marks values unknown, or asks for them.
-- The repo is private for now; the skill itself has no telemetry and no network calls beyond the two CDNs.
+- The repo is private for now; the skill itself has no telemetry and no network calls beyond the two CDNs (none with `--self-contained`).
 
 ## Contributing
 
