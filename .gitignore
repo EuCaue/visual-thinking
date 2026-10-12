@@ -2,3 +2,4 @@
 .superpowers/
 PROGRESS.md
 *.log
+.worktrees/
