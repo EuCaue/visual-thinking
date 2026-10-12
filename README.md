@@ -53,6 +53,7 @@ Write a scene JSON (start from an `examples/*.json` file), build it, open the pa
 
 ```bash
 python3 scripts/build-scene.py my-scene.json my-page.html
+python3 scripts/build-scene.py my-scene.json my-page.html --self-contained   # inlina d3 e elkjs: a página funciona offline
 ```
 
 On success the first output line is the absolute path of the page. `--validate-only` checks without writing; `--fragment` skips the document tags for publish tools that add their own skeleton.
