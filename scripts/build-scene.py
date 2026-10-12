@@ -438,6 +438,35 @@ def check_scene(scene, p, w):
             check_block(b, p, w, f"vista '{vid}' · block '{b.get('id')}': ")
 
 
+def inline_libs(page, w):
+    """Replace CDN <script src> tags with the file contents, cached in .vt-libs/.
+
+    Build needs network once; opening the page never does. A failed download
+    keeps the CDN tags and warns instead of failing the build, so an offline
+    author still gets a page.
+    """
+    import urllib.request
+
+    root = pathlib.Path(__file__).resolve().parent.parent
+    cache = root / ".vt-libs"
+    for url in re.findall(r'<script src="(https://[^"]+)"></script>', page):
+        name = url.rsplit("/", 1)[-1].split("?")[0]
+        lib = cache / name
+        if not lib.exists():
+            cache.mkdir(exist_ok=True)
+            try:
+                with urllib.request.urlopen(url, timeout=30) as r:
+                    lib.write_bytes(r.read())
+            except Exception as e:
+                w(f"self-contained sem rede para {url}: mantendo a tag CDN ({e})")
+                continue
+        page = page.replace(
+            f'<script src="{url}"></script>',
+            "<script>\n" + lib.read_text() + "\n</script>",
+        )
+    return page
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if len(args) < 2 and "--validate-only" not in sys.argv:
@@ -487,6 +516,9 @@ def main():
         page,
         count=1,
     )
+    if "--self-contained" in sys.argv:
+        page = inline_libs(page, p)
+
     out = pathlib.Path(args[1]).resolve()
     if "--fragment" not in sys.argv:
         head, body = page.split("</style>", 1)

@@ -3,3 +3,4 @@
 PROGRESS.md
 *.log
 .worktrees/
+.vt-libs/
