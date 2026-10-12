@@ -207,7 +207,7 @@ def check_graph(b, p, w, c):
         )
 
 
-def check_free(b, p, c):
+def check_free(b, p, w, c):
     by_id = {e.get("id") for e in (b.get("elements") or []) if e.get("id")}
     for e in b.get("elements") or []:
         t = e.get("type")
@@ -217,6 +217,17 @@ def check_free(b, p, c):
             for f in ("x", "y", "w", "h"):
                 if e.get(f) is None:
                     p(c + f"{t} '{e.get('id', e.get('text', '?'))}' sem {f}")
+            continue
+        if t in ("image", "video"):
+            for f in ("x", "y", "w", "h", "src"):
+                if e.get(f) is None:
+                    p(c + f"{t} '{e.get('id', '?')}' sem {f}")
+            src = e.get("src") or ""
+            if src.startswith("/") and "://" not in src:
+                w(
+                    c
+                    + f"{t} '{e.get('id', '?')}' com src absoluto local; quebra ao enviar, use relativo ou http(s)"
+                )
             continue
         if t in ("line", "arrow"):
             if not (e.get("from") or "x1" in e):
@@ -338,7 +349,7 @@ def check_block(b, p, w, c):
     elif t == "graph":
         check_graph(b, p, w, c)
     elif t == "free":
-        check_free(b, p, c)
+        check_free(b, p, w, c)
     elif t == "decision":
         check_decision(b, p, w, c)
     elif t in ("matrix",):
