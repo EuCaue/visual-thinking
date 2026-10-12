@@ -273,6 +273,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
 .mk-arc:hover, .mk-arc.sel { opacity: .85; }
 .mk-dot { fill: var(--c); transition: r var(--t-fast); } .mk-dot:hover { r: 6; }
 .mk-lbl { font-family: var(--font-data); font-size: 10.5px; fill: var(--fg-muted); }
+.pkt { fill: var(--e-data); opacity: .85; animation: none; } .pkt.pkt-event { fill: var(--e-event); }
 .end-lbl { font-size: 11px; fill: var(--fg-muted); } .end-lbl tspan.v { font-family: var(--font-data); fill: var(--fg); font-weight: 500; }
 .ref { stroke: var(--fg-muted); stroke-width: 1; stroke-dasharray: 4 3; fill: none; } .ref-lbl { font-size: 10.5px; fill: var(--fg-muted); }
 .ann-line { stroke: var(--fg-muted); stroke-width: 1; fill: none; } .ann-text { font-size: 11px; fill: var(--fg); } .ann-dot { fill: var(--fg); }
@@ -931,6 +932,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   var views = SC.views || [Object.assign({ id: 'main', title: SC.title }, SC)];
   var root = document.documentElement, SVG = 'http://www.w3.org/2000/svg';
   var hasD3 = typeof d3 !== 'undefined', hasELK = typeof ELK !== 'undefined';
+  var mqr = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
   function linkUrls(h) { return h.replace(/https?:\/\/[^\s<>"')]+/g, function (u) { return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>'; }); }
@@ -1963,7 +1965,8 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
       (out.children || []).forEach(function (c) { if (!c.children) return; var gid = c.id.slice(2), gr = groups[gid], gg = el('g', { 'class': 'grp', 'data-g': gid }, g); el('rect', { x: c.x, y: c.y, width: c.width, height: c.height, rx: 14 }, gg); txt(gg, c.x + 18, c.y + 24, gr.label, ''); if (level >= 3 && gr.file) txt(gg, c.x + 18 + W(gr.label.toUpperCase(), F.sm) + 12, c.y + 24, gr.file, 'lk mono'); if (gr.view && views.some(function (v) { return v.id === gr.view; })) txt(gg, c.x + c.width - 18, c.y + 24, 'abrir ›', 'lk', 'end'); var hit = el('rect', { 'class': 'grp-hit', x: c.x, y: c.y, width: c.width, height: 36, rx: 14 }, gg); var members = c.children.map(function (k) { return k.id; });
         bindSelect(hit, function () { return { crumb: b.title || current.title || '', title: gr.label, sub: gr.sub || '', file: gr.file || '', tags: [{ text: 'Fronteira · ' + members.length + ' elementos' }], sections: [gr.text ? { prose: gr.text } : null, { label: 'Dentro', rows: members.map(function (id) { return { sw: 'node k-' + nodes[id].kind, b: nodes[id].label, d: nodes[id].sub || '', onclick: function () { clickNode(gb, id); } }; }) }], actions: gr.view && views.some(function (v) { return v.id === gr.view; }) ? [{ label: 'Abrir vista', primary: true, onclick: function () { loadView(gr.view); } }] : [] }; });
         if (gr.view && views.some(function (v) { return v.id === gr.view; })) hit.addEventListener('dblclick', function () { loadView(gr.view); }); });
-      (out.edges || []).forEach(function (e) { var E = vedges.filter(function (x) { return x.id === e.id; })[0]; if (!E || !e.sections) return; var gf = nodes[E.from] && nodes[E.from].group, gt = nodes[E.to] && nodes[E.to].group, gc = gf && gf === gt ? abs['g_' + gf] : null, dx = gc ? gc.x : 0, dy = gc ? gc.y : 0; var d = e.sections.map(function (sec) { return [sec.startPoint].concat(sec.bendPoints || [], [sec.endPoint]).map(function (p, i) { return (i ? 'L' : 'M') + (p.x + dx).toFixed(1) + ' ' + (p.y + dy).toFixed(1); }).join(' '); }).join(' '); var pe = el('path', { d: d, 'class': 'ed e-' + E.kind, 'data-from': E.from, 'data-to': E.to, 'data-e': E.id }, g), ph = el('path', { d: d, 'class': 'ed-hit', 'data-from': E.from, 'data-to': E.to }, g); bindSelect(ph, edgeInfo(E)); ph.addEventListener('click', function () { pe.classList.add('sel'); });
+      (out.edges || []).forEach(function (e, i) { var E = vedges.filter(function (x) { return x.id === e.id; })[0]; if (!E || !e.sections) return; var gf = nodes[E.from] && nodes[E.from].group, gt = nodes[E.to] && nodes[E.to].group, gc = gf && gf === gt ? abs['g_' + gf] : null, dx = gc ? gc.x : 0, dy = gc ? gc.y : 0; var d = e.sections.map(function (sec) { return [sec.startPoint].concat(sec.bendPoints || [], [sec.endPoint]).map(function (p, i) { return (i ? 'L' : 'M') + (p.x + dx).toFixed(1) + ' ' + (p.y + dy).toFixed(1); }).join(' '); }).join(' '); var pe = el('path', { d: d, 'class': 'ed e-' + E.kind, 'data-from': E.from, 'data-to': E.to, 'data-e': E.id }, g), ph = el('path', { d: d, 'class': 'ed-hit', 'data-from': E.from, 'data-to': E.to }, g);
+        if (b.motion && (E.kind === 'data' || E.kind === 'event') && !mqr.matches) { var am = el('animateMotion', { dur: '2.2s', repeatCount: 'indefinite', begin: (i * 0.55).toFixed(2) + 's', path: d }, null); var pg = el('circle', { r: 3, 'class': 'pkt pkt-' + E.kind }, g); pg.appendChild(am); pe._pkt = pg; pe._pg = pg; legendAdd('Pacotes', 'motion', { sw: 'dot s1', label: 'Pacotes em movimento' }); } bindSelect(ph, edgeInfo(E)); ph.addEventListener('click', function () { pe.classList.add('sel'); });
         if (nodes[E.from] && nodes[E.from].kind === 'decision') { var branchIso = function () { var keep = isolateConsequencePath(gb, nodes, edges, E.from, E); showInfo(keep ? decisionPathInfo(E.from, keep, E) : edgeInfo(E)()); }; ph.addEventListener('click', branchIso); } hitTip(ph, function () { return '<div class="t">' + esc(E.label || EDGE_L[E.kind]) + '</div><span class="k">' + esc(nodes[E.from].label) + ' → ' + esc(nodes[E.to].label) + '</span>' + (E.detail ? '<div class="d">' + esc(E.detail) + '</div>' : ''); }); ph.addEventListener('pointerenter', function () { pe.classList.add('hl'); }); ph.addEventListener('pointerleave', function () { pe.classList.remove('hl'); });
         (e.labels || []).forEach(function (lb) { var lx = lb.x + dx, ly = lb.y + dy; var lg = el('g', { 'class': 'el', 'data-from': E.from, 'data-to': E.to }, g); el('rect', { x: lx, y: ly, width: lb.width, height: lb.height, rx: 6 }, lg); var t = txt(lg, lx + 7, ly + 14, '', ''); if (level >= 3 && E.step != null) { var ts = el('tspan', { 'class': 'step' }, t); ts.textContent = E.step + '  '; } var tl = el('tspan', {}, t); tl.textContent = E.label || ''; bindSelect(lg, edgeInfo(E)); lg.addEventListener('click', function () { pe.classList.add('sel'); });
           if (nodes[E.from] && nodes[E.from].kind === 'decision') lg.addEventListener('click', function () { var keep = isolateConsequencePath(gb, nodes, edges, E.from, E); showInfo(keep ? decisionPathInfo(E.from, keep, E) : edgeInfo(E)()); }); if (E.detail) hitTip(lg, function () { return '<div class="t">' + esc(E.label) + '</div>' + esc(E.detail); }); });
@@ -2074,9 +2077,9 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   // ---------- pan, zoom (wheel, buttons, pinch), fit, level of detail
   function apply(animated) { if (animated && ms('--d-slow') && !document.hidden) { world.style.transition = 'transform ' + tok('--t-slow') + ', opacity ' + tok('--t-base'); setTimeout(function () { world.style.transition = ''; }, ms('--d-slow') + 20); } world.setAttribute('transform', 'translate(' + tx + ' ' + ty + ') scale(' + s + ')'); world.classList.toggle('far', s < 0.55); }
   function pad() { var small = wrap_.clientWidth < 700; return { x: small ? 32 : 96, y: small ? 72 : 120, top: small ? 60 : 56 }; }
-  function fit(animated) { if (!L) return; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, p = pad(); s = Math.min((vw - p.x) / L.w, (vh - p.y) / L.h, 1.15); tx = (vw - L.w * s) / 2; ty = Math.max(p.top, (vh - L.h * s) / 2); apply(animated); }
+  function fit(animated) { if (!L) return; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, p = pad(); s = Math.min((vw * 0.92 - p.x) / L.w, (vh * 0.92 - p.y) / L.h, 1.15); tx = (vw - L.w * s) / 2; ty = Math.max(p.top, (vh - L.h * s) / 2); apply(animated); }
   function zoomBy(k, cx, cy, animated) { var r = wrap_.getBoundingClientRect(), mx = cx == null ? r.width / 2 : cx, my = cy == null ? r.height / 2 : cy, ns = Math.min(3, Math.max(0.15, s * k)); k = ns / s; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s = ns; apply(animated); }
-  function centerBlock(i) { var p = blockPos[i]; if (!p) return; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, pd = pad(); s = Math.min((vw - pd.x) / p.w, (vh - pd.y) / p.h, 1.15); tx = (vw - p.w * s) / 2 - p.x * s; ty = (vh - p.h * s) / 2 - p.y * s; apply(true); }
+  function centerBlock(i) { var p = blockPos[i]; if (!p) return; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, pd = pad(); s = Math.min((vw * 0.92 - pd.x) / p.w, (vh * 0.92 - pd.y) / p.h, 1.15); tx = (vw - p.w * s) / 2 - p.x * s; ty = (vh - p.h * s) / 2 - p.y * s; apply(true); }
   wrap_.addEventListener('wheel', function (e) { e.preventDefault(); var r = wrap_.getBoundingClientRect(); if (e.ctrlKey || Math.abs(e.deltaY) >= Math.abs(e.deltaX) && !e.shiftKey) zoomBy(e.deltaY < 0 ? 1.1 : 0.9, e.clientX - r.left, e.clientY - r.top, false); else { tx -= e.deltaX; ty -= e.deltaY; apply(false); } }, { passive: false });
   var drag = null, pointers = {}, pinch = null;
   function dragMoved() { return !!(drag && drag.moved); }
@@ -2101,6 +2104,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
   function fireClick(el) { if (el) el.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
   function menuBtn(menu, label, hint, run) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = label; if (hint) { var k = document.createElement('span'); k.className = 'k'; k.textContent = hint; b.appendChild(k); } b.onclick = function (ev) { ev.stopPropagation(); closeMenu(); run(); }; menu.appendChild(b); return b; }
+  function menuSep(menu) { var last = menu.lastElementChild; if (!last || last.className !== 'sep') { var s = document.createElement('div'); s.className = 'sep'; menu.appendChild(s); } }
   canvas.addEventListener('contextmenu', function (ev) {
     ev.preventDefault(); closeMenu(); hideTip();
     var t = ev.target, menu = document.createElement('div');
@@ -2113,11 +2117,13 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
       menu.setAttribute('aria-label', 'Ações do elemento');
       menuBtn(menu, 'Inspecionar', null, function () { fireClick(nd); });
       if (b && b.type === 'graph' && nd.dataset.id) {
+        menuSep(menu);
         menuBtn(menu, b._focus === nd.dataset.id ? 'Mostrar tudo' : 'Isolar vizinhança', null, function () { if (b._focus === nd.dataset.id) { b._focus = null; redrawBlock(b); } else { b._focus = nd.dataset.id; redrawBlock(b).then(function () { clickNode(gb, nd.dataset.id); }); } });
       }
     } else if (ed) {
       menu.setAttribute('aria-label', 'Ações da ligação');
       menuBtn(menu, 'Ver detalhes', null, function () { fireClick(ed); });
+      menuSep(menu);
       menuBtn(menu, 'Ir para a origem', null, function () { clickNode(gb, ed.dataset.from); });
       menuBtn(menu, 'Ir para o destino', null, function () { clickNode(gb, ed.dataset.to); });
     } else if (b) {
@@ -2128,11 +2134,12 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
       menuBtn(menu, 'Ajustar à tela', 'f', function () { fit(true); });
       menuBtn(menu, 'Buscar no desenho', '/', function () { openSearch(); });
       if (viewHasGraph) {
-        var sep = document.createElement('div'); sep.className = 'sep'; menu.appendChild(sep);
+        menuSep(menu);
         [['Mapa', '1'], ['Contexto', '2'], ['Detalhes', '3']].forEach(function (lv) {
           menuBtn(menu, 'Nível ' + lv[0], lv[1], function () { $('levels').querySelector('[data-level="' + lv[1] + '"]').click(); });
         });
       }
+      menuSep(menu);
       menuBtn(menu, 'Alternar tema', null, function () { $('btnTheme').click(); });
     }
     document.body.appendChild(menu); menuEl = menu;
