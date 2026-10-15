@@ -40,7 +40,13 @@ TYPES = {
     "free",
     "graph",
     "decision",
+    "entity",
+    "heatmap",
+    "gantt",
+    "sankey",
+    "treemap",
 }
+DIFFS = {"added", "removed", "changed"}
 GRAPH_KINDS = {
     "entry",
     "component",
@@ -137,6 +143,7 @@ def check_graph(b, p, w, c):
             not isinstance(n["prob"], (int, float)) or not (0 <= n["prob"] <= 1)
         ):
             p(c + f"nó '{nid}' prob deve ser número entre 0 e 1: {n['prob']!r}")
+        check_diff(n, p, c, f"nó '{nid}'")
     dup = {i for i in ids if ids.count(i) > 1}
     if dup:
         p(c + f"ids de nó duplicados: {sorted(dup)}")
@@ -335,6 +342,147 @@ def check_decision(b, p, w, c):
         w(c + "decision sem weightBasis (declare de onde vêm os pesos)")
 
 
+def check_diff(o, p, c, what):
+    if o.get("diff") and o["diff"] not in DIFFS:
+        p(c + f"{what} diff desconhecido: {o['diff']!r} (use added, removed, changed)")
+
+
+def check_entity(b, p, w, c):
+    ents = b.get("entities") or []
+    if not ents:
+        p(c + "entity sem entities")
+    ids = [e.get("id") for e in ents]
+    for e in ents:
+        eid = e.get("id")
+        if not eid:
+            p(c + "entidade sem id")
+            continue
+        if not ID_RE.match(str(eid)):
+            p(c + f"id inválido {eid!r}: use letras, dígitos e _")
+        if not e.get("fields"):
+            w(c + f"entidade '{eid}' sem fields")
+        names = [f if isinstance(f, str) else f.get("name") for f in e.get("fields") or []]
+        if any(not n for n in names):
+            p(c + f"entidade '{eid}' tem campo sem name")
+        dup = {n for n in names if n and names.count(n) > 1}
+        if dup:
+            p(c + f"entidade '{eid}' com campos duplicados: {sorted(dup)}")
+        check_diff(e, p, c, f"entidade '{eid}'")
+    dup = {i for i in ids if i and ids.count(i) > 1}
+    if dup:
+        p(c + f"ids de entidade duplicados: {sorted(dup)}")
+    for r in b.get("relations") or []:
+        for end in ("from", "to"):
+            if r.get(end) not in ids:
+                p(c + f"relação sem '{end}' válido: {json.dumps(r, ensure_ascii=False)[:80]}")
+        check_diff(r, p, c, "relação")
+    if len(ents) > 12:
+        w(c + f"{len(ents)} entidades numa vista; máximo 12, divida por domínio")
+
+
+def check_heatmap(b, p, c):
+    if b.get("calendar"):
+        for d in b.get("data") or []:
+            if not (isinstance(d, list) and len(d) == 2 and isinstance(d[1], (int, float))):
+                p(c + f"heatmap calendar: cada item é [data, número]: {d!r}")
+                break
+        if not b.get("data"):
+            p(c + "heatmap calendar sem data")
+        return
+    xs, ys, vals = b.get("x") or [], b.get("y") or [], b.get("values") or []
+    if not xs or not ys:
+        p(c + "heatmap sem x/y (rótulos das colunas e linhas)")
+    if len(vals) != len(ys):
+        p(c + f"heatmap com {len(vals)} linhas em values para {len(ys)} rótulos em y")
+    for i, row in enumerate(vals):
+        if len(row) != len(xs):
+            p(c + f"heatmap linha {i} com {len(row)} valores para {len(xs)} colunas")
+            break
+        if any(v is not None and not isinstance(v, (int, float)) for v in row):
+            p(c + f"heatmap linha {i} com valor não numérico (use null para vazio)")
+            break
+
+
+def check_gantt(b, p, c):
+    tasks = b.get("tasks") or []
+    if not tasks:
+        p(c + "gantt sem tasks")
+    ids = {t.get("id") for t in tasks if t.get("id")}
+    date = re.compile(r"^\d{4}-\d{2}-\d{2}")
+    for t in tasks:
+        lbl = t.get("label") or t.get("id") or "?"
+        if not t.get("label"):
+            p(c + f"tarefa '{lbl}' sem label")
+        if not (t.get("start") and date.match(str(t["start"]))):
+            p(c + f"tarefa '{lbl}' sem start AAAA-MM-DD")
+        if t.get("end") and not date.match(str(t["end"])):
+            p(c + f"tarefa '{lbl}' com end inválido: {t['end']!r}")
+        if t.get("end") and t.get("start") and str(t["end"]) < str(t["start"]):
+            p(c + f"tarefa '{lbl}' termina antes de começar")
+        for d in t.get("deps") or []:
+            if d not in ids:
+                p(c + f"tarefa '{lbl}' depende de id inexistente: {d!r}")
+        if t.get("progress") is not None and not (0 <= t["progress"] <= 1):
+            p(c + f"tarefa '{lbl}' progress fora de 0..1")
+
+
+def check_sankey(b, p, c):
+    ids = [n.get("id") for n in b.get("nodes") or []]
+    if not ids:
+        p(c + "sankey sem nodes")
+    for n in b.get("nodes") or []:
+        if not n.get("label"):
+            p(c + f"nó '{n.get('id')}' sem label")
+    links = b.get("links") or []
+    if not links:
+        p(c + "sankey sem links")
+    for l in links:
+        for end in ("from", "to"):
+            if l.get(end) not in ids:
+                p(c + f"link sem '{end}' válido: {json.dumps(l, ensure_ascii=False)[:80]}")
+        if not isinstance(l.get("value"), (int, float)) or l["value"] <= 0:
+            p(c + f"link {l.get('from')}→{l.get('to')} sem value positivo")
+    # cycles break the layout
+    adj = {}
+    for l in links:
+        adj.setdefault(l.get("from"), []).append(l.get("to"))
+    seen, stack = set(), set()
+
+    def cyc(n):
+        if n in stack:
+            return True
+        if n in seen:
+            return False
+        seen.add(n)
+        stack.add(n)
+        r = any(cyc(m) for m in adj.get(n, []))
+        stack.discard(n)
+        return r
+
+    if any(cyc(n) for n in list(adj)):
+        p(c + "sankey com ciclo; fluxo deve seguir em uma direção (use graph para ciclos)")
+
+
+def check_treemap(b, p, c):
+    root = b.get("root")
+    if not isinstance(root, dict) or not root.get("children"):
+        p(c + "treemap sem root.children")
+        return
+
+    def walk(n, path):
+        kids = n.get("children") or []
+        if not n.get("label"):
+            p(c + f"treemap: nó sem label em {' › '.join(path) or 'raiz'}")
+        if not kids:
+            v = n.get("value")
+            if not isinstance(v, (int, float)) or v < 0:
+                p(c + f"treemap: folha '{n.get('label', '?')}' sem value numérico >= 0")
+        for k in kids:
+            walk(k, path + [str(n.get("label", ""))])
+
+    walk(root, [])
+
+
 def check_block(b, p, w, c):
     t = b.get("type")
     if t not in TYPES:
@@ -352,6 +500,16 @@ def check_block(b, p, w, c):
         check_free(b, p, w, c)
     elif t == "decision":
         check_decision(b, p, w, c)
+    elif t == "entity":
+        check_entity(b, p, w, c)
+    elif t == "heatmap":
+        check_heatmap(b, p, c)
+    elif t == "gantt":
+        check_gantt(b, p, c)
+    elif t == "sankey":
+        check_sankey(b, p, c)
+    elif t == "treemap":
+        check_treemap(b, p, c)
     elif t in ("matrix",):
         if not (b.get("columns") or b.get("rows")):
             p(c + "matrix sem columns/rows")
@@ -412,6 +570,116 @@ def check_scenarios(sc, p, c):
         p(c + "scenarios overrides deve ser objeto")
 
 
+# ---------- text budget: the drawing carries the meaning; text only labels it.
+# Warnings, never errors: a long string still builds, the author sees where it bloats.
+CAP_SCENE = {"title": 12, "subtitle": 12, "summary": 25}
+CAP_FIELD = {"sub": 6, "meta": 6, "text": 15, "detail": 25, "note": 25, "summary": 25}
+CAP_BLOCK_TITLE = 8
+CAP_VIEW_WORDS = 250
+PARAGRAPH_TYPES = {"text", "callout"}  # their own `text` is prose by design
+SKIP_TEXT_TYPES = {"free"}  # labels on a hand-placed canvas
+# page level (title, subtitle, summaries): any talk about the page, its tabs or its audience
+META_RE = re.compile(
+    r"\b(clique|clicar|aba|abas|comece (?:pela|por|pelo)|esta página|essa página|nesta página|"
+    r"painel da direita|painel lateral|para quem|click|this page|this tab)\b",
+    re.I,
+)
+# item level: only instructions to the viewer; "o usuário clica" is subject matter
+META_ITEM_RE = re.compile(
+    r"\b(clique|ver aba|na aba|veja a aba|esta página|nesta página|painel da direita|painel lateral|click here|this page)\b",
+    re.I,
+)
+STOP = set(
+    "a o os as de da do das dos e é em no na nos nas um uma uns umas que se por para com sem ao à "
+    "the of and to in is it for on with".split()
+)
+
+
+def words(s):
+    return len(str(s).split())
+
+
+def toks(s):
+    return {t for t in re.findall(r"\w+", str(s).lower()) if len(t) > 2 and t not in STOP}
+
+
+def overlap(a, b):
+    ta, tb = toks(a), toks(b)
+    return len(ta & tb) / len(ta) if ta else 0.0
+
+
+def check_text(scene, w):
+    for k, cap in CAP_SCENE.items():
+        if words(scene.get(k) or "") > cap:
+            w(f"texto: scene {k} com {words(scene[k])} palavras; máximo {cap}")
+    for k in ("summary", "subtitle", "title"):
+        if META_RE.search(scene.get(k) or ""):
+            w(f"texto: scene {k} descreve a página ou a navegação; diga o achado")
+    for v in scene.get("views") or []:
+        vid = v.get("id")
+        total = words(v.get("summary") or "")
+        if words(v.get("summary") or "") > CAP_FIELD["summary"]:
+            w(f"texto: vista '{vid}' summary com {words(v['summary'])} palavras; máximo 25")
+        if META_RE.search(v.get("summary") or ""):
+            w(f"texto: vista '{vid}' summary descreve a navegação; diga o achado da vista")
+        for a in v.get("annotations") or []:
+            total += words(a)
+            if words(a) > 25:
+                w(f"texto: vista '{vid}' anotação com {words(a)} palavras; máximo 25")
+        labels = []
+        for b in v.get("blocks") or []:
+            c = f"texto: vista '{vid}' · block '{b.get('id')}': "
+            t = b.get("type")
+            if words(b.get("title") or "") > CAP_BLOCK_TITLE:
+                w(c + f"title com {words(b['title'])} palavras; máximo {CAP_BLOCK_TITLE}")
+            if t in SKIP_TEXT_TYPES:
+                continue
+            if t in PARAGRAPH_TYPES:
+                total += words(b.get("text") or "")
+                if words(b.get("text") or "") > 40:
+                    w(c + f"{t} com {words(b['text'])} palavras; máximo 40")
+                continue
+            total += _walk_text(b, c, w, labels, top=True)
+        s = v.get("summary") or ""
+        hits = sorted({l for l in labels if len(l) > 2 and l.lower() in s.lower()})
+        if len(hits) >= 3:
+            w(f"texto: vista '{vid}' summary repete {len(hits)} rótulos do desenho ({', '.join(hits[:4])}); diga o que eles significam juntos")
+        if total > CAP_VIEW_WORDS:
+            w(f"texto: vista '{vid}' com {total} palavras; acima de {CAP_VIEW_WORDS} a página virou texto, corte detail/text sem fato novo")
+
+
+def _walk_text(o, c, w, labels, top=False):
+    """Count words, cap per field, flag detail that only rephrases the label or sub."""
+    n = 0
+    if isinstance(o, list):
+        return sum(_walk_text(x, c, w, labels) for x in o)
+    if not isinstance(o, dict):
+        return 0
+    name = o.get("label") or o.get("title") or o.get("name") or o.get("id") or "?"
+    if not top and (o.get("label") or o.get("title")):
+        labels.append(str(o.get("label") or o.get("title")))
+    for k, v in o.items():
+        if k.startswith("_"):
+            continue
+        if isinstance(v, str):
+            if k in ("id", "from", "to", "kind", "type", "group", "status", "view", "file", "src", "date", "unit"):
+                continue
+            n += words(v)
+            if k in CAP_FIELD and not (top and k == "text") and words(v) > CAP_FIELD[k]:
+                w(c + f"'{name}' {k} com {words(v)} palavras; máximo {CAP_FIELD[k]}")
+            if META_ITEM_RE.search(v):
+                w(c + f"'{name}' {k} fala da navegação ou da página: {v[:50]!r}")
+        elif isinstance(v, (list, dict)) and k not in ("data", "values", "spark", "cells", "scores"):
+            n += _walk_text(v, c, w, labels)
+    for k in ("detail", "note"):
+        d = o.get(k)
+        if isinstance(d, str):
+            ref = " ".join(str(o.get(x) or "") for x in ("label", "title", "sub", "text", "meta"))
+            if ref.strip() and overlap(d, ref) >= 0.6:
+                w(c + f"'{name}' {k} repete o rótulo/sub sem fato novo; apague ou troque por evidência")
+    return n
+
+
 def check_scene(scene, p, w):
     if not scene.get("title"):
         p("scene sem title")
@@ -429,8 +697,8 @@ def check_scene(scene, p, w):
             continue
         if not v.get("title"):
             w(f"vista '{vid}' sem title")
-        if not (v.get("summary") or "").strip():
-            w(f"vista '{vid}' sem summary")
+        if len(views) > 1 and not (v.get("summary") or "").strip():
+            w(f"vista '{vid}' sem summary (uma frase com o achado da vista)")
         if "scenarios" in v and v["scenarios"] is not None:
             check_scenarios(v["scenarios"], p, f"vista '{vid}': ")
         for b in v.get("blocks") or []:
@@ -482,6 +750,8 @@ def main():
     w = warns.append
     try:
         check_scene(scene, p, w)
+        if "--no-text-lint" not in sys.argv:
+            check_text(scene, w)
     except Exception as e:
         problems.append(f"validação interrompida: {e}")
     for b in [b for v in scene.get("views", []) for b in (v.get("blocks") or [])]:
