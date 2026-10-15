@@ -1,0 +1,538 @@
+{
+  "title": "visual-thinking agora lê no celular e corta o texto sobrando",
+  "subtitle": "Estado em 14/10/2026 · lido no repositório",
+  "basis": "code",
+  "source": "/home/caue/code/visual-thinking",
+  "root": "/home/caue/code/visual-thinking",
+  "date": "2026-10-14",
+  "summary": "Escala mínima de 0,75, lint de texto e cinco blocos novos.",
+  "views": [
+    {
+      "id": "pipe",
+      "title": "Pipeline",
+      "summary": "Oito peças novas em volta do mesmo caminho de quatro passos.",
+      "blocks": [
+        {
+          "type": "kpi",
+          "id": "k",
+          "title": "Antes e depois, medido",
+          "items": [
+            {
+              "label": "Escala no celular (375px)",
+              "value": 0.75,
+              "delta": "antes 0,196",
+              "deltaKind": "ok"
+            },
+            {
+              "label": "Palavras na cena do Git",
+              "value": 2008,
+              "delta": "33 avisos do lint",
+              "deltaKind": "danger"
+            },
+            {
+              "label": "Arquivos de teste",
+              "value": 14,
+              "delta": "+5 novos",
+              "deltaKind": "ok"
+            }
+          ]
+        },
+        {
+          "type": "graph",
+          "id": "pipe",
+          "title": "O que entrou no pipeline",
+          "direction": "RIGHT",
+          "nodes": [
+            {
+              "id": "agente",
+              "label": "Agente",
+              "sub": "lê a intenção",
+              "kind": "entry"
+            },
+            {
+              "id": "cena",
+              "label": "Cena JSON",
+              "sub": "views e blocos",
+              "kind": "store",
+              "file": "examples/*.json"
+            },
+            {
+              "id": "build",
+              "label": "build-scene.py",
+              "sub": "valida e monta",
+              "file": "scripts/build-scene.py"
+            },
+            {
+              "id": "runtime",
+              "label": "canvas.html",
+              "sub": "desenha e inspeciona",
+              "file": "templates/canvas.html"
+            },
+            {
+              "id": "pagina",
+              "label": "Página HTML",
+              "sub": "abre em qualquer lugar",
+              "kind": "external"
+            },
+            {
+              "id": "extrator",
+              "label": "extract-deps.py",
+              "sub": "rascunho pelos imports",
+              "file": "scripts/extract-deps.py",
+              "diff": "added"
+            },
+            {
+              "id": "lint",
+              "label": "Lint de texto",
+              "sub": "avisa texto sobrando",
+              "kind": "critical",
+              "file": "scripts/build-scene.py",
+              "diff": "added"
+            },
+            {
+              "id": "leitura",
+              "label": "Modo leitura",
+              "sub": "a cena como texto",
+              "kind": "component",
+              "diff": "added"
+            },
+            {
+              "id": "export",
+              "label": "PNG e SVG",
+              "sub": "export pelo menu",
+              "kind": "external",
+              "diff": "added"
+            }
+          ],
+          "edges": [
+            {
+              "from": "agente",
+              "to": "cena",
+              "label": "escreve",
+              "step": 1
+            },
+            {
+              "from": "cena",
+              "to": "build",
+              "label": "entra",
+              "kind": "data",
+              "step": 2
+            },
+            {
+              "from": "build",
+              "to": "runtime",
+              "label": "injeta a cena",
+              "step": 3
+            },
+            {
+              "from": "runtime",
+              "to": "pagina",
+              "label": "renderiza",
+              "kind": "data",
+              "step": 4
+            },
+            {
+              "from": "extrator",
+              "to": "cena",
+              "label": "rascunha",
+              "kind": "event",
+              "diff": "added"
+            },
+            {
+              "from": "build",
+              "to": "lint",
+              "label": "confere",
+              "kind": "control",
+              "diff": "added"
+            },
+            {
+              "from": "runtime",
+              "to": "leitura",
+              "label": "no celular",
+              "kind": "data",
+              "diff": "added"
+            },
+            {
+              "from": "runtime",
+              "to": "export",
+              "label": "botão direito",
+              "kind": "data",
+              "diff": "added"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "texto",
+      "title": "Texto",
+      "summary": "Detalhe e texto de card somavam metade das palavras.",
+      "blocks": [
+        {
+          "type": "sankey",
+          "id": "sk",
+          "title": "Onde estavam as 2008 palavras",
+          "unit": " palavras",
+          "nodes": [
+            {
+              "id": "cena",
+              "label": "Cena do Git"
+            },
+            {
+              "id": "insp",
+              "label": "Inspetor"
+            },
+            {
+              "id": "des",
+              "label": "No desenho"
+            },
+            {
+              "id": "det",
+              "label": "detail"
+            },
+            {
+              "id": "txt",
+              "label": "text dos cards"
+            },
+            {
+              "id": "sum",
+              "label": "summary"
+            },
+            {
+              "id": "tit",
+              "label": "títulos"
+            },
+            {
+              "id": "lab",
+              "label": "rótulos"
+            },
+            {
+              "id": "out",
+              "label": "resto"
+            }
+          ],
+          "links": [
+            {
+              "from": "cena",
+              "to": "insp",
+              "value": 742
+            },
+            {
+              "from": "cena",
+              "to": "des",
+              "value": 818
+            },
+            {
+              "from": "cena",
+              "to": "out",
+              "value": 448
+            },
+            {
+              "from": "insp",
+              "to": "det",
+              "value": 556
+            },
+            {
+              "from": "insp",
+              "to": "sum",
+              "value": 186
+            },
+            {
+              "from": "des",
+              "to": "txt",
+              "value": 470
+            },
+            {
+              "from": "des",
+              "to": "tit",
+              "value": 208
+            },
+            {
+              "from": "des",
+              "to": "lab",
+              "value": 140
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "modelo",
+      "title": "Esquema",
+      "summary": "Toda página é uma cena: views com blocos, e o grafo liga nós por arestas.",
+      "blocks": [
+        {
+          "type": "entity",
+          "id": "er",
+          "title": "O formato da cena",
+          "entities": [
+            {
+              "id": "scene",
+              "label": "scene",
+              "sub": "a página",
+              "fields": [
+                {
+                  "name": "title",
+                  "type": "achado",
+                  "pk": true
+                },
+                {
+                  "name": "basis",
+                  "type": "code|docs|proposal"
+                },
+                {
+                  "name": "root",
+                  "type": "path",
+                  "nullable": true
+                },
+                {
+                  "name": "lang",
+                  "type": "pt|en",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "id": "view",
+              "label": "view",
+              "sub": "uma aba",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "id",
+                  "pk": true
+                },
+                {
+                  "name": "layout",
+                  "type": "stack|row|grid"
+                },
+                {
+                  "name": "scenarios",
+                  "type": "object",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "id": "block",
+              "label": "block",
+              "sub": "um desenho",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "id",
+                  "pk": true
+                },
+                {
+                  "name": "view_id",
+                  "type": "id",
+                  "fk": "view.id"
+                },
+                {
+                  "name": "type",
+                  "type": "23 tipos"
+                },
+                {
+                  "name": "title",
+                  "type": "≤ 8 palavras"
+                }
+              ]
+            },
+            {
+              "id": "node",
+              "label": "graph.node",
+              "sub": "um elemento",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "id",
+                  "pk": true
+                },
+                {
+                  "name": "block_id",
+                  "type": "id",
+                  "fk": "block.id"
+                },
+                {
+                  "name": "sub",
+                  "type": "≤ 6 palavras"
+                },
+                {
+                  "name": "diff",
+                  "type": "added|removed|changed",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "id": "edge",
+              "label": "graph.edge",
+              "sub": "uma ligação",
+              "fields": [
+                {
+                  "name": "from",
+                  "type": "id",
+                  "fk": "node.id"
+                },
+                {
+                  "name": "to",
+                  "type": "id",
+                  "fk": "node.id"
+                },
+                {
+                  "name": "label",
+                  "type": "≤ 4 palavras"
+                },
+                {
+                  "name": "step",
+                  "type": "int",
+                  "nullable": true
+                }
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "from": "view",
+              "to": "scene",
+              "card": "N:1"
+            },
+            {
+              "from": "block",
+              "to": "view",
+              "card": "N:1"
+            },
+            {
+              "from": "node",
+              "to": "block",
+              "card": "N:1"
+            },
+            {
+              "from": "edge",
+              "to": "node",
+              "card": "N:2",
+              "label": "liga"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plano",
+      "title": "Próximos",
+      "summary": "As libs aprovadas entram uma por vez, cada uma com teste.",
+      "blocks": [
+        {
+          "type": "gantt",
+          "id": "g",
+          "title": "Do que foi feito ao que vem",
+          "today": "2026-10-14",
+          "tasks": [
+            {
+              "id": "txt",
+              "label": "Text budget e lint",
+              "group": "Feito",
+              "start": "2026-10-14",
+              "end": "2026-10-14",
+              "progress": 1
+            },
+            {
+              "id": "resp",
+              "label": "Escala legível e leitura",
+              "group": "Feito",
+              "start": "2026-10-14",
+              "end": "2026-10-14",
+              "progress": 1
+            },
+            {
+              "id": "blk",
+              "label": "Cinco blocos novos",
+              "group": "Feito",
+              "start": "2026-10-14",
+              "end": "2026-10-14",
+              "progress": 1
+            },
+            {
+              "id": "rough",
+              "label": "Estilo rascunho (rough.js)",
+              "group": "Próximo",
+              "start": "2026-10-15",
+              "end": "2026-10-15",
+              "deps": [
+                "resp"
+              ]
+            },
+            {
+              "id": "code",
+              "label": "Bloco code (highlight.js)",
+              "group": "Próximo",
+              "start": "2026-10-15",
+              "end": "2026-10-16",
+              "deps": [
+                "blk"
+              ]
+            },
+            {
+              "id": "tex",
+              "label": "Fórmulas (KaTeX)",
+              "group": "Próximo",
+              "start": "2026-10-16",
+              "end": "2026-10-16",
+              "deps": [
+                "code"
+              ]
+            },
+            {
+              "id": "map",
+              "label": "Bloco map (topojson)",
+              "group": "Próximo",
+              "start": "2026-10-16",
+              "end": "2026-10-17",
+              "deps": [
+                "blk"
+              ]
+            },
+            {
+              "id": "dagre",
+              "label": "Layout dagre",
+              "group": "Próximo",
+              "start": "2026-10-17",
+              "end": "2026-10-17",
+              "deps": [
+                "resp"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "heatmap",
+          "id": "hm",
+          "title": "Escala por largura de tela",
+          "unit": "",
+          "x": [
+            "375px",
+            "768px",
+            "1440px"
+          ],
+          "y": [
+            "antes",
+            "agora"
+          ],
+          "values": [
+            [
+              0.2,
+              null,
+              null
+            ],
+            [
+              0.75,
+              0.78,
+              0.87
+            ]
+          ],
+          "caption": "Cena de teste com seis blocos largos; antes só medido no celular."
+        }
+      ]
+    }
+  ]
+}

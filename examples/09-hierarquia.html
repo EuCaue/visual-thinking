@@ -1862,7 +1862,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   // ---------- block: gantt (tasks with durations on a time axis, dependencies, today)
   function drawGantt(b, g, gb) {
     if (!hasD3) { txt(g, 0, 14, T('A biblioteca de gráficos (d3) não carregou.'), 'small muted'); return { w: 320, h: 20 }; }
-    var tasks = (b.tasks || []).map(function (t, i) { var s0 = parseDate(t.start), e0 = parseDate(t.end || t.start); return Object.assign({ _i: i, _s: s0, _e: e0, _ms: t.kind === 'milestone' || !t.end || t.end === t.start }, t); }).filter(function (t) { return t._s; });
+    var tasks = (b.tasks || []).map(function (t, i) { var s0 = parseDate(t.start), e0 = parseDate(t.end || t.start); return Object.assign({ _i: i, _s: s0, _e: e0, _ms: t.kind === 'milestone' || !t.end }, t); }).filter(function (t) { return t._s; });
     if (!tasks.length) { txt(g, 0, 14, T('Sem tarefas.'), 'small muted'); return { w: 200, h: 20 }; }
     var groups = []; tasks.forEach(function (t) { var k = t.group || ''; if (groups.indexOf(k) < 0) groups.push(k); });
     var byId = {}; tasks.forEach(function (t) { byId[t.id || ('t' + t._i)] = t; });
