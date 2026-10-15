@@ -54,6 +54,10 @@ What the data actually is, independent of the chart you have in mind:
 - **Events in time**: dated points, maybe periods.
 - **Options with arguments**: for and against each.
 - **Loose concepts**: items with weak or many-to-many relations.
+- **Tables and keys**: records with fields that reference each other.
+- **Flows of quantity**: amounts that split and merge between stages and keep their total.
+- **Values on a grid**: one measure for each pair of two categories (day × hour, team × week).
+- **Tasks in time**: activities with start, end and dependencies.
 
 ## 3. Choose the visual strategy
 
@@ -76,9 +80,15 @@ What the data actually is, independent of the chart you have in mind:
 | Magnitude + composition over categories | Stacked bars | `chart` kind `stackedBar` |
 | Proportion + 2 to 5 parts | Donut with the total in the center and percentages on the ring | `chart` kind `donut` |
 | Proportion + more than 5 parts | Sorted bars with percentages, never a pie | `chart` kind `bar` |
+| Proportion + parts that nest | Treemap by area, hue per top-level part; sunburst when the levels matter more than the sizes | `treemap` (`layout: sunburst`) |
+| Flow of quantity + stages | Sankey: band width is the amount, the total stays visible at each stage | `sankey` |
+| Values on a grid | Heatmap: one hue, intensity is the value, numbers in the cells when they fit; diverging hues only around a meaningful middle | `heatmap` |
+| Rhythm over days | Calendar heatmap, weeks as columns | `heatmap` with `calendar: true` |
 | Distribution + samples | Histogram; dot plot when under ~40 values and the individual values matter | `chart` kind `histogram` or `dot` |
 | Relationship + pairs of measures | Scatter, labels when under ~40 points, annotation on outliers | `chart` kind `scatter` |
 | Relationship + nodes and edges | Graph with boundaries, typed edges, labels placed by the layout engine; views per process when more than one | `graph`, one view per process |
+| Structure + tables and keys | Entity model: tables with fields, PK/FK marks, relations with cardinality; one view per domain past 12 tables | `entity` |
+| Change + two versions of a system | One graph or model with added, changed and removed marked in place | `scene-diff.py` over two scenes |
 | Sequence + request through time | Sequence diagram | `mermaid.html` |
 | Sequence + stages without branching | Pipeline of numbered steps | `steps` |
 | Sequence + decisions and exits | Flow graph with decision nodes | `graph` with `kind: decision` |
@@ -88,6 +98,7 @@ What the data actually is, independent of the chart you have in mind:
 | Position + one criterion | Spectrum with items placed on it | `spectrum` |
 | Cause and effect | Left-to-right graph, causes left, effects right, edge labels naming the mechanism | `graph`, direction RIGHT |
 | Lifecycle + states | State machine with guards on transitions | `mermaid.html` (stateDiagram) |
+| Plan + tasks in time | Gantt: bars on a time axis, dependencies as arrows, milestones, today line, critical path in red | `gantt` |
 | Events in time | Timeline, horizontal up to ~7 events, vertical beyond; periods as bands; milestones larger | `timeline` |
 | Cycle + repeated stages | Ring of stages with arrows | `cycle` |
 | Funnel + decreasing stages | Funnel with conversion per stage; pyramid for increasing layers | `funnel` |
@@ -112,6 +123,11 @@ Compose when one strategy is not enough: a comparison matrix plus a callout; a t
 - No equal weights by default: unstated relevance is inferred from context and declared in `weightBasis`, never split evenly.
 - No isolated pros/cons when the question is a trade-off: pair them ("buys X at the cost of Y").
 - No speculation drawn as fact: hypotheses live in `scenarios` controls or are tagged `inferred`/`unknown`, never baked into the base numbers.
+- No sankey when the amounts do not add up between stages, and none with cycles; that is a `graph`.
+- No treemap for values that do not sum to a whole, and none for negatives.
+- No heatmap with diverging colors unless the middle (`mid`) means something (zero, target, average).
+- No gantt without dates; an order without dates is `steps`.
+- No `entity` for runtime components; tables and keys only. Services and queues are a `graph`.
 
 ## 5. When to ask
 

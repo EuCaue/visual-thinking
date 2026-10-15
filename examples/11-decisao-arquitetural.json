@@ -1,77 +1,250 @@
 {
-  "title": "Kafka vence no perfil de alto volume; SQS lidera se a equipe não opera broker",
+  "title": "Kafka vence em alto volume; SQS lidera se ninguém opera broker",
   "subtitle": "Barramento de eventos · exemplo Decide",
   "basis": "decision",
   "source": "Documentação oficial (Kafka 3.7, RabbitMQ 3.13, SQS/SNS); calculadora AWS us-east-1, out/2026",
   "date": "2026-10-11",
-  "summary": "Escolha do barramento de eventos entre Kafka autogerido, RabbitMQ gerenciado e SQS/SNS. Kafka vence na ponderação atual; o tornado mostra que o custo de operação é o critério que mais pode virar o jogo.",
+  "summary": "Kafka vence na ponderação atual; o custo de operação é o critério que mais pode virar o jogo.",
   "views": [
-    { "id": "main", "title": "Decidir o barramento",
+    {
+      "id": "main",
+      "title": "Decidir o barramento",
       "summary": "Matriz ponderada, sensibilidade e trade-offs da escolha do barramento.",
       "blocks": [
-        { "type": "decision", "id": "dec_bus", "title": "Kafka vence no perfil atual; SQS assume se operação for o único critério", "mode": "weighted",
+        {
+          "type": "decision",
+          "id": "dec_bus",
+          "title": "Kafka vence; SQS se só operação contar",
+          "mode": "weighted",
           "weightBasis": "Pesos calibrados com o time: vazão e operação dominam porque o pico é 40k msg/s e ninguém operou broker em produção",
           "options": [
-            { "id": "kafka", "label": "Kafka", "sub": "autogerido no EKS", "reversibility": "two-way" },
-            { "id": "rabbit", "label": "RabbitMQ", "sub": "gerenciado (Amazon MQ)", "reversibility": "two-way" },
-            { "id": "sqs", "label": "SQS/SNS", "sub": "serverless AWS", "reversibility": "one-way" }
+            {
+              "id": "kafka",
+              "label": "Kafka",
+              "sub": "autogerido no EKS",
+              "reversibility": "two-way"
+            },
+            {
+              "id": "rabbit",
+              "label": "RabbitMQ",
+              "sub": "gerenciado (Amazon MQ)",
+              "reversibility": "two-way"
+            },
+            {
+              "id": "sqs",
+              "label": "SQS/SNS",
+              "sub": "serverless AWS",
+              "reversibility": "one-way"
+            }
           ],
           "criteria": [
-            { "id": "tput", "label": "Vazão de pico", "weight": 30, "unit": "k msg/s",
+            {
+              "id": "tput",
+              "label": "Vazão de pico",
+              "weight": 30,
+              "unit": "k msg/s",
               "scores": {
-                "kafka": { "raw": "40+", "score": 10, "note": "Partições escalam linearmente" },
-                "rabbit": { "raw": "20", "score": 6, "note": "Quorum queues até ~20k msg/s por cluster" },
-                "sqs": { "raw": "ilimitada", "score": 9, "note": "FIFO limitada a 3k msg/s por grupo" } },
-              "vetoBelow": 5 },
-            { "id": "ops", "label": "Custo de operação", "weight": 25,
+                "kafka": {
+                  "raw": "40+",
+                  "score": 10,
+                  "note": "Partições escalam linearmente"
+                },
+                "rabbit": {
+                  "raw": "20",
+                  "score": 6,
+                  "note": "Quorum queues até ~20k msg/s por cluster"
+                },
+                "sqs": {
+                  "raw": "ilimitada",
+                  "score": 9,
+                  "note": "FIFO limitada a 3k msg/s por grupo"
+                }
+              },
+              "vetoBelow": 5
+            },
+            {
+              "id": "ops",
+              "label": "Custo de operação",
+              "weight": 25,
               "scores": {
-                "kafka": { "score": 4, "note": "ZooKeeper/KRaft, rebalance, on-call" },
-                "rabbit": { "score": 7, "note": "Gerenciado; alarmes e upgrade automáticos" },
-                "sqs": { "score": 10, "note": "Sem broker para operar" } } },
-            { "id": "cost", "label": "Custo mensal", "weight": 20, "unit": "US$",
+                "kafka": {
+                  "score": 4,
+                  "note": "ZooKeeper/KRaft, rebalance, on-call"
+                },
+                "rabbit": {
+                  "score": 7,
+                  "note": "Gerenciado; alarmes e upgrade automáticos"
+                },
+                "sqs": {
+                  "score": 10,
+                  "note": "Sem broker para operar"
+                }
+              }
+            },
+            {
+              "id": "cost",
+              "label": "Custo mensal",
+              "weight": 20,
+              "unit": "US$",
               "scores": {
-                "kafka": { "raw": 1400, "score": 6, "note": "3× m7g + EBS" },
-                "rabbit": { "raw": 900, "score": 7, "note": "mq.m5.large multi-AZ" },
-                "sqs": { "raw": 2600, "score": 4, "note": "3,5 bi msg/mês a preço de lista" } } },
-            { "id": "order", "label": "Ordenação e replay", "weight": 15,
+                "kafka": {
+                  "raw": 1400,
+                  "score": 6,
+                  "note": "3× m7g + EBS"
+                },
+                "rabbit": {
+                  "raw": 900,
+                  "score": 7,
+                  "note": "mq.m5.large multi-AZ"
+                },
+                "sqs": {
+                  "raw": 2600,
+                  "score": 4,
+                  "note": "3,5 bi msg/mês a preço de lista"
+                }
+              }
+            },
+            {
+              "id": "order",
+              "label": "Ordenação e replay",
+              "weight": 15,
               "scores": {
-                "kafka": { "score": 10, "note": "Log imutável, replay por offset" },
-                "rabbit": { "score": 5, "note": "Fila consome e some; replay é plugar shovel" },
-                "sqs": { "score": 4, "note": "Sem replay nativo" } } },
-            { "id": "lockin", "label": "Portabilidade", "weight": 10,
+                "kafka": {
+                  "score": 10,
+                  "note": "Log imutável, replay por offset"
+                },
+                "rabbit": {
+                  "score": 5,
+                  "note": "Fila consome e some; replay é plugar shovel"
+                },
+                "sqs": {
+                  "score": 4,
+                  "note": "Sem replay nativo"
+                }
+              }
+            },
+            {
+              "id": "lockin",
+              "label": "Portabilidade",
+              "weight": 10,
               "scores": {
-                "kafka": { "score": 9, "note": "Roda em qualquer nuvem" },
-                "rabbit": { "score": 8, "note": "AMQP aberto" },
-                "sqs": { "score": 3, "note": "API proprietária AWS" } } }
+                "kafka": {
+                  "score": 9,
+                  "note": "Roda em qualquer nuvem"
+                },
+                "rabbit": {
+                  "score": 8,
+                  "note": "AMQP aberto"
+                },
+                "sqs": {
+                  "score": 3,
+                  "note": "API proprietária AWS"
+                }
+              }
+            }
           ],
-          "recommendation": { "optionId": "kafka", "rationale": "Maior total ponderado (7,5) e saída barata; SQS só vence se o peso de operação passar de 45." },
-          "caption": "Arraste os pesos para simular; a faixa de sensibilidade diz o que vira o jogo." },
-        { "type": "chart", "id": "sens", "kind": "tornado", "title": "Custo de operação é o fator que mais balança a decisão",
-          "baseline": { "label": "TCO base", "value": 100 },
+          "recommendation": {
+            "optionId": "kafka",
+            "rationale": "Maior total ponderado (7,5) e saída barata; SQS só vence se o peso de operação passar de 45."
+          },
+          "caption": "Arraste os pesos para simular; a faixa de sensibilidade diz o que vira o jogo."
+        },
+        {
+          "type": "chart",
+          "id": "sens",
+          "kind": "tornado",
+          "title": "Custo de operação é o que mais balança",
+          "baseline": {
+            "label": "TCO base",
+            "value": 100
+          },
           "unit": "",
           "series": [
-            { "name": "Custo de operação", "low": 62, "high": 148, "lowLabel": "-38%", "highLabel": "+48%" },
-            { "name": "Preço por milhão de msgs", "low": 78, "high": 132, "lowLabel": "-22%", "highLabel": "+32%" },
-            { "name": "Vazão de pico", "low": 88, "high": 121, "lowLabel": "-12%", "highLabel": "+21%" },
-            { "name": "Portabilidade", "low": 94, "high": 108, "lowLabel": "-6%", "highLabel": "+8%" }
+            {
+              "name": "Custo de operação",
+              "low": 62,
+              "high": 148,
+              "lowLabel": "-38%",
+              "highLabel": "+48%"
+            },
+            {
+              "name": "Preço por milhão de msgs",
+              "low": 78,
+              "high": 132,
+              "lowLabel": "-22%",
+              "highLabel": "+32%"
+            },
+            {
+              "name": "Vazão de pico",
+              "low": 88,
+              "high": 121,
+              "lowLabel": "-12%",
+              "highLabel": "+21%"
+            },
+            {
+              "name": "Portabilidade",
+              "low": 94,
+              "high": 108,
+              "lowLabel": "-6%",
+              "highLabel": "+8%"
+            }
           ],
-          "caption": "Amplitude do TCO relativo quando cada fator varia do pessimista ao otimista." },
-        { "type": "cards", "id": "trades", "title": "Cada escolha compra algo ao custo de outra coisa",
+          "caption": "Amplitude do TCO relativo quando cada fator varia do pessimista ao otimista."
+        },
+        {
+          "type": "cards",
+          "id": "trades",
+          "title": "O que cada escolha compra e paga",
           "items": [
-            { "title": "Kafka", "meta": "recomendado",
+            {
+              "title": "Kafka",
+              "meta": "recomendado",
               "points": [
-                { "kind": "pro", "text": "Compra vazão e replay quase ilimitados" },
-                { "kind": "con", "text": "Ao custo de operar o broker e pagar on-call" } ] },
-            { "title": "RabbitMQ", "meta": "meio-termo",
+                {
+                  "kind": "pro",
+                  "text": "Compra vazão e replay quase ilimitados"
+                },
+                {
+                  "kind": "con",
+                  "text": "Ao custo de operar o broker e pagar on-call"
+                }
+              ]
+            },
+            {
+              "title": "RabbitMQ",
+              "meta": "meio-termo",
               "points": [
-                { "kind": "pro", "text": "Compra roteamento flexível sem operar broker" },
-                { "kind": "con", "text": "Ao custo de teto de vazão e replay improvisado" } ] },
-            { "title": "SQS/SNS", "meta": "zero operação",
+                {
+                  "kind": "pro",
+                  "text": "Compra roteamento flexível sem operar broker"
+                },
+                {
+                  "kind": "con",
+                  "text": "Ao custo de teto de vazão e replay improvisado"
+                }
+              ]
+            },
+            {
+              "title": "SQS/SNS",
+              "meta": "zero operação",
               "points": [
-                { "kind": "pro", "text": "Compra escala sem time de plataforma" },
-                { "kind": "con", "text": "Ao custo da fatura em volume e do lock-in AWS" } ] }
-          ] }
+                {
+                  "kind": "pro",
+                  "text": "Compra escala sem time de plataforma"
+                },
+                {
+                  "kind": "con",
+                  "text": "Ao custo da fatura em volume e do lock-in AWS"
+                }
+              ]
+            }
+          ]
+        }
       ],
-      "annotations": [ "Veto: vazão abaixo de 5 elimina a opção; nenhuma foi vetada neste perfil.", "SQS vira líder se o peso de operação passar de 45 — arraste o slider para conferir." ] }
+      "annotations": [
+        "Veto: vazão abaixo de 5 elimina a opção; nenhuma foi vetada neste perfil.",
+        "SQS vira líder se o peso de operação passar de 45 — arraste o slider para conferir."
+      ]
+    }
   ]
 }

@@ -129,3 +129,37 @@ Manter webhook; adicionar reconciliação a cada 5 min para pendentes há mais d
 **Bad:** a flowchart of the middleware chain.
 
 **Good:** two sentences. The Stripe signature is computed over the exact bytes of the body; `express.json()` parses and re-serializes, so the bytes no longer match and verification fails. `express.raw()` keeps the buffer intact for `constructEvent`.
+
+## 5. Text that tours the page versus text that states the finding
+
+**Request:** "Faz um guia visual do Git no nosso repositório para quem está começando."
+
+**Bad:** the drawing is right, and every field around it narrates.
+
+```json
+{
+  "subtitle": "Guia para quem está começando · Git do zero + o fluxo do repositório · dados reais",
+  "summary": "Cinco abas, da mais básica para a mais específica: o que é Git, os comandos, o fluxo de branches, um exemplo e os erros comuns. Comece pela primeira aba e clique em qualquer caixa para ver mais detalhes no painel da direita.",
+  "views": [{ "summary": "Git guarda fotos (commits). A foto passa por quatro lugares: a sua pasta, a área de preparação, o seu histórico local e o servidor.",
+    "blocks": [{ "type": "graph", "nodes": [
+      { "label": "Área de preparação", "sub": "o que vai entrar no próximo commit",
+        "detail": "Chamada de staging. Funciona como a caixa de uma mudança: você escolhe quais arquivos entram." } ] }] }]
+}
+```
+
+The build flags it: summary with 59 words that "descreve a página ou a navegação", a view summary that "repete 4 rótulos do desenho", a `detail` that "repete o rótulo/sub sem fato novo", a view of 487 words that "virou texto".
+
+**Good:** each string carries one fact the shapes do not.
+
+```json
+{
+  "subtitle": "vxcaselabs/vx-erp · fluxo lido em 14/10/2026",
+  "summary": "Todo trabalho nasce numa task/, sobe para uma project/ e chega em master por PR.",
+  "views": [{ "summary": "Nada sai do seu computador antes do push.",
+    "blocks": [{ "type": "graph", "nodes": [
+      { "label": "Área de preparação", "sub": "próximo commit",
+        "detail": "git add -p pergunta trecho por trecho; o jeito mais seguro de montar o commit." } ] }] }]
+}
+```
+
+Navigation is the interface's job; the audience is the reader's to know; the summary is the finding.

@@ -57,3 +57,17 @@ Small headless checks, one file per feature; run them all before committing canv
 - `test_media.py`: `image`/`video` free elements build, missing `src` fails, absolute local `src` warns.
 
 Visual proof stays in the browser: build every example (`sh scripts/build-examples.sh`), open each page, and check for overlapping text bounding boxes, working sliders, scenario chips, consequence isolation, the right-click menu per target, and image/video rendering with inspector source links. `python3 scripts/contrast.py` must print `ok` on every line.
+
+## Results, 2026-10-14, text budget, legibility, new blocks
+
+Audit before changing anything: six recent real scenes carried 940 to 2008 words (the examples, 380 to 530). Page summaries toured the tabs ("Comece pela primeira aba e clique…"), view summaries listed the nodes the graph already drew, and `detail` repeated `sub`. In the browser, `fit()` took the minimum of width and height fit with no floor: a five-view Git guide rendered at scale 0.39 on a 375px phone, 0.57 on a 1440px desktop; cards were always one row.
+
+Built: a text budget in SKILL.md and a `texto:` lint in the build (caps per field, talk about the page, detail that repeats its node, summary that lists labels, 250 words per view); a legibility floor (scale 0.75) with blocks that reflow to the legible width (cards in rows, vertical steps and timelines, wrapping KPIs, stacked matrix, clamped widths, wide layouts stacking, wide graphs and models turning top-down); reading mode (outline in normal flow, default on phones, `?mode=`, also the canvas's accessible description); deep links; PNG/SVG export; editor links from `root`; step playback; `lang: "en"`; blocks `entity`, `heatmap`, `gantt`, `sankey`, `treemap`; `diff` marks; `scripts/extract-deps.py` and `scripts/scene-diff.py`. Examples 13 to 16 cover the new blocks; all sixteen pass the budget with no `texto:` line.
+
+Headless checks (`_headless.py` builds `--self-contained`, opens the page in Chrome with a probe script and reads the measurements back from `--dump-dom`):
+
+- `test_responsive.py`: at 375, 768 and 1440 px the scale stays at or above 0.75, the page never scrolls sideways, and wide blocks fit the legible width; phones open in reading mode with one section per block. Against the previous template the same test fails at 375 px with scale 0.196.
+- `test_runtime_features.py`: a deep link restores view and selection, `file` becomes a `cursor://` link from `root`, the SVG export carries its styles, `p` plays two steps, English chrome; examples 13 to 16 render with no error at 375 and 1280 px and in reading mode.
+- `test_text_budget.py`, `test_new_blocks.py`, `test_pipeline.py`: lint warnings and its false positives, validation of the new blocks, import extraction on a mixed Python/TS fixture, diff marks.
+
+Lesson: full Chrome's new headless mode clamps the window to 500 px wide, so a "375 px" run silently measured 500 px. `chrome-headless-shell` (Playwright's cache) honours the size; the helper prefers it and the test prints a warning when the width differs. Also: `localStorage` set from a `file://` page does not survive into the run, so tests pick the mode through `?mode=` instead.

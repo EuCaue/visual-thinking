@@ -4,7 +4,7 @@
   "basis": "docs",
   "source": "Painel financeiro e de produto, fechamento de 2026-09-30",
   "period": "setembro de 2026, comparado com agosto",
-  "summary": "Receita recorrente e contas ativas sobem; o churn do plano básico passa de 3% e puxa o churn total. A região Sul concentra o crescimento novo.",
+  "summary": "Receita e contas ativas sobem; o churn do plano básico passa de 3% e puxa o total.",
   "views": [
     {
       "id": "main",

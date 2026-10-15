@@ -32,8 +32,15 @@ The full contract the agent follows lives in [SKILL.md](SKILL.md).
 | situate items on criteria | `quadrant`, `spectrum` |
 | see events, conversion, proportions, numbers | `timeline`, `funnel`, `donut` and other `chart` kinds, `kpi` |
 | show an image or video | `free` with `image`/`video` elements |
+| read a data model (tables, fields, keys) | `entity` |
+| follow amounts between stages, or parts that nest | `sankey`, `treemap` |
+| see a value per day or per pair of categories | `heatmap` |
+| plan tasks with dates and dependencies | `gantt` |
+| see what changed between two versions | `scripts/scene-diff.py`, marks on `graph` and `entity` |
 
-Reference pages for each: `examples/`. `02-comparacao-tecnologias.json` compares three databases, `05-fluxo-autenticacao.json` draws OAuth PKCE with evidence tags, `11-decisao-arquitetural.json` picks a message broker with a weighted matrix and a tornado, `12-analise-cenarios.json` runs a migration under three scenarios.
+Reference pages for each: `examples/`. `02-comparacao-tecnologias.json` compares three databases, `05-fluxo-autenticacao.json` draws OAuth PKCE with evidence tags, `11-decisao-arquitetural.json` picks a message broker with a weighted matrix and a tornado, `12-analise-cenarios.json` runs a migration under three scenarios, `13-modelo-de-dados.json` draws an HR data model, `14-cronograma.json` a migration plan, `15-fluxo-orcamento.json` a budget as sankey and treemap, `16-mapa-de-calor.json` support load by hour and by day.
+
+Every page reads on a phone: the canvas never shrinks text below a legible scale and blocks reflow to fit, phones open in a reading mode that lays the same scene out as text (also the screen-reader description), and `?mode=draw` or `?mode=read` picks one in a link. Selecting an element puts it in the address (`#v=…&b=…&k=…`), so a link opens on it. The right-click menu exports PNG or SVG and copies element links; `p` plays a sequence step by step; `file` fields open in the editor when the scene sets `root`; `"lang": "en"` switches the interface to English.
 
 ## Install
 
@@ -56,7 +63,14 @@ python3 scripts/build-scene.py my-scene.json my-page.html
 python3 scripts/build-scene.py my-scene.json my-page.html --self-contained   # inlina d3 e elkjs: a página funciona offline
 ```
 
-On success the first output line is the absolute path of the page. `--validate-only` checks without writing; `--fragment` skips the document tags for publish tools that add their own skeleton.
+On success the first output line is the absolute path of the page. `--validate-only` checks without writing; `--fragment` skips the document tags for publish tools that add their own skeleton. The build also warns when the scene carries more text than the drawing needs (`texto:` lines; `--no-text-lint` silences them).
+
+Two helpers write scenes for you:
+
+```bash
+python3 scripts/extract-deps.py ~/code/my-repo draft.json        # graph draft from real imports (Python, JS/TS, Go)
+python3 scripts/scene-diff.py before.json after.json diff.json   # one scene with added, changed and removed marked
+```
 
 ## Project layout
 
@@ -64,16 +78,16 @@ On success the first output line is the absolute path of the page. `--validate-o
 - `formats.md`: scene schema, every block's fields and what it shows at each information level, delivery per tool.
 - `design.md`: the design system the templates enforce.
 - `templates/canvas.html`, `svg.html`, `mermaid.html`: the three renderers. `canvas.html` is the default.
-- `scripts/`: build, token sync, contrast check.
-- `examples/`: twelve scenes, rebuilt by `sh scripts/build-examples.sh`.
-- `tests/`: regression tests for the validator and every canvas feature.
+- `scripts/`: build, import extractor, scene diff, token sync, contrast check.
+- `examples/`: sixteen scenes, rebuilt by `sh scripts/build-examples.sh`.
+- `tests/`: regression tests for the validator and every canvas feature; the `test_responsive` and `test_runtime_features` files measure pages in headless Chrome (prefers Playwright's `chrome-headless-shell`, since full Chrome's headless mode will not go below 500px wide; `VT_CHROME` overrides).
 
 ## Limits
 
-- Charts, trees and graphs load d3 and elkjs from CDNs; offline they show a one-line message instead. Everything else renders offline. A build with `--self-contained` inlines both libraries into the file, so it works fully offline.
+- Charts, trees, graphs and flows load d3, elkjs and d3-sankey from CDNs; offline they show a one-line message instead. Everything else renders offline. A build with `--self-contained` inlines the libraries into the file, so it works fully offline.
 - A graph view stays under 12 nodes plus groups; more than that belongs in an overview view plus one view per part.
 - The agent never invents data: with no real numbers in reach, it draws the underlying structure and marks values unknown, or asks for them.
-- The repo is private for now; the skill itself has no telemetry and no network calls beyond the two CDNs (none with `--self-contained`).
+- The repo is private for now; the skill itself has no telemetry and no network calls beyond the CDNs (none with `--self-contained`).
 
 ## Contributing
 

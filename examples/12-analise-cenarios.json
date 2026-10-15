@@ -1,10 +1,10 @@
 {
-  "title": "Strangler fig dilui o risco; big bang só fecha a conta no cenário otimista",
+  "title": "Strangler fig dilui o risco; big bang só fecha no cenário otimista",
   "subtitle": "Estratégia de migração do monolito · exemplo Decide",
   "basis": "decision",
   "source": "Inventário do monolito (210 endpoints, 14 módulos); histórico de incidentes 2025–2026",
   "date": "2026-10-11",
-  "summary": "Big bang contra strangler fig sob três cenários. O mapa mostra as consequências de 1ª a 3ª ordem de cada caminho; os chips trocam o cenário sem recarregar.",
+  "summary": "Big bang contra strangler fig em três cenários, com consequências de 1ª a 3ª ordem de cada caminho.",
   "views": [
     {
       "id": "main",
@@ -223,8 +223,7 @@
               "label": "aposenta o resto",
               "prob": 0.75
             }
-          ],
-          "caption": "Clique na decisão ou numa aresta para isolar o caminho; o inspetor soma o alcance."
+          ]
         },
         {
           "type": "quadrant",

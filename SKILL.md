@@ -43,9 +43,15 @@ Fast lookup, then draw. The default template is `canvas.html`.
 | see how things connect: architecture, flow with decisions, dependencies | `graph` |
 | follow a sequence without branches | `steps` |
 | follow a protocol message by message | `mermaid.html`, sequence diagram |
+| see tables, fields and keys of a data model | `entity` |
+| see quantities flowing between stages (budget, traffic, conversion paths) | `sankey` |
+| see parts of a whole that nest | `treemap` (`layout: "sunburst"` for a ring) |
+| see a value across two categories, or per day | `heatmap` (`calendar: true` for days) |
+| see tasks with durations and dependencies | `gantt` |
+| see what changed between two versions of a system | `scripts/scene-diff.py` over two scenes: graph or entity with `diff` marks |
 | see hierarchy or containment | `tree` |
 | organize loose ideas | `tree` with `layout: "mindmap"` |
-| see before and after | `row` of two cards or two `graph` blocks, difference marked |
+| see before and after | `row` of two cards or two `graph` blocks, difference marked; for systems, `scene-diff.py` |
 | see states of one thing | `mermaid.html`, state diagram |
 | situate on two criteria | `quadrant` |
 | situate on one spectrum | `spectrum` |
@@ -73,7 +79,7 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 
 ## Investigate before drawing the real thing
 
-1. Start at the entry points: the main file, router, CLI, scheduler, package manifest.
+1. Start at the entry points: the main file, router, CLI, scheduler, package manifest. For a module map of a Python, JS/TS or Go repo, `python3 scripts/extract-deps.py <repo> draft.json` drafts the graph from the real imports (overview plus one view per large module, top external packages); it reads only, runs nothing. Treat it as the skeleton: rewrite the title and summaries, give each node its real responsibility in `sub`, then read the files the user asked about.
 2. Follow imports along the path the user named. Note every boundary crossed: process, network, DB, queue, external service.
 3. Record per element: what it does, what it depends on, where it fails, and the file or symbol that proves it. Cite `file:line` only when the line number comes from tool output you read; otherwise cite the file alone.
 4. Mark each claim **verified** (read it), **inferred** (from names or docs) or **unknown**. Unknowns and inferences carry that tag and an `evidence` line; they are never drawn as solid facts.
@@ -82,22 +88,48 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 
 | Template | Use for |
 |---|---|
-| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut, tornado), kpi, matrix, decision, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas (with image and video elements), graph (architecture with groups, typed edges, three information levels, legend as filter; decision nodes with consequence paths). Views as tabs, with optional `scenarios` controls; one inspector per block; right-click menu with per-target actions. |
+| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut, tornado), kpi, matrix, decision, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas (with image and video elements), graph (architecture with groups, typed edges, three information levels, legend as filter; decision nodes with consequence paths), entity (data model), heatmap, gantt, sankey, treemap. Views as tabs, with optional `scenarios` controls; one inspector per block; right-click menu with per-target actions; reading mode; deep links; PNG/SVG export; step playback; `lang: "en"`. |
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 
-Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, ten prompts, ten different pictures (`sh scripts/build-examples.sh`).
+Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, sixteen prompts, sixteen different pictures (`sh scripts/build-examples.sh`).
 
 ## Build the page
 
 1. Write the scene JSON. Fill only the schema: `title` (the finding), `subtitle`, `basis`, `source`, `date`, `summary`, views, blocks. Do not restyle: tokens, type, theme, controls and inspector are the design system.
-2. Fill the three levels. Level 1 is the drawing: every block has a `title` that says what the reader learns, axes carry a label or `unit`, edges carry a label of at most 4 words, nodes carry `sub`. Level 2 and 3 are the fields the inspector reads: `note`, `detail`, `evidence`, `notes`, `text`, `source`. Write a `summary` for the page and for each view: one or two sentences on what it shows and for whom. Groups hold at least one node. In sketch mode this shrinks to the minimum: page `title`, block titles and content; `summary`, `source`, `date` and level-3 fields stay out — the build warns about them, it does not block.
-3. Keep nothing essential behind a click: the default view answers the question. Interaction adds depth, never the core.
+2. Fill the levels within the text budget (below). Level 1 is the drawing: every block has a `title` that says what the reader learns, axes carry a label or `unit`, edges carry a label of at most 4 words, nodes carry `sub`. Level 2 and 3 are the fields the inspector reads: `note`, `detail`, `evidence`, `notes`, `text`, `source`. They are optional: fill one only with a fact the shape does not show. A `summary` states the finding of the page or the view in one sentence; it never describes the page, its tabs or its audience. Groups hold at least one node. In sketch mode this shrinks to the minimum: page `title`, block titles and content; `summary`, `source`, `date` and level-3 fields stay out.
+3. Keep nothing essential behind a click: the default view answers the question. Interaction adds depth, never the core. When the scene names files, set `root` (the absolute repo path) so every `file` opens in the editor.
 4. Build: `python3 scripts/build-scene.py scene.json out.html "Title"` (standalone document). The build validates the scene first: dangling ids, unlabeled edges, unknown kinds, empty groups, out-of-range values; exit 1 lists each problem with the block it belongs to, and nothing is built until they are fixed. On success the first output line is the absolute path of the page. `--self-contained` inlines the two libraries so the page works fully offline (build fetches them once; without network it keeps the CDN tags and warns). Without Python, copy the template and replace the JSON in `<script id="scene">` and the `<title>`.
-5. Verify when a browser tool exists: open the page, look once at light and dark, click one element and read the inspector, check the legend names every color and line style on screen, and that no console error appears. Then two readings: the reader test (would someone who never saw the prompt understand what is compared, measured or connected, and in what unit?) and the sense test — walk the scene element by element and fix or delete anything you cannot state the reason for: an element nobody asked about, a series without a source, an edge whose meaning you cannot name. A drawing with dead elements is as broken as one that does not render.
-6. Deliver with whatever the harness offers, in this order: a publish tool (use `--fragment` when the tool wraps pages in its own document; give the link); a file-send tool with inline rendering; otherwise `docs/diagrams/<slug>.html` in the project. Always give the **full absolute path** (`/home/.../docs/diagrams/<slug>.html`), never a relative or shortened one; the build already prints it. If the user says they will show, send, present or document the result, also write it to `docs/diagrams/`.
+5. Verify when a browser tool exists: open the page, look once at light and dark and once at phone width (375px; it opens in reading mode, `?mode=draw` shows the canvas), click one element and read the inspector, check the legend names every color and line style on screen, and that no console error appears. Then two readings: the reader test (would someone who never saw the prompt understand what is compared, measured or connected, and in what unit?) and the sense test — walk the scene element by element and fix or delete anything you cannot state the reason for: an element nobody asked about, a series without a source, an edge whose meaning you cannot name. A drawing with dead elements is as broken as one that does not render.
+6. Deliver with whatever the harness offers, in this order: a publish tool (use `--fragment` when the tool wraps pages in its own document; give the link); a file-send tool with inline rendering; otherwise `docs/diagrams/<slug>.html` in the project. Always give the **full absolute path** (`/home/.../docs/diagrams/<slug>.html`), never a relative or shortened one; the build already prints it. To point at one element, give the deep link (`...html#v=<view>&b=<block>&k=<id>`). If the user says they will show, send, present or document the result, also write it to `docs/diagrams/`.
 
 The chat never carries a diagram as a code fence. Never render a static image unless asked. In Mermaid, `;` ends a statement.
+
+## Text budget
+
+The drawing carries the meaning; text only labels it. Every string must add a fact the shapes do not already show. The build warns (`texto:` lines) on every overrun; treat each warning as a cut to make, not a note to ignore.
+
+| Field | Max | Holds |
+|---|---|---|
+| page `title` | 12 words | the finding, one clause |
+| `subtitle` | 12 words | scope, date, basis; never repeats the title |
+| block `title` | 8 words | what the reader learns |
+| node `sub`, card `meta` | 6 words | responsibility |
+| edge label | 4 words | what moves |
+| `text` (cards, steps, kpi, events) | 15 words | one fact |
+| `detail`, `note` | 25 words | a fact NOT on the node: file, failure mode, number, example |
+| page or view `summary`, annotation | 25 words | the finding; optional |
+| whole view | 250 words | past this the page became prose |
+
+Never write:
+
+- Navigation or instructions: "clique", "aba", "comece por", "no painel da direita". The interface teaches itself.
+- Descriptions of the page: "esta página mostra", "cinco abas", "para quem".
+- A `summary` that lists the nodes the drawing already shows.
+- A `detail` that rephrases `sub` or `label`. No new fact, no field.
+- Audience framing ("guia para quem está começando") unless the user asked for it.
+
+Empty level-3 fields are correct. A node gets `detail` only when there is evidence, a file, a failure or a number to put in it.
 
 ## Move elements without breaking anything
 
@@ -143,6 +175,7 @@ For any Decide page, before delivering: can the reader trace the recommendation 
 | Unlabeled edges, nodes without responsibility, axes without unit | Label what moves; give every node a `sub`; give `y.unit` or a label |
 | Whole system in one drawing | Overview view plus one view per part |
 | Prose after the drawing repeats it | Annotations add only what the drawing cannot show |
+| `detail` on every node, summaries that tour the page | Text budget: cut every string without a new fact; rebuild until no `texto:` warning is left |
 | Data invented to fill a chart | The numbers must be real; with none in reach, draw the underlying structure with values marked `unknown` or ask for the numbers |
 | Asking before trying | Draw with a stated assumption unless two readings differ materially |
 | Drawing for a one-line answer | Answer in prose |

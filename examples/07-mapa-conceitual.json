@@ -1,39 +1,196 @@
 {
   "title": "Observabilidade são três sinais ligados por um mesmo contexto",
-  "subtitle": "Mapa de conceitos para quem está começando · exemplo",
+  "subtitle": "Logs, métricas e traces · exemplo",
   "basis": "docs",
   "source": "Documentação do OpenTelemetry e o livro Observability Engineering",
-  "summary": "Logs, métricas e traces respondem perguntas diferentes sobre o mesmo pedido. O que os conecta é o contexto propagado (trace id); sem ele cada sinal vira uma ilha.",
+  "summary": "Os três sinais descrevem o mesmo pedido; o trace id propagado é o que os liga.",
   "views": [
     {
-      "id": "main", "title": "Conceito",
-      "layout": { "type": "stack", "gap": 48 },
+      "id": "main",
+      "title": "Conceito",
+      "layout": {
+        "type": "stack",
+        "gap": 48
+      },
       "blocks": [
-        { "type": "tree", "id": "mm", "title": "O que compõe observabilidade", "layout": "mindmap",
-          "root": { "label": "Observabilidade", "text": "Entender o estado interno pelo que o sistema emite", "children": [
-            { "label": "Logs", "text": "eventos com texto e carimbo de tempo", "children": [ { "label": "estruturados (JSON)" }, { "label": "níveis" }, { "label": "correlação por trace id" } ] },
-            { "label": "Métricas", "text": "números agregados no tempo", "children": [ { "label": "contador" }, { "label": "gauge" }, { "label": "histograma" }, { "label": "cardinalidade" } ] },
-            { "label": "Traces", "text": "o caminho de um pedido entre serviços", "children": [ { "label": "span" }, { "label": "contexto propagado" }, { "label": "amostragem" } ] },
-            { "label": "Contexto", "text": "o que liga os três", "kind": "accent", "children": [ { "label": "trace id" }, { "label": "atributos de recurso" }, { "label": "baggage" } ] },
-            { "label": "Uso", "text": "para que serve", "children": [ { "label": "alertas (SLO)" }, { "label": "depuração" }, { "label": "capacidade" } ] }
-          ] } },
-        { "type": "cycle", "id": "cy", "title": "Como os sinais se usam na prática", "items": [
-          { "label": "Alerta dispara", "text": "métrica fora do SLO", "detail": "Taxa de erro acima de 1% por 5 minutos em um endpoint." },
-          { "label": "Abrir o trace", "text": "qual serviço demorou", "detail": "Pelo trace id dos pedidos com erro no período." },
-          { "label": "Ler os logs", "text": "o que aconteceu ali", "detail": "Filtrados pelo mesmo trace id." },
-          { "label": "Corrigir e medir", "text": "a métrica volta", "detail": "Fecha o ciclo: a mesma métrica confirma a correção." }
-        ] },
-        { "type": "venn", "id": "v", "title": "O que cada sinal responde", "sets": [
-          { "label": "Logs", "items": ["o quê, em detalhe", "mensagens de erro"] },
-          { "label": "Métricas", "items": ["quanto, ao longo do tempo", "tendência e alerta"] },
-          { "label": "Traces", "items": ["onde, entre serviços", "latência por salto"] }
-        ], "overlaps": [
-          { "sets": [0, 2], "label": "trace id nos logs" },
-          { "sets": [1, 2], "label": "métricas de span" },
-          { "sets": [0, 1, 2], "label": "contexto", "items": ["um pedido, três vistas"] }
-        ] }
+        {
+          "type": "tree",
+          "id": "mm",
+          "title": "O que compõe observabilidade",
+          "layout": "mindmap",
+          "root": {
+            "label": "Observabilidade",
+            "text": "Entender o estado interno pelo que o sistema emite",
+            "children": [
+              {
+                "label": "Logs",
+                "text": "eventos com texto e carimbo de tempo",
+                "children": [
+                  {
+                    "label": "estruturados (JSON)"
+                  },
+                  {
+                    "label": "níveis"
+                  },
+                  {
+                    "label": "correlação por trace id"
+                  }
+                ]
+              },
+              {
+                "label": "Métricas",
+                "text": "números agregados no tempo",
+                "children": [
+                  {
+                    "label": "contador"
+                  },
+                  {
+                    "label": "gauge"
+                  },
+                  {
+                    "label": "histograma"
+                  },
+                  {
+                    "label": "cardinalidade"
+                  }
+                ]
+              },
+              {
+                "label": "Traces",
+                "text": "o caminho de um pedido entre serviços",
+                "children": [
+                  {
+                    "label": "span"
+                  },
+                  {
+                    "label": "contexto propagado"
+                  },
+                  {
+                    "label": "amostragem"
+                  }
+                ]
+              },
+              {
+                "label": "Contexto",
+                "text": "o que liga os três",
+                "kind": "accent",
+                "children": [
+                  {
+                    "label": "trace id"
+                  },
+                  {
+                    "label": "atributos de recurso"
+                  },
+                  {
+                    "label": "baggage"
+                  }
+                ]
+              },
+              {
+                "label": "Uso",
+                "text": "para que serve",
+                "children": [
+                  {
+                    "label": "alertas (SLO)"
+                  },
+                  {
+                    "label": "depuração"
+                  },
+                  {
+                    "label": "capacidade"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "cycle",
+          "id": "cy",
+          "title": "Como os sinais se usam na prática",
+          "items": [
+            {
+              "label": "Alerta dispara",
+              "text": "métrica fora do SLO",
+              "detail": "Taxa de erro acima de 1% por 5 minutos em um endpoint."
+            },
+            {
+              "label": "Abrir o trace",
+              "text": "qual serviço demorou",
+              "detail": "Pelo trace id dos pedidos com erro no período."
+            },
+            {
+              "label": "Ler os logs",
+              "text": "o que aconteceu ali",
+              "detail": "Filtrados pelo mesmo trace id."
+            },
+            {
+              "label": "Corrigir e medir",
+              "text": "a métrica volta",
+              "detail": "Fecha o ciclo: a mesma métrica confirma a correção."
+            }
+          ]
+        },
+        {
+          "type": "venn",
+          "id": "v",
+          "title": "O que cada sinal responde",
+          "sets": [
+            {
+              "label": "Logs",
+              "items": [
+                "o quê, em detalhe",
+                "mensagens de erro"
+              ]
+            },
+            {
+              "label": "Métricas",
+              "items": [
+                "quanto, ao longo do tempo",
+                "tendência e alerta"
+              ]
+            },
+            {
+              "label": "Traces",
+              "items": [
+                "onde, entre serviços",
+                "latência por salto"
+              ]
+            }
+          ],
+          "overlaps": [
+            {
+              "sets": [
+                0,
+                2
+              ],
+              "label": "trace id nos logs"
+            },
+            {
+              "sets": [
+                1,
+                2
+              ],
+              "label": "métricas de span"
+            },
+            {
+              "sets": [
+                0,
+                1,
+                2
+              ],
+              "label": "contexto",
+              "items": [
+                "um pedido, três vistas"
+              ]
+            }
+          ]
+        }
       ],
-      "annotations": [ "Profiling contínuo às vezes aparece como quarto sinal; ficou de fora por não ser padrão no OpenTelemetry estável.", "A amostragem de traces decide custo e completude; o mapa não entra nesse trade-off." ]
+      "annotations": [
+        "Profiling contínuo às vezes aparece como quarto sinal; ficou de fora por não ser padrão no OpenTelemetry estável.",
+        "A amostragem de traces decide custo e completude; o mapa não entra nesse trade-off."
+      ]
     }
   ]
 }

@@ -4,103 +4,497 @@
   "basis": "code",
   "source": "src/ e docs/ do repositório de exemplo",
   "date": "2026-10-11",
-  "summary": "Loja Node em três processos: a API recebe pedidos e o webhook do Stripe; um worker envia recibos a partir de uma fila no Redis; um scheduler reconcilia pagamentos pendentes. Postgres guarda produtos, pedidos e usuários.",
+  "summary": "Três processos: API com webhook do Stripe, worker de recibos via Redis e scheduler que reconcilia pagamentos.",
   "views": [
     {
-      "id": "overview", "title": "Visão geral", "summary": "Caminho de um pedido: o cliente cria, o Stripe cobra e avisa por webhook, a API marca pago e enfileira, o worker envia o email.",
-      "layout": { "type": "stack", "gap": 36 },
+      "id": "overview",
+      "title": "Visão geral",
+      "summary": "Caminho de um pedido: o cliente cria, o Stripe cobra e avisa por webhook, a API marca pago e enfileira, o worker envia o email.",
+      "layout": {
+        "type": "stack",
+        "gap": 36
+      },
       "blocks": [
-        { "type": "graph", "id": "g", "direction": "RIGHT",
+        {
+          "type": "graph",
+          "id": "g",
+          "direction": "RIGHT",
           "groups": [
-            { "id": "api", "label": "Processo API", "file": "src/api/server.js", "view": "api" },
-            { "id": "worker", "label": "Processo worker", "file": "src/workers/emailWorker.js", "view": "worker" },
-            { "id": "sched", "label": "Scheduler", "file": "src/jobs/reconcile.js" }
+            {
+              "id": "api",
+              "label": "Processo API",
+              "file": "src/api/server.js",
+              "view": "api"
+            },
+            {
+              "id": "worker",
+              "label": "Processo worker",
+              "file": "src/workers/emailWorker.js",
+              "view": "worker"
+            },
+            {
+              "id": "sched",
+              "label": "Scheduler",
+              "file": "src/jobs/reconcile.js"
+            }
           ],
           "nodes": [
-            { "id": "client", "label": "Cliente", "sub": "SPA, envia Bearer JWT", "kind": "external", "status": "verified" },
-            { "id": "stripe", "label": "Stripe", "sub": "cobra o cartão, chama o webhook", "kind": "external", "status": "verified" },
-            { "id": "smtp", "label": "SMTP", "sub": "porta 587, TLS", "kind": "external", "status": "verified" },
-            { "id": "orders", "label": "POST /orders", "sub": "valida, grava, abre PaymentIntent", "kind": "entry", "group": "api", "file": "src/api/orders.js", "status": "verified" },
-            { "id": "hooks", "label": "POST /webhooks/stripe", "sub": "marca pago, enfileira recibo", "kind": "critical", "group": "api", "file": "src/api/webhooks.js", "status": "verified",
-              "notes": ["Sem checagem de idempotência: evento duplicado gera dois emails."], "evidence": "webhooks.js:12-16 não consulta event.id antes de enfileirar." },
-            { "id": "mail", "label": "emailWorker", "sub": "consome a fila, envia por SMTP", "kind": "component", "group": "worker", "file": "src/workers/emailWorker.js", "status": "verified" },
-            { "id": "recon", "label": "reconcile", "sub": "a cada 10 min, confere intents pendentes", "kind": "component", "group": "sched", "file": "src/jobs/reconcile.js", "status": "inferred", "evidence": "O cron está no Dockerfile; o intervalo vem de um comentário, não de configuração lida." },
-            { "id": "pg", "label": "Postgres", "sub": "products, orders, users", "kind": "store", "status": "verified" },
-            { "id": "redis", "label": "Redis", "sub": "fila BullMQ email", "kind": "queue", "status": "verified" }
+            {
+              "id": "client",
+              "label": "Cliente",
+              "sub": "SPA, envia Bearer JWT",
+              "kind": "external",
+              "status": "verified"
+            },
+            {
+              "id": "stripe",
+              "label": "Stripe",
+              "sub": "cobra o cartão, chama o webhook",
+              "kind": "external",
+              "status": "verified"
+            },
+            {
+              "id": "smtp",
+              "label": "SMTP",
+              "sub": "porta 587, TLS",
+              "kind": "external",
+              "status": "verified"
+            },
+            {
+              "id": "orders",
+              "label": "POST /orders",
+              "sub": "valida, grava, abre PaymentIntent",
+              "kind": "entry",
+              "group": "api",
+              "file": "src/api/orders.js",
+              "status": "verified"
+            },
+            {
+              "id": "hooks",
+              "label": "POST /webhooks/stripe",
+              "sub": "marca pago, enfileira recibo",
+              "kind": "critical",
+              "group": "api",
+              "file": "src/api/webhooks.js",
+              "status": "verified",
+              "notes": [
+                "Sem checagem de idempotência: evento duplicado gera dois emails."
+              ],
+              "evidence": "webhooks.js:12-16 não consulta event.id antes de enfileirar."
+            },
+            {
+              "id": "mail",
+              "label": "emailWorker",
+              "sub": "consome a fila, envia por SMTP",
+              "kind": "component",
+              "group": "worker",
+              "file": "src/workers/emailWorker.js",
+              "status": "verified"
+            },
+            {
+              "id": "recon",
+              "label": "reconcile",
+              "sub": "confere intents a cada 10 min",
+              "kind": "component",
+              "group": "sched",
+              "file": "src/jobs/reconcile.js",
+              "status": "inferred",
+              "evidence": "O cron está no Dockerfile; o intervalo vem de um comentário, não de configuração lida."
+            },
+            {
+              "id": "pg",
+              "label": "Postgres",
+              "sub": "products, orders, users",
+              "kind": "store",
+              "status": "verified"
+            },
+            {
+              "id": "redis",
+              "label": "Redis",
+              "sub": "fila BullMQ email",
+              "kind": "queue",
+              "status": "verified"
+            }
           ],
           "edges": [
-            { "from": "client", "to": "orders", "label": "POST /orders", "kind": "control", "step": 1, "detail": "Corpo {items[]}, exige Authorization: Bearer." },
-            { "from": "orders", "to": "pg", "label": "insertOrder", "kind": "data", "step": 2 },
-            { "from": "orders", "to": "stripe", "label": "createIntent", "kind": "control", "step": 3 },
-            { "from": "stripe", "to": "hooks", "label": "payment_intent.succeeded", "kind": "event", "step": 4, "detail": "Assinatura verificada sobre o corpo cru (express.raw)." },
-            { "from": "hooks", "to": "pg", "label": "status = paid", "kind": "data", "step": 5 },
-            { "from": "hooks", "to": "redis", "label": "job send", "kind": "event", "step": 6 },
-            { "from": "redis", "to": "mail", "label": "job send", "kind": "event", "step": 7, "detail": "5 tentativas, backoff exponencial a partir de 2 s." },
-            { "from": "mail", "to": "pg", "label": "getOrder, getUser", "kind": "data", "step": 8 },
-            { "from": "mail", "to": "smtp", "label": "sendMail", "kind": "control", "step": 9 },
-            { "from": "recon", "to": "stripe", "label": "retrieveIntent", "kind": "control" },
-            { "from": "recon", "to": "pg", "label": "status pendente → pago", "kind": "data" }
-          ] },
-        { "type": "callout", "id": "c", "kind": "warn", "text": "A API responde 200 ao Stripe antes do email sair. Se o worker parar, os jobs acumulam no Redis e ninguém percebe: não há alerta sobre o tamanho da fila." }
+            {
+              "from": "client",
+              "to": "orders",
+              "label": "POST /orders",
+              "kind": "control",
+              "step": 1,
+              "detail": "Corpo {items[]}, exige Authorization: Bearer."
+            },
+            {
+              "from": "orders",
+              "to": "pg",
+              "label": "insertOrder",
+              "kind": "data",
+              "step": 2
+            },
+            {
+              "from": "orders",
+              "to": "stripe",
+              "label": "createIntent",
+              "kind": "control",
+              "step": 3
+            },
+            {
+              "from": "stripe",
+              "to": "hooks",
+              "label": "payment_intent.succeeded",
+              "kind": "event",
+              "step": 4,
+              "detail": "Assinatura verificada sobre o corpo cru (express.raw)."
+            },
+            {
+              "from": "hooks",
+              "to": "pg",
+              "label": "status = paid",
+              "kind": "data",
+              "step": 5
+            },
+            {
+              "from": "hooks",
+              "to": "redis",
+              "label": "job send",
+              "kind": "event",
+              "step": 6
+            },
+            {
+              "from": "redis",
+              "to": "mail",
+              "label": "job send",
+              "kind": "event",
+              "step": 7,
+              "detail": "5 tentativas, backoff exponencial a partir de 2 s."
+            },
+            {
+              "from": "mail",
+              "to": "pg",
+              "label": "getOrder, getUser",
+              "kind": "data",
+              "step": 8
+            },
+            {
+              "from": "mail",
+              "to": "smtp",
+              "label": "sendMail",
+              "kind": "control",
+              "step": 9
+            },
+            {
+              "from": "recon",
+              "to": "stripe",
+              "label": "retrieveIntent",
+              "kind": "control"
+            },
+            {
+              "from": "recon",
+              "to": "pg",
+              "label": "status pendente → pago",
+              "kind": "data"
+            }
+          ],
+          "title": "Três processos em volta de Redis e Postgres"
+        },
+        {
+          "type": "callout",
+          "id": "c",
+          "kind": "warn",
+          "text": "A API responde 200 ao Stripe antes do email sair. Se o worker parar, os jobs acumulam no Redis e ninguém percebe: não há alerta sobre o tamanho da fila."
+        }
       ],
-      "annotations": [ "db.updateOrder tem corpo vazio em src/db/index.js:10: o status pago não persiste hoje.", "O scheduler compensa webhooks perdidos, mas depende de o intent existir no Postgres." ]
+      "annotations": [
+        "db.updateOrder tem corpo vazio em src/db/index.js:10: o status pago não persiste hoje.",
+        "O scheduler compensa webhooks perdidos, mas depende de o intent existir no Postgres."
+      ]
     },
     {
-      "id": "api", "title": "Processo API", "summary": "Express com duas rotas. O corpo cru só existe na rota do webhook, porque a assinatura do Stripe é calculada sobre os bytes originais.",
+      "id": "api",
+      "title": "Processo API",
+      "summary": "Express com duas rotas. O corpo cru só existe na rota do webhook, porque a assinatura do Stripe é calculada sobre os bytes originais.",
       "blocks": [
-        { "type": "graph", "id": "g2", "direction": "DOWN",
-          "groups": [ { "id": "srv", "label": "server.js", "file": "src/api/server.js" } ],
+        {
+          "type": "graph",
+          "id": "g2",
+          "direction": "DOWN",
+          "groups": [
+            {
+              "id": "srv",
+              "label": "server.js",
+              "file": "src/api/server.js"
+            }
+          ],
           "nodes": [
-            { "id": "json", "label": "express.json", "sub": "parse de JSON em todas as rotas", "kind": "component", "group": "srv", "file": "src/api/server.js", "status": "verified" },
-            { "id": "auth", "label": "requireAuth", "sub": "valida o JWT, 401 se inválido", "kind": "component", "group": "srv", "file": "src/api/auth.js", "status": "verified" },
-            { "id": "raw", "label": "express.raw", "sub": "corpo cru para a assinatura", "kind": "component", "group": "srv", "file": "src/api/server.js", "status": "verified" },
-            { "id": "orders", "label": "orders.js", "sub": "POST /, GET /:id", "kind": "entry", "file": "src/api/orders.js", "status": "verified" },
-            { "id": "hooks", "label": "webhooks.js", "sub": "POST /", "kind": "entry", "file": "src/api/webhooks.js", "status": "verified" },
-            { "id": "pay", "label": "services/payments", "sub": "createIntent, verifyWebhook", "kind": "component", "file": "src/services/payments.js", "status": "verified" },
-            { "id": "db", "label": "db/index.js", "sub": "pool pg, SQL direto", "kind": "component", "file": "src/db/index.js", "status": "verified" },
-            { "id": "upd", "label": "db.updateOrder", "sub": "corpo vazio: nada persiste", "kind": "critical", "file": "src/db/index.js", "status": "verified", "evidence": "src/db/index.js:10 contém só o comentário /* dynamic SET */." },
-            { "id": "q", "label": "workers/queue", "sub": "Queue email, enqueueEmail", "kind": "component", "file": "src/workers/queue.js", "status": "verified" }
+            {
+              "id": "json",
+              "label": "express.json",
+              "sub": "parse de JSON nas rotas",
+              "kind": "component",
+              "group": "srv",
+              "file": "src/api/server.js",
+              "status": "verified"
+            },
+            {
+              "id": "auth",
+              "label": "requireAuth",
+              "sub": "valida o JWT, 401 se inválido",
+              "kind": "component",
+              "group": "srv",
+              "file": "src/api/auth.js",
+              "status": "verified"
+            },
+            {
+              "id": "raw",
+              "label": "express.raw",
+              "sub": "corpo cru para a assinatura",
+              "kind": "component",
+              "group": "srv",
+              "file": "src/api/server.js",
+              "status": "verified"
+            },
+            {
+              "id": "orders",
+              "label": "orders.js",
+              "sub": "POST /, GET /:id",
+              "kind": "entry",
+              "file": "src/api/orders.js",
+              "status": "verified"
+            },
+            {
+              "id": "hooks",
+              "label": "webhooks.js",
+              "sub": "POST /",
+              "kind": "entry",
+              "file": "src/api/webhooks.js",
+              "status": "verified"
+            },
+            {
+              "id": "pay",
+              "label": "services/payments",
+              "sub": "createIntent, verifyWebhook",
+              "kind": "component",
+              "file": "src/services/payments.js",
+              "status": "verified"
+            },
+            {
+              "id": "db",
+              "label": "db/index.js",
+              "sub": "pool pg, SQL direto",
+              "kind": "component",
+              "file": "src/db/index.js",
+              "status": "verified"
+            },
+            {
+              "id": "upd",
+              "label": "db.updateOrder",
+              "sub": "corpo vazio: nada persiste",
+              "kind": "critical",
+              "file": "src/db/index.js",
+              "status": "verified",
+              "evidence": "src/db/index.js:10 contém só o comentário /* dynamic SET */."
+            },
+            {
+              "id": "q",
+              "label": "workers/queue",
+              "sub": "Queue email, enqueueEmail",
+              "kind": "component",
+              "file": "src/workers/queue.js",
+              "status": "verified"
+            }
           ],
           "edges": [
-            { "from": "json", "to": "auth", "label": "/orders", "kind": "control" },
-            { "from": "auth", "to": "orders", "label": "req.user", "kind": "control" },
-            { "from": "json", "to": "raw", "label": "/webhooks/stripe", "kind": "control" },
-            { "from": "raw", "to": "hooks", "label": "Buffer", "kind": "control" },
-            { "from": "orders", "to": "db", "label": "insertOrder", "kind": "data" },
-            { "from": "orders", "to": "pay", "label": "createIntent", "kind": "control" },
-            { "from": "orders", "to": "upd", "label": "intentId ou failed", "kind": "data" },
-            { "from": "hooks", "to": "pay", "label": "verifyWebhook", "kind": "control" },
-            { "from": "hooks", "to": "upd", "label": "status paid", "kind": "data" },
-            { "from": "hooks", "to": "q", "label": "enqueueEmail", "kind": "event" }
-          ] }
+            {
+              "from": "json",
+              "to": "auth",
+              "label": "/orders",
+              "kind": "control"
+            },
+            {
+              "from": "auth",
+              "to": "orders",
+              "label": "req.user",
+              "kind": "control"
+            },
+            {
+              "from": "json",
+              "to": "raw",
+              "label": "/webhooks/stripe",
+              "kind": "control"
+            },
+            {
+              "from": "raw",
+              "to": "hooks",
+              "label": "Buffer",
+              "kind": "control"
+            },
+            {
+              "from": "orders",
+              "to": "db",
+              "label": "insertOrder",
+              "kind": "data"
+            },
+            {
+              "from": "orders",
+              "to": "pay",
+              "label": "createIntent",
+              "kind": "control"
+            },
+            {
+              "from": "orders",
+              "to": "upd",
+              "label": "intentId ou failed",
+              "kind": "data"
+            },
+            {
+              "from": "hooks",
+              "to": "pay",
+              "label": "verifyWebhook",
+              "kind": "control"
+            },
+            {
+              "from": "hooks",
+              "to": "upd",
+              "label": "status paid",
+              "kind": "data"
+            },
+            {
+              "from": "hooks",
+              "to": "q",
+              "label": "enqueueEmail",
+              "kind": "event"
+            }
+          ],
+          "title": "Uma rota pública e um webhook"
+        }
       ],
-      "annotations": [ "express.json roda antes de express.raw na mesma rota: o webhook recebe objeto, não Buffer. Inferido do body-parser, não executado." ]
+      "annotations": [
+        "express.json roda antes de express.raw na mesma rota: o webhook recebe objeto, não Buffer. Inferido do body-parser, não executado."
+      ]
     },
     {
-      "id": "worker", "title": "Processo worker", "summary": "Um Worker BullMQ com um handler: lê o job, busca pedido e usuário, envia o email. A retentativa vem da configuração da fila.",
+      "id": "worker",
+      "title": "Processo worker",
+      "summary": "Um único handler BullMQ manda o recibo; a retentativa vem da configuração da fila.",
       "blocks": [
-        { "type": "graph", "id": "g3", "direction": "RIGHT",
+        {
+          "type": "graph",
+          "id": "g3",
+          "direction": "RIGHT",
           "nodes": [
-            { "id": "redis", "label": "Redis", "sub": "fila email", "kind": "queue", "status": "verified" },
-            { "id": "w", "label": "emailWorker.js", "sub": "Worker email, 1 handler", "kind": "entry", "file": "src/workers/emailWorker.js", "status": "verified" },
-            { "id": "db", "label": "db/index.js", "sub": "getOrder, getUser", "kind": "component", "file": "src/db/index.js", "status": "verified" },
-            { "id": "pg", "label": "Postgres", "sub": "orders, users", "kind": "store", "status": "verified" },
-            { "id": "smtp", "label": "nodemailer", "sub": "SMTP_HOST:587", "kind": "external", "status": "verified" },
-            { "id": "dead", "label": "Job falhou 5×", "sub": "fica em failed, sem alerta", "kind": "error", "status": "unknown", "evidence": "Não há listener de failed no código lido; destino final não confirmado." }
+            {
+              "id": "redis",
+              "label": "Redis",
+              "sub": "fila email",
+              "kind": "queue",
+              "status": "verified"
+            },
+            {
+              "id": "w",
+              "label": "emailWorker.js",
+              "sub": "Worker email, 1 handler",
+              "kind": "entry",
+              "file": "src/workers/emailWorker.js",
+              "status": "verified"
+            },
+            {
+              "id": "db",
+              "label": "db/index.js",
+              "sub": "getOrder, getUser",
+              "kind": "component",
+              "file": "src/db/index.js",
+              "status": "verified"
+            },
+            {
+              "id": "pg",
+              "label": "Postgres",
+              "sub": "orders, users",
+              "kind": "store",
+              "status": "verified"
+            },
+            {
+              "id": "smtp",
+              "label": "nodemailer",
+              "sub": "SMTP_HOST:587",
+              "kind": "external",
+              "status": "verified"
+            },
+            {
+              "id": "dead",
+              "label": "Job falhou 5×",
+              "sub": "fica em failed, sem alerta",
+              "kind": "error",
+              "status": "unknown",
+              "evidence": "Não há listener de failed no código lido; destino final não confirmado."
+            }
           ],
           "edges": [
-            { "from": "redis", "to": "w", "label": "job send {orderId}", "kind": "event", "step": 1 },
-            { "from": "w", "to": "db", "label": "getOrder, getUser", "kind": "data", "step": 2 },
-            { "from": "db", "to": "pg", "label": "SELECT", "kind": "data", "step": 3 },
-            { "from": "w", "to": "smtp", "label": "sendMail", "kind": "control", "step": 4 },
-            { "from": "w", "to": "dead", "label": "após 5 tentativas", "kind": "error" }
-          ] },
-        { "type": "steps", "id": "s", "title": "O que o handler faz com um job", "items": [
-          { "title": "Lê o job", "text": "orderId vem do payload", "kind": "plain" },
-          { "title": "Busca pedido e usuário", "text": "duas consultas, sem transação", "kind": "plain" },
-          { "title": "Monta o email", "text": "template HTML simples", "kind": "plain" },
-          { "title": "Envia", "text": "nodemailer, aguarda a resposta do SMTP", "kind": "plain", "detail": "Timeout de 10 s. Erro faz o job voltar para a fila." }
-        ] }
+            {
+              "from": "redis",
+              "to": "w",
+              "label": "job send {orderId}",
+              "kind": "event",
+              "step": 1
+            },
+            {
+              "from": "w",
+              "to": "db",
+              "label": "getOrder, getUser",
+              "kind": "data",
+              "step": 2
+            },
+            {
+              "from": "db",
+              "to": "pg",
+              "label": "SELECT",
+              "kind": "data",
+              "step": 3
+            },
+            {
+              "from": "w",
+              "to": "smtp",
+              "label": "sendMail",
+              "kind": "control",
+              "step": 4
+            },
+            {
+              "from": "w",
+              "to": "dead",
+              "label": "após 5 tentativas",
+              "kind": "error"
+            }
+          ],
+          "title": "Do job ao email em três passos"
+        },
+        {
+          "type": "steps",
+          "id": "s",
+          "title": "O que o handler faz com um job",
+          "items": [
+            {
+              "title": "Lê o job",
+              "text": "orderId vem do payload",
+              "kind": "plain"
+            },
+            {
+              "title": "Busca pedido e usuário",
+              "text": "duas consultas, sem transação",
+              "kind": "plain"
+            },
+            {
+              "title": "Monta o email",
+              "text": "template HTML simples",
+              "kind": "plain"
+            },
+            {
+              "title": "Envia",
+              "text": "nodemailer, aguarda a resposta do SMTP",
+              "kind": "plain",
+              "detail": "Timeout de 10 s. Erro faz o job voltar para a fila."
+            }
+          ]
+        }
       ]
     }
   ]
