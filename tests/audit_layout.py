@@ -34,6 +34,27 @@ PROBE = r"""<script>
     for (var i = 0; i < texts.length; i++) for (var j = i + 1; j < texts.length; j++) { var p = texts[i], q = texts[j], gp = p.closest('.nd, .el, .item, .grp, .blk'), gq = q.closest('.nd, .el, .item, .grp, .blk'); if (gp === gq && gp && !gp.classList.contains('blk')) continue;
       var A = box(p), B = box(q), ox = Math.min(A.r, B.r) - Math.max(A.x, B.x), oy = Math.min(A.b, B.b) - Math.max(A.y, B.y);
       if (ox > 2 * scale && oy > 3 * scale) out.push({ kind: 'overlap', view: view, block: (p.closest('.blk') || {}).dataset ? p.closest('.blk').dataset.block : '', text: p.textContent.slice(0, 40) + ' | ' + q.textContent.slice(0, 40) }); }
+    // connections: an edge may touch only its own two ends and its own label
+    function inBox(pt, b, m) { return pt.x > b.x + m && pt.x < b.r - m && pt.y > b.y + m && pt.y < b.b - m; }
+    var cards = Array.prototype.map.call(document.querySelectorAll('#world .nd'), function (n) { var sh = n.querySelector(':scope > rect:not(.sel-ring):not(.hit):not(.nk-tile), :scope > ellipse, :scope > .er-box'); return sh && sh.getBoundingClientRect().width ? { n: n, b: box(sh) } : null; }).filter(Boolean);
+    var labels = Array.prototype.map.call(document.querySelectorAll('#world .el'), function (e) { var r = e.querySelector('rect'); return r ? { e: e, b: box(r) } : null; }).filter(Boolean);
+    Array.prototype.forEach.call(document.querySelectorAll('#world path.ed, #world path.hair-strong, #world path.sk-link'), function (p) {
+      if (!p.getBoundingClientRect().width && !p.getBoundingClientRect().height) return; if (getComputedStyle(p).opacity === '0' || p.closest('.lod')) return;
+      var L = p.getTotalLength(), m = p.getScreenCTM(), pts = [], step = Math.max(2, 3 / scale); if (!L || !m) return;
+      for (var d = 0; d <= L; d += step) { var q = p.getPointAtLength(d); pts.push(new DOMPoint(q.x, q.y).matrixTransform(m)); }
+      var a = pts[0], z = pts[pts.length - 1], own = cards.filter(function (c) { return inBox(a, c.b, -4) || inBox(z, c.b, -4); }).map(function (c) { return c.n; });
+      var blk = (p.closest('.blk') || {}).dataset ? p.closest('.blk').dataset.block : '', name = (p.dataset.from || '?') + '→' + (p.dataset.to || '?');
+      var mine = function (el) { var l = el.closest('.el'); return l && l.dataset.from === p.dataset.from && l.dataset.to === p.dataset.to; };
+      texts.forEach(function (t) { if (t.classList.contains('ko')) return; if (mine(t) || own.some(function (n) { return n.contains(t); })) return; var b = box(t); if (pts.some(function (pt) { return inBox(pt, b, 1); })) out.push({ kind: 'edge-text', view: view, block: blk, text: name + ' x ' + t.textContent.slice(0, 40) }); });
+      cards.forEach(function (c) { if (own.indexOf(c.n) >= 0 || c.n.contains(p)) return; if (pts.some(function (pt) { return inBox(pt, c.b, 3); })) out.push({ kind: 'edge-card', view: view, block: blk, text: name + ' x ' + (c.n.dataset.id || c.n.textContent.slice(0, 30)) }); });
+    });
+    // two edges running on top of each other for a stretch read as one line; only shared ends may touch
+    var eds = Array.prototype.filter.call(document.querySelectorAll('#world path.ed[data-from]'), function (p) { return p.getTotalLength() > 0 && getComputedStyle(p).opacity !== '0'; }).map(function (p) { var L = p.getTotalLength(), m = p.getScreenCTM(), pts = []; for (var d = 0; d <= L; d += 2) { var q = p.getPointAtLength(d); pts.push(new DOMPoint(q.x, q.y).matrixTransform(m)); } return { p: p, pts: pts }; });
+    for (var ea = 0; ea < eds.length; ea++) for (var eb = ea + 1; eb < eds.length; eb++) { var P = eds[ea], Q = eds[eb], run = 0, best = 0, endA = P.pts[0], endZ = P.pts[P.pts.length - 1];
+      P.pts.forEach(function (pt) { var nearEnd = Math.hypot(pt.x - endA.x, pt.y - endA.y) < 24 * scale || Math.hypot(pt.x - endZ.x, pt.y - endZ.y) < 24 * scale; var close = !nearEnd && Q.pts.some(function (o) { return Math.abs(o.x - pt.x) < 1.6 && Math.abs(o.y - pt.y) < 1.6; }); run = close ? run + 1 : 0; best = Math.max(best, run); });
+      if (best * 2 > 20) out.push({ kind: 'edge-edge', view: view, block: '', text: P.p.dataset.from + '→' + P.p.dataset.to + ' = ' + Q.p.dataset.from + '→' + Q.p.dataset.to + ' (' + best * 2 + 'px)' }); }
+    for (var li = 0; li < labels.length; li++) { for (var lj = li + 1; lj < labels.length; lj++) { var A = labels[li].b, B = labels[lj].b; if (Math.min(A.r, B.r) - Math.max(A.x, B.x) > 1 && Math.min(A.b, B.b) - Math.max(A.y, B.y) > 1) out.push({ kind: 'label-label', view: view, block: '', text: labels[li].e.textContent.slice(0, 30) + ' | ' + labels[lj].e.textContent.slice(0, 30) }); }
+      cards.forEach(function (c) { var A = labels[li].b, B = c.b; if (Math.min(A.r, B.r) - Math.max(A.x, B.x) > 1 && Math.min(A.b, B.b) - Math.max(A.y, B.y) > 1) out.push({ kind: 'label-card', view: view, block: '', text: labels[li].e.textContent.slice(0, 30) + ' x ' + (c.n.dataset.id || '') }); }); }
     return out;
   }
   var i = 0;

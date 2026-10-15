@@ -11,7 +11,7 @@ The scene is validated first; an invalid scene is not built. Exit 0 prints the
 output path; exit 1 prints the problems, one per line, prefixed by the scene file.
 """
 
-import json, pathlib, re, sys
+import difflib, json, pathlib, re, sys
 
 ID_RE = re.compile(r"^[A-Za-z0-9_]+$")
 KINDS = {
@@ -539,7 +539,13 @@ def check_custom(b, p, w, c, lib_names):
     if kinds[0] in ("svg", "html") and not (isinstance(b.get("width"), (int, float)) and isinstance(b.get("height"), (int, float))):
         p(c + f"custom {kinds[0]} precisa de width e height")
     if COLOR_RE.search(b[kinds[0]]):
-        w(c + "custom com cor literal; use var(--accent), var(--fg), var(--s1)... para valer nos dois temas")
+        w(c + "custom com cor literal; use var(--s1)... para dados, var(--fg) e var(--fg-muted) para texto, para valer nos dois temas")
+    used = set(re.findall(r"var\(--([a-z0-9-]+)", b[kinds[0]]))
+    for name in sorted(used - TOKENS):
+        near = difflib.get_close_matches(name, sorted(TOKENS), n=2)
+        w(c + f"custom usa var(--{name}), que não existe" + (f"; quis dizer {' ou '.join('--' + x for x in near)}?" if near else "; veja os tokens em formats.md"))
+    if "accent" in used:
+        w(c + "custom usa var(--accent) num desenho; --accent é seleção e foco, dado usa var(--s1) a var(--s6)")
     for n in b.get("libs") or []:
         if n not in lib_names:
             p(c + f"custom usa lib desconhecida {n!r}; declare em scene.libs ou use uma das embutidas")
@@ -660,6 +666,9 @@ META_ITEM_RE = re.compile(
     r"\b(clique|ver aba|na aba|veja a aba|esta página|nesta página|painel da direita|painel lateral|click here|this page)\b",
     re.I,
 )
+# token names the page defines; a var(--x) outside this set renders as nothing
+TOKENS = set(re.findall(r"--([a-z0-9-]+)\s*:", (pathlib.Path(__file__).resolve().parent.parent / "templates" / "_tokens.css").read_text()))
+URL_RE = re.compile(r"https?://")
 STOP = set(
     "a o os as de da do das dos e é em no na nos nas um uma uns umas que se por para com sem ao à "
     "the of and to in is it for on with".split()
@@ -705,6 +714,10 @@ def check_text(scene, w):
                 w(c + f"title com {words(b['title'])} palavras; máximo {CAP_BLOCK_TITLE}")
             if t in SKIP_TEXT_TYPES:
                 continue
+            if t == "callout" and b.get("label") and b.get("label") == b.get("title"):
+                w(c + "callout label repete o title; tire o label")
+            if t in PARAGRAPH_TYPES and URL_RE.search(b.get("text") or ""):
+                w(c + "URL no texto; links vão em source, que o painel já lista")
             if t in PARAGRAPH_TYPES:
                 total += words(b.get("text") or "")
                 if words(b.get("text") or "") > 40:

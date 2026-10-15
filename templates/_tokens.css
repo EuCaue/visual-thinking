@@ -16,47 +16,50 @@
   --r-control: 8px; --r-node: 10px; --r-panel: 14px;
 
   /* surfaces */
-  --bg: #f6f7f9;            /* page ground, cool off-white */
-  --bg-elev: #ffffff;       /* panels */
-  --bg-inset: #eceff3;      /* wells, chips, group boxes */
-  --line: #e1e5eb;          /* hairlines */
-  --line-strong: #aeb7c4;   /* borders that must read */
+  --bg: #F5F5F7;            /* page ground, Apple neutral */
+  --bg-elev: #FFFFFF;       /* panels */
+  --bg-inset: #F0F0F2;      /* wells, chips, group boxes */
+  --line: #E5E5EA;          /* hairlines */
+  --line-strong: #D2D2D7;   /* borders that must read */
 
   /* text */
-  --fg: #171a20;
-  --fg-muted: #5a6373;      /* ≥ 4.5:1 on --bg and --bg-elev */
-  --fg-faint: #7c8696;      /* large text or non-essential only */
+  --fg: #1D1D1F;
+  --fg-muted: #6A6A6F;      /* ≥ 4.5:1 on --bg and --bg-elev */
+  --fg-faint: #86868B;      /* large text or non-essential only */
 
   /* accent: one hue, used for selection, focus, links, control edges */
-  --accent: #2f5fc7;
-  --accent-fg: #ffffff;
-  --accent-soft: #e4ebfa;
-  --focus: #2f5fc7;
+  --accent: #1D1D1F;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #E8E8ED;
+  --focus: #1D1D1F;
 
   /* semantic state */
-  --ok: #257a4c;  --ok-soft: #e1f2e8;
-  --warn: #9a6207; --warn-soft: #f8edd5;
-  --danger: #b5382f; --danger-soft: #f9e3e0;
+  --ok: #1E7B35;
+  --ok-soft: #E4EFE7;
+  --warn: #B25000;
+  --warn-soft: #F6EAE0;
+  --danger: #D70015;
+  --danger-soft: #FAE0E3;
 
   /* diagram: node kinds (fill, stroke) */
-  --n-entry-fill: var(--ok-soft);       --n-entry-stroke: var(--ok);
-  --n-component-fill: var(--accent-soft); --n-component-stroke: var(--accent);
+  --n-entry-fill: var(--bg-elev);       --n-entry-stroke: var(--line);
+  --n-component-fill: var(--bg-elev); --n-component-stroke: var(--line);
   --n-external-fill: var(--bg-inset);   --n-external-stroke: var(--line-strong);
-  --n-store-fill: var(--warn-soft);     --n-store-stroke: var(--warn);
-  --n-decision-fill: var(--bg-elev);    --n-decision-stroke: var(--accent);
-  --n-critical-fill: var(--danger-soft); --n-critical-stroke: var(--danger);
-  --n-group-fill: #ffffff;              --n-group-stroke: var(--line);
+  --n-store-fill: var(--bg-elev);     --n-store-stroke: var(--line);
+  --n-decision-fill: var(--bg-elev);    --n-decision-stroke: var(--line);
+  --n-critical-fill: var(--bg-elev); --n-critical-stroke: var(--danger);
+  --n-group-fill: #F5F5F7;           --n-group-stroke: var(--line-strong);
 
   /* diagram: edge kinds */
-  --e-data: var(--warn);
-  --e-control: var(--accent);
-  --e-event: var(--ok);
+  --e-data: #76767B;
+  --e-control: #A1A1A6;
+  --e-event: #8E8E93;
   --e-error: var(--danger);
   --e-muted: var(--line-strong);
 
   /* data series: six hues with distinct lightness so they survive grayscale; s1 = accent */
-  --s1: #2f5fc7; --s2: #d2691e; --s3: #257a4c; --s4: #8a4fbf; --s5: #b5382f; --s6: #6b7280;
-  --grid: #e8ebf0;          /* chart gridlines, lighter than hairlines */
+  --s1: #5856D6; --s2: #CC7700; --s3: #2DA44E; --s4: #E0245E; --s5: #1F95B0; --s6: #8E8E93;
+  --grid: #EDEDF0;          /* chart gridlines, lighter than hairlines */
 
   /* motion: one ease, three durations. Transitions start from the current value and stay interruptible. */
   --ease: cubic-bezier(0.2, 0, 0, 1);
@@ -70,36 +73,70 @@
   --shadow-float: 0 1px 2px rgba(16, 24, 40, 0.05), 0 8px 24px rgba(16, 24, 40, 0.07);
 
   color-scheme: light;
+  /* node kinds: system colors, drawn as solid tiles with a white glyph */
+  --k-entry: #34C759;
+  --k-component: #5856D6;
+  --k-store: #FF9500;
+  --k-queue: #30B0C7;
+  --k-external: #8E8E93;
+  --k-decision: #AF52DE;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f1216; --bg-elev: #161a20; --bg-inset: #1d222a;
-    --line: #242a33; --line-strong: #4a5363;
-    --chrome: rgba(22, 26, 32, 0.78); --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
-    --fg: #e7eaef; --fg-muted: #a3acba; --fg-faint: #7f8896;
-    --accent: #8fb0f3; --accent-fg: #0f1216; --accent-soft: #1d2a44; --focus: #8fb0f3;
-    --ok: #6cc695; --ok-soft: #16301f;
-    --warn: #e0b35a; --warn-soft: #332a12;
-    --danger: #ef8a7f; --danger-soft: #3a1c19;
-    --n-group-fill: #13171d;
-    --s1: #8fb0f3; --s2: #f0a060; --s3: #6cc695; --s4: #c39bea; --s5: #ef8a7f; --s6: #9aa3b0;
-    --grid: #1f252d;
+    --bg: #18181A; --bg-elev: #222225; --bg-inset: #2C2C30;
+    --line: #313135; --line-strong: #4A4A50;
+    --chrome: rgba(44, 44, 48, 0.8); --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.32);
+    --fg: #EDEDF0; --fg-muted: #A1A1A6; --fg-faint: #8E8E93;
+    --accent: #EDEDF0; --accent-fg: #1C1C1E; --accent-soft: #3A3A3F; --focus: #EDEDF0;
+    --ok: #30D158;
+    --ok-soft: #20402A;
+    --warn: #FF9F0A;
+    --warn-soft: #49361A;
+    --danger: #FF453A;
+    --danger-soft: #492424;
+    --n-group-fill: #1C1C1F;
+    --e-data: #A1A1A6;
+    --e-control: #6C6C70;
+    --e-event: #8E8E93;
+    --s1: #7D7AFF; --s2: #FF9F0A; --s3: #30D158; --s4: #FF375F; --s5: #40C8E0; --s6: #98989D;
+    --grid: #29292D;
     color-scheme: dark;
+    /* node kinds: system colors, drawn as solid tiles with a white glyph */
+    --k-entry: #30D158;
+    --k-component: #5E5CE6;
+    --k-store: #FF9F0A;
+    --k-queue: #40C8E0;
+    --k-external: #8E8E93;
+    --k-decision: #BF5AF2;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0f1216; --bg-elev: #161a20; --bg-inset: #1d222a;
-  --line: #242a33; --line-strong: #4a5363;
-  --chrome: rgba(22, 26, 32, 0.78); --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
-  --fg: #e7eaef; --fg-muted: #a3acba; --fg-faint: #7f8896;
-  --accent: #8fb0f3; --accent-fg: #0f1216; --accent-soft: #1d2a44; --focus: #8fb0f3;
-  --ok: #6cc695; --ok-soft: #16301f;
-  --warn: #e0b35a; --warn-soft: #332a12;
-  --danger: #ef8a7f; --danger-soft: #3a1c19;
-  --n-group-fill: #13171d;
-  --s1: #8fb0f3; --s2: #f0a060; --s3: #6cc695; --s4: #c39bea; --s5: #ef8a7f; --s6: #9aa3b0;
-  --grid: #1f252d;
+  --bg: #18181A; --bg-elev: #222225; --bg-inset: #2C2C30;
+  --line: #313135; --line-strong: #4A4A50;
+  --chrome: rgba(44, 44, 48, 0.8); --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.32);
+  --fg: #EDEDF0; --fg-muted: #A1A1A6; --fg-faint: #8E8E93;
+  --accent: #EDEDF0; --accent-fg: #1C1C1E; --accent-soft: #3A3A3F; --focus: #EDEDF0;
+  --ok: #30D158;
+  --ok-soft: #20402A;
+  --warn: #FF9F0A;
+  --warn-soft: #49361A;
+  --danger: #FF453A;
+  --danger-soft: #492424;
+  --n-group-fill: #1C1C1F;
+  --e-data: #A1A1A6;
+  --e-control: #6C6C70;
+  --e-event: #8E8E93;
+  --s1: #7D7AFF; --s2: #FF9F0A; --s3: #30D158; --s4: #FF375F; --s5: #40C8E0; --s6: #98989D;
+  --grid: #29292D;
   color-scheme: dark;
+  /* node kinds: system colors, drawn as solid tiles with a white glyph */
+  --k-entry: #30D158;
+  --k-component: #5E5CE6;
+  --k-store: #FF9F0A;
+  --k-queue: #40C8E0;
+  --k-external: #8E8E93;
+  --k-decision: #BF5AF2;
+
 }
 
 /* base: browser surfaces carry the design too */

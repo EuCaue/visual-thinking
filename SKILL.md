@@ -90,7 +90,15 @@ The blocks are a floor, not a ceiling. Never bend the information to fit a block
 4. A library the runtime lacks: declare it in the scene's `libs` (`{name, url, global}`, pinned version from jsDelivr, cdnjs or unpkg) and list its name in the block's `libs`. The build inlines it, so the page stays offline.
 5. A page the canvas cannot host at all (a long-form explainer, a simulation): write your own HTML from `templates/svg.html`, keeping `templates/_tokens.css`.
 
-Whatever you draw keeps the contract: colors only as `var(--token)` (the build warns on literal colors), both themes, labels and units, nothing essential hidden behind a click, the text budget.
+Whatever you draw keeps the contract: both themes, labels and units, nothing essential hidden behind a click, the text budget. Colors come from this set and no other (the build warns on anything else):
+
+| Mark | Token |
+|---|---|
+| data: arcs, bars, areas, dots, heat | `var(--s1)` to `var(--s6)` |
+| text, secondary text | `var(--fg)`, `var(--fg-muted)` |
+| tracks, grids, empty parts | `var(--bg-inset)`, `var(--line)` |
+| a mark that means ok, caution or failure | `var(--ok)`, `var(--warn)`, `var(--danger)` |
+
 
 ## Investigate before drawing the real thing
 
@@ -142,6 +150,9 @@ Never write:
 - Descriptions of the page: "esta página mostra", "cinco abas", "para quem".
 - A `summary` that lists the nodes the drawing already shows.
 - A `detail` that rephrases `sub` or `label`. No new fact, no field.
+- URLs, branches or file paths inside `text` or a callout: they go in `source` or `file`, which the inspector already shows.
+- A `text` block that restates the KPIs, the subtitle or the block next to it.
+- A callout `label` equal to the block `title`; the title already names it.
 - Audience framing ("guia para quem está começando") unless the user asked for it.
 
 Empty level-3 fields are correct. A node gets `detail` only when there is evidence, a file, a failure or a number to put in it.

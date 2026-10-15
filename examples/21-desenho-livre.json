@@ -22,7 +22,7 @@
           "title": "Uso do orçamento",
           "width": 360,
           "height": 220,
-          "svg": "<path d=\"M40 180 A140 140 0 0 1 320 180\" fill=\"none\" stroke=\"var(--line)\" stroke-width=\"22\" stroke-linecap=\"round\"/><path d=\"M40 180 A140 140 0 0 1 269.2 72.1\" fill=\"none\" stroke=\"var(--accent)\" stroke-width=\"22\" stroke-linecap=\"round\" data-title=\"Uso do orçamento\" data-sub=\"72% em outubro\" data-detail=\"Meta de fechar o ano abaixo de 90%.\"/><text x=\"180\" y=\"160\" text-anchor=\"middle\" style=\"font-size:40px;font-weight:600;fill:var(--fg)\">72%</text><text x=\"180\" y=\"184\" text-anchor=\"middle\" style=\"font-size:12px;fill:var(--fg-muted)\">do orçamento anual</text><text x=\"40\" y=\"208\" text-anchor=\"middle\" style=\"font-size:11px;fill:var(--fg-muted)\">0</text><text x=\"320\" y=\"208\" text-anchor=\"middle\" style=\"font-size:11px;fill:var(--fg-muted)\">100</text>",
+          "svg": "<path d=\"M40 180 A140 140 0 0 1 320 180\" fill=\"none\" stroke=\"var(--line)\" stroke-width=\"22\" stroke-linecap=\"round\"/><path d=\"M40 180 A140 140 0 0 1 269.2 72.1\" fill=\"none\" stroke=\"var(--s1)\" stroke-width=\"22\" stroke-linecap=\"round\" data-title=\"Uso do orçamento\" data-sub=\"72% em outubro\" data-detail=\"Meta de fechar o ano abaixo de 90%.\"/><text x=\"180\" y=\"160\" text-anchor=\"middle\" style=\"font-size:40px;font-weight:600;fill:var(--fg)\">72%</text><text x=\"180\" y=\"184\" text-anchor=\"middle\" style=\"font-size:12px;fill:var(--fg-muted)\">do orçamento anual</text><text x=\"40\" y=\"208\" text-anchor=\"middle\" style=\"font-size:11px;fill:var(--fg-muted)\">0</text><text x=\"320\" y=\"208\" text-anchor=\"middle\" style=\"font-size:11px;fill:var(--fg-muted)\">100</text>",
           "alt": "Medidor: 72% do orçamento anual usado."
         }
       ]
@@ -92,7 +92,7 @@
             "hexbin"
           ],
           "alt": "Mapa hexagonal: cliques concentrados no centro.",
-          "draw": "\nvar pts = [], rnd = api.d3.randomNormal.source(api.d3.randomLcg(7));\nfor (var i = 0; i < 600; i++) pts.push([rnd(240, 60)(), rnd(150, 40)()]);\nvar hb = api.d3.hexbin().radius(14).extent([[0, 0], [api.width, api.height]]), bins = hb(pts), mx = api.d3.max(bins, function (b) { return b.length; });\nbins.forEach(function (b) { var p = api.el('path', { d: 'M' + b.x + ',' + b.y + hb.hexagon(), style: 'fill: var(--accent); fill-opacity:' + (0.12 + 0.85 * b.length / mx).toFixed(2) + '; stroke: var(--bg-elev)' }, g); api.tip(p, b.length + ' cliques'); });\napi.legend('Escala', 'hex', { sw: 'fill', label: 'Mais forte = mais cliques' });\n"
+          "draw": "\nvar pts = [], rnd = api.d3.randomNormal.source(api.d3.randomLcg(7));\nfor (var i = 0; i < 600; i++) pts.push([rnd(240, 60)(), rnd(150, 40)()]);\nvar hb = api.d3.hexbin().radius(14).extent([[0, 0], [api.width, api.height]]), bins = hb(pts), mx = api.d3.max(bins, function (b) { return b.length; });\nbins.forEach(function (b) { var p = api.el('path', { d: 'M' + b.x + ',' + b.y + hb.hexagon(), style: 'fill: var(--s1); fill-opacity:' + (0.12 + 0.85 * b.length / mx).toFixed(2) + '; stroke: var(--bg-elev)' }, g); api.tip(p, b.length + ' cliques'); });\napi.legend('Escala', 'hex', { sw: 'fill', label: 'Mais forte = mais cliques' });\n"
         }
       ]
     }
