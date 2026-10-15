@@ -17,7 +17,7 @@ Page title 22px weight 600, tracking âˆ’0.02em; inspector name 17px, tracking âˆ
 
 ## Color
 
-Apple system neutrals: light is `#F5F5F7` ground, white panels and cards, `#1D1D1F` text; dark is a graphite ladder, never pure black (ground `#18181A`, panels and cards `#222225`, wells `#2C2C30`), so elevation reads as a lighter step, not as a shadow. The accent is graphite (`--fg`'s value): selection, focus and links stay neutral and color is left to meaning. Node kinds carry the system colors as solid tiles with a white glyph. Semantic colors have one meaning each and appear in both the drawing and the inspector legend:
+Apple system neutrals: light is `#F5F5F7` ground, white panels and cards, `#1D1D1F` text; dark is a graphite ladder, never pure black (ground `#18181A`, panels and cards `#222225`, wells `#2C2C30`), so elevation reads as a lighter step, not as a shadow. The accent is Apple's system blue (`#0071E3` light, `#3D9BFF` dark): selection, focus, links and the first data series. Component tiles use the same blue; purple is kept for decisions only. Node kinds carry the system colors as solid tiles with a white glyph. Semantic colors have one meaning each and appear in both the drawing and the inspector legend:
 
 | Meaning | Token | Where |
 |---|---|---|
@@ -123,7 +123,7 @@ Over 1100px the header is one row; below, the view tabs drop to their own row an
 
 ## Theme
 
-Light is the base. Dark redefines the same tokens (not an inversion: fills get darker and less saturated, strokes get lighter and more saturated, the graphite accent turns light). The page follows the system preference until the viewer picks a theme; the pick is stored in `localStorage` under `vt-theme` when storage is available and applied on load before first paint. The drawing is CSS-colored, so a theme change never redraws.
+Light is the base. Dark redefines the same tokens (not an inversion: fills get darker and less saturated, strokes get lighter and more saturated, the blue accent lightens so it keeps 4.5:1 on dark panels). The page follows the system preference until the viewer picks a theme; the pick is stored in `localStorage` under `vt-theme` when storage is available and applied on load before first paint. The drawing is CSS-colored, so a theme change never redraws.
 
 ## Copy
 

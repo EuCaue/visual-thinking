@@ -40,10 +40,10 @@
   --fg-faint: #86868B;      /* large text or non-essential only */
 
   /* accent: one hue, used for selection, focus, links, control edges */
-  --accent: #1D1D1F;
+  --accent: #0071E3;
   --accent-fg: #FFFFFF;
-  --accent-soft: #E8E8ED;
-  --focus: #1D1D1F;
+  --accent-soft: #E6F0FC;
+  --focus: #0071E3;
 
   /* semantic state */
   --ok: #1E7B35;
@@ -70,7 +70,7 @@
   --e-muted: var(--line-strong);
 
   /* data series: six hues with distinct lightness so they survive grayscale; s1 = accent */
-  --s1: #5856D6; --s2: #CC7700; --s3: #2DA44E; --s4: #E0245E; --s5: #1F95B0; --s6: #8E8E93;
+  --s1: #0071E3; --s2: #CC7700; --s3: #2DA44E; --s4: #E0245E; --s5: #9B44C8; --s6: #8E8E93;
   --grid: #EDEDF0;          /* chart gridlines, lighter than hairlines */
 
   /* motion: one ease, three durations. Transitions start from the current value and stay interruptible. */
@@ -87,7 +87,7 @@
   color-scheme: light;
   /* node kinds: system colors, drawn as solid tiles with a white glyph */
   --k-entry: #34C759;
-  --k-component: #5856D6;
+  --k-component: #007AFF;
   --k-store: #FF9500;
   --k-queue: #30B0C7;
   --k-external: #8E8E93;
@@ -99,7 +99,7 @@
     --line: #313135; --line-strong: #4A4A50;
     --chrome: rgba(44, 44, 48, 0.8); --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.32);
     --fg: #EDEDF0; --fg-muted: #A1A1A6; --fg-faint: #8E8E93;
-    --accent: #EDEDF0; --accent-fg: #1C1C1E; --accent-soft: #3A3A3F; --focus: #EDEDF0;
+    --accent: #3D9BFF; --accent-fg: #0B1A2E; --accent-soft: #12314F; --focus: #3D9BFF;
     --ok: #30D158;
     --ok-soft: #20402A;
     --warn: #FF9F0A;
@@ -110,12 +110,12 @@
     --e-data: #A1A1A6;
     --e-control: #6C6C70;
     --e-event: #8E8E93;
-    --s1: #7D7AFF; --s2: #FF9F0A; --s3: #30D158; --s4: #FF375F; --s5: #40C8E0; --s6: #98989D;
+    --s1: #0A84FF; --s2: #FF9F0A; --s3: #30D158; --s4: #FF375F; --s5: #BF5AF2; --s6: #98989D;
     --grid: #29292D;
     color-scheme: dark;
     /* node kinds: system colors, drawn as solid tiles with a white glyph */
     --k-entry: #30D158;
-    --k-component: #5E5CE6;
+    --k-component: #0A84FF;
     --k-store: #FF9F0A;
     --k-queue: #40C8E0;
     --k-external: #8E8E93;
@@ -127,7 +127,7 @@
   --line: #313135; --line-strong: #4A4A50;
   --chrome: rgba(44, 44, 48, 0.8); --shadow-float: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.32);
   --fg: #EDEDF0; --fg-muted: #A1A1A6; --fg-faint: #8E8E93;
-  --accent: #EDEDF0; --accent-fg: #1C1C1E; --accent-soft: #3A3A3F; --focus: #EDEDF0;
+  --accent: #3D9BFF; --accent-fg: #0B1A2E; --accent-soft: #12314F; --focus: #3D9BFF;
   --ok: #30D158;
   --ok-soft: #20402A;
   --warn: #FF9F0A;
@@ -138,12 +138,12 @@
   --e-data: #A1A1A6;
   --e-control: #6C6C70;
   --e-event: #8E8E93;
-  --s1: #7D7AFF; --s2: #FF9F0A; --s3: #30D158; --s4: #FF375F; --s5: #40C8E0; --s6: #98989D;
+  --s1: #0A84FF; --s2: #FF9F0A; --s3: #30D158; --s4: #FF375F; --s5: #BF5AF2; --s6: #98989D;
   --grid: #29292D;
   color-scheme: dark;
   /* node kinds: system colors, drawn as solid tiles with a white glyph */
   --k-entry: #30D158;
-  --k-component: #5E5CE6;
+  --k-component: #0A84FF;
   --k-store: #FF9F0A;
   --k-queue: #40C8E0;
   --k-external: #8E8E93;
@@ -345,14 +345,14 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .mk-area { fill: var(--c); opacity: .12; transition: d var(--t-slow), opacity var(--t-base); }
 .mk-point { fill: var(--bg-elev); stroke: var(--c); stroke-width: 2; transition: cx var(--t-slow), cy var(--t-slow), r var(--t-fast), opacity var(--t-base); }
-.mk-point:hover, .mk-point.sel { r: 5; stroke-width: 2.5; }
+.mk-point:hover { r: 5; } .mk-point.sel { r: 6; fill: var(--c); stroke: var(--bg-elev); stroke-width: 2.5; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .25)); }
 .mk-bar { fill: var(--c); opacity: .9; transform-box: fill-box; transform-origin: bottom; animation: grow var(--d-slow) var(--ease); transition: x var(--t-slow), y var(--t-slow), width var(--t-slow), height var(--t-slow), opacity var(--t-fast); }
 .mk-bar.h { transform-origin: left; animation-name: grow-h; }
 @keyframes grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes grow-h { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-.mk-bar:hover { opacity: 1; } .mk-bar.sel { opacity: 1; stroke: var(--fg); stroke-width: 1.5; }
+.mk-bar:hover { opacity: 1; } .mk-bar.sel { opacity: 1; } .blk:has(.mk-bar.sel) .mk-bar:not(.sel) { opacity: .35; }
 .mk-arc { fill: var(--c); stroke: var(--bg-elev); stroke-width: 2; transition: opacity var(--t-fast), transform var(--t-fast); transform-box: fill-box; transform-origin: center; }
-.mk-arc:hover, .mk-arc.sel { opacity: .85; }
+.mk-arc:hover { opacity: .85; } .blk:has(.mk-arc.sel) .mk-arc:not(.sel) { opacity: .35; }
 .mk-dot { fill: var(--c); transition: r var(--t-fast); } .mk-dot:hover { r: 6; }
 .mk-lbl { font-family: var(--font-data); font-size: 10.5px; fill: var(--fg-muted); }
 .pkt { fill: var(--e-data); opacity: .85; animation: none; } .pkt.pkt-event { fill: var(--e-event); }
@@ -408,12 +408,12 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 .er-box { fill: var(--bg-elev); stroke: var(--line-strong); stroke-width: 1; } .er-head { fill: var(--accent-soft); } .nd.sel .er-box { stroke: var(--accent); stroke-width: 2; }
 .er-f { font-size: 11.5px; } .er-t { font-family: var(--font-data); font-size: 10.5px; fill: var(--fg-muted); } .er-pk { font-family: var(--font-data); font-size: 9.5px; font-weight: 700; fill: var(--accent); } .er-fk { font-family: var(--font-data); font-size: 9.5px; font-weight: 700; fill: var(--warn); }
 .er-row:hover { fill: var(--bg-inset); } .er-row { fill: transparent; }
-.hm-cell { fill: var(--c, var(--s1)); stroke: var(--bg-elev); stroke-width: 1; cursor: pointer; transition: stroke var(--t-fast); } .hm-cell:hover, .hm-cell.sel { stroke: var(--fg); stroke-width: 1.5; } .hm-empty { fill: var(--bg-inset); stroke: var(--bg-elev); stroke-width: 1; }
+.hm-cell { fill: var(--c, var(--s1)); stroke: var(--bg-elev); stroke-width: 1; cursor: pointer; transition: stroke var(--t-fast); } .hm-cell:hover { stroke: var(--fg-muted); stroke-width: 1.5; } .hm-cell.sel { stroke: var(--accent); stroke-width: 2; } .hm-empty { fill: var(--bg-inset); stroke: var(--bg-elev); stroke-width: 1; }
 .hm-v { font-family: var(--font-data); font-size: 10px; font-variant-numeric: tabular-nums; pointer-events: none; }
 .gt-bar { fill: var(--c, var(--s1)); opacity: .85; transition: opacity var(--t-fast); } .item:hover .gt-bar, .item.sel .gt-bar { opacity: 1; } .gt-prog { fill: var(--fg); opacity: .22; pointer-events: none; } .gt-ms { fill: var(--c, var(--s1)); }
 .gt-dep { fill: none; stroke: var(--line-strong); stroke-width: 1.2; marker-end: url(#m-plain); } .gt-today { stroke: var(--danger); stroke-width: 1; stroke-dasharray: 3 3; } .gt-row { fill: var(--bg-inset); opacity: .45; }
 .sk-link { fill: none; stroke: var(--c, var(--s1)); stroke-opacity: .32; cursor: pointer; transition: stroke-opacity var(--t-fast); } .sk-link:hover, .sk-link.hl { stroke-opacity: .6; } .sk-node { fill: var(--c, var(--s1)); }
-.tm-cell { fill: var(--c, var(--s1)); stroke: var(--bg-elev); stroke-width: 1.5; cursor: pointer; } .tm-cell:hover, .item.sel .tm-cell { stroke: var(--fg); } .tm-l { font-size: 11px; font-weight: 600; pointer-events: none; } .tm-v { font-family: var(--font-data); font-size: 10px; pointer-events: none; }
+.tm-cell { fill: var(--c, var(--s1)); stroke: var(--bg-elev); stroke-width: 1.5; cursor: pointer; } .tm-cell:hover { stroke: var(--fg-muted); } .item.sel .tm-cell { stroke: var(--accent); stroke-width: 2; } .tm-l { font-size: 11px; font-weight: 600; pointer-events: none; } .tm-v { font-family: var(--font-data); font-size: 10px; pointer-events: none; }
 /* code listing: token colors come from the theme */
 .vt-code-bg { fill: var(--bg-inset); } .vt-code-hl { fill: var(--accent-soft); } .vt-code-dot { fill: var(--accent); }
 .vt-code { position: relative; font-family: var(--font-data); font-size: 12px; line-height: 18px; color: var(--fg); }
@@ -425,7 +425,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 .vt-math { font-size: 17px; color: var(--fg); line-height: 1.4; } .vt-math-cap { font-size: var(--fs-sm); color: var(--fg-muted); margin-top: 6px; font-family: var(--font-ui); }
 .vt-tex { font-family: var(--font-data); font-size: var(--fs-xs); background: var(--bg-inset); padding: 8px 10px; border-radius: var(--r-control); white-space: pre-wrap; margin: 0; }
 /* map */
-.map-r { stroke: var(--bg-elev); stroke-width: .8; cursor: pointer; } .map-empty { fill: var(--bg-inset); } .item:hover .map-r, .item.sel .map-r { stroke: var(--fg); stroke-width: 1.4; }
+.map-r { stroke: var(--bg-elev); stroke-width: .8; cursor: pointer; } .map-empty { fill: var(--bg-inset); } .item:hover .map-r { stroke: var(--fg-muted); stroke-width: 1.4; } .item.sel .map-r { stroke: var(--accent); stroke-width: 2; }
 .vt-custom { font-family: var(--font-ui); font-size: var(--fs-md); color: var(--fg); line-height: var(--lh-body); }
 .map-l { font-size: 10px; font-weight: 600; fill: var(--fg); pointer-events: none; paint-order: stroke; stroke: var(--bg-elev); stroke-width: 3px; stroke-linejoin: round; } .map-pt { fill: var(--s5); fill-opacity: .65; stroke: var(--bg-elev); stroke-width: 1.2; cursor: pointer; } .item:hover .map-pt { fill-opacity: .9; }
 
