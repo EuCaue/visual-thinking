@@ -95,7 +95,7 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 
-Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, seventeen prompts, seventeen different pictures (`sh scripts/build-examples.sh`).
+Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, twenty prompts, twenty different pictures (`18-catalogo` holds one of every block) (`sh scripts/build-examples.sh`).
 
 ## Build the page
 

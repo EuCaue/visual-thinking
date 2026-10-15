@@ -81,7 +81,7 @@ python3 scripts/scene-diff.py before.json after.json diff.json   # one scene wit
 - `design.md`: the design system the templates enforce.
 - `templates/canvas.html`, `svg.html`, `mermaid.html`: the three renderers. `canvas.html` is the default.
 - `scripts/`: build, import extractor, scene diff, token sync, contrast check.
-- `examples/`: seventeen scenes, rebuilt by `sh scripts/build-examples.sh`.
+- `examples/`: twenty scenes (`18-catalogo` has one of every block, `19` the sketch style in English, `20` a diff), rebuilt by `sh scripts/build-examples.sh`.
 - `tests/`: regression tests for the validator and every canvas feature; the `test_responsive` and `test_runtime_features` files measure pages in headless Chrome (prefers Playwright's `chrome-headless-shell`, since full Chrome's headless mode will not go below 500px wide; `VT_CHROME` overrides).
 
 ## Limits

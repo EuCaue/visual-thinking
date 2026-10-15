@@ -1,0 +1,35 @@
+{
+  "title": "Login sketch: the token never touches local storage",
+  "subtitle": "Early idea · example",
+  "basis": "proposal",
+  "lang": "en",
+  "style": "sketch",
+  "summary": "The browser keeps only an httpOnly cookie; the API swaps it for a short token.",
+  "views": [
+    {
+      "id": "flow",
+      "title": "Flow",
+      "summary": "Four hops; press p to play them.",
+      "blocks": [
+        { "type": "graph", "id": "g", "title": "Who holds what", "engine": "dagre",
+          "groups": [ { "id": "srv", "label": "Server" } ],
+          "nodes": [
+            { "id": "br", "label": "Browser", "sub": "httpOnly cookie", "kind": "entry" },
+            { "id": "api", "label": "API", "sub": "checks the cookie", "group": "srv" },
+            { "id": "auth", "label": "Auth", "sub": "issues 5-min token", "group": "srv", "status": "inferred" },
+            { "id": "db", "label": "Sessions", "sub": "revocation list", "kind": "store" }
+          ],
+          "edges": [
+            { "from": "br", "to": "api", "label": "request", "step": 1 },
+            { "from": "api", "to": "auth", "label": "exchange", "step": 2 },
+            { "from": "auth", "to": "db", "label": "check revoked", "kind": "data", "step": 3 },
+            { "from": "auth", "to": "api", "label": "short token", "kind": "data", "step": 4 }
+          ] },
+        { "type": "cards", "id": "c", "title": "What it buys and costs", "items": [
+          { "title": "Buys", "points": [ { "kind": "pro", "text": "XSS cannot read the token" } ] },
+          { "title": "Costs", "points": [ { "kind": "con", "text": "one extra hop per request" } ] }
+        ] }
+      ]
+    }
+  ]
+}
