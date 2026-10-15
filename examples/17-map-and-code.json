@@ -1,0 +1,32 @@
+{
+  "lang": "en",
+  "title": "Southeast shipping costs most; distance drives the cost",
+  "subtitle": "Shipping cost by state · example",
+  "basis": "proposal",
+  "summary": "SP and RJ cost the most; the formula shows why distance dominates.",
+  "math": true,
+  "root": "/srv/erp",
+  "views": [
+    {
+      "id": "mapa",
+      "title": "By state",
+      "summary": "Southeast and South exceed R$ 10 per delivery.",
+      "blocks": [
+        { "type": "map", "id": "br", "title": "Average cost per delivery", "geo": "br", "unit": " R$",
+          "values": { "SP": 12.5, "RJ": 11.2, "MG": 9.8, "ES": 9.1, "PR": 10.4, "SC": 10.1, "RS": 9.9, "BA": 8.1, "PE": 7.9, "CE": 7.5, "GO": 8.8, "DF": 11.0, "MT": 8.4 },
+          "points": [ { "label": "Cajamar DC", "lat": -23.356, "lon": -46.877, "text": "distribution center" } ] }
+      ]
+    },
+    {
+      "id": "calculo",
+      "title": "Formula",
+      "summary": "The per-km rate scales with distance; weight counts only above 5 kg.",
+      "blocks": [
+        { "type": "math", "id": "f", "title": "Cost of one delivery", "tex": "C = b + k \\cdot d + p \\cdot \\max(0,\\, m - 5)", "text": "$b$ base fee, $k$ per km, $d$ distance, $m$ mass in kg." },
+        { "type": "code", "id": "c", "title": "Where the formula lives", "lang": "ts", "file": "api/frete/custo.ts:14", "start": 14,
+          "code": "export function custo(d: number, m: number, t: Tabela): number {\n  const base = t.base;\n  const porKm = t.porKm * d;\n  const excesso = Math.max(0, m - 5) * t.porKg;\n  return round2(base + porKm + excesso);\n}",
+          "highlight": [ { "line": 16, "note": "distance dominates: 70% of avg cost" }, { "line": 17, "note": "weight only above 5 kg" } ] }
+      ]
+    }
+  ]
+}

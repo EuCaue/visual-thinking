@@ -8,7 +8,7 @@ def test_context_menu():
         [
             "python3",
             "scripts/build-scene.py",
-            "examples/05-fluxo-autenticacao.json",
+            "examples/05-auth-flow.json",
             out_path,
         ],
         capture_output=True,

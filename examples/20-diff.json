@@ -1,0 +1,246 @@
+{
+  "title": "Model gains a time clock and drops the PAT link",
+  "subtitle": "+2 added · 1 changed · −2 removed · example",
+  "basis": "proposal",
+  "lang": "en",
+  "summary": "Two tables change; colaborador gains email.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Model",
+      "blocks": [
+        {
+          "type": "entity",
+          "id": "er",
+          "title": "Six tables, colaborador at the center",
+          "entities": [
+            {
+              "id": "colaborador",
+              "label": "colaborador",
+              "sub": "hired person",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "nome",
+                  "type": "text"
+                },
+                {
+                  "name": "cpf",
+                  "type": "char(11)",
+                  "note": "unique"
+                },
+                {
+                  "name": "sindicato_id",
+                  "type": "uuid",
+                  "fk": "sindicato.id"
+                },
+                {
+                  "name": "escala_id",
+                  "type": "uuid",
+                  "fk": "escala.id",
+                  "nullable": true
+                },
+                {
+                  "name": "admitido_em",
+                  "type": "date"
+                },
+                {
+                  "name": "email",
+                  "type": "text"
+                }
+              ],
+              "diff": "changed",
+              "notes": [
+                "new field: email"
+              ]
+            },
+            {
+              "id": "escala",
+              "label": "escala",
+              "sub": "work pattern",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "nome",
+                  "type": "text"
+                },
+                {
+                  "name": "recorrencia",
+                  "type": "jsonb",
+                  "note": "days and shifts"
+                }
+              ]
+            },
+            {
+              "id": "horario",
+              "label": "horario_escala",
+              "sub": "one day's shift",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "escala_id",
+                  "type": "uuid",
+                  "fk": "escala.id"
+                },
+                {
+                  "name": "dia_semana",
+                  "type": "smallint"
+                },
+                {
+                  "name": "entrada",
+                  "type": "time"
+                },
+                {
+                  "name": "saida",
+                  "type": "time"
+                }
+              ]
+            },
+            {
+              "id": "sindicato",
+              "label": "sindicato",
+              "sub": "union rules",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "nome",
+                  "type": "text"
+                },
+                {
+                  "name": "convencao_id",
+                  "type": "uuid",
+                  "fk": "convencao.id"
+                }
+              ]
+            },
+            {
+              "id": "convencao",
+              "label": "convencao",
+              "sub": "current agreement",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "vigencia",
+                  "type": "daterange"
+                },
+                {
+                  "name": "piso",
+                  "type": "numeric(10,2)"
+                }
+              ]
+            },
+            {
+              "id": "ponto",
+              "label": "ponto",
+              "sub": "clock-in and clock-out",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "colaborador_id",
+                  "type": "uuid",
+                  "fk": "colaborador.id"
+                },
+                {
+                  "name": "em",
+                  "type": "timestamptz"
+                }
+              ],
+              "diff": "added"
+            },
+            {
+              "id": "pat",
+              "label": "colaborador_pat",
+              "sub": "benefit enrollment",
+              "fields": [
+                {
+                  "name": "colaborador_id",
+                  "type": "uuid",
+                  "pk": true,
+                  "fk": "colaborador.id"
+                },
+                {
+                  "name": "tipo_pat_id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "desde",
+                  "type": "date"
+                }
+              ],
+              "detail": "Composite key: at most one enrollment per colaborador per PAT type.",
+              "diff": "removed"
+            }
+          ],
+          "relations": [
+            {
+              "from": "colaborador",
+              "to": "escala",
+              "card": "N:1",
+              "label": "follows"
+            },
+            {
+              "from": "horario",
+              "to": "escala",
+              "card": "N:1",
+              "label": "makes up"
+            },
+            {
+              "from": "colaborador",
+              "to": "sindicato",
+              "card": "N:1",
+              "label": "member of"
+            },
+            {
+              "from": "sindicato",
+              "to": "convencao",
+              "card": "N:1",
+              "label": "applies"
+            },
+            {
+              "from": "ponto",
+              "to": "colaborador",
+              "card": "N:1",
+              "label": "of",
+              "diff": "added"
+            },
+            {
+              "from": "pat",
+              "to": "colaborador",
+              "card": "N:1",
+              "label": "benefit of",
+              "diff": "removed"
+            }
+          ]
+        }
+      ],
+      "annotations": [
+        "escala_id optional: a new hire may have no schedule yet."
+      ]
+    }
+  ]
+}

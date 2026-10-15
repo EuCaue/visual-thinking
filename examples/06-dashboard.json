@@ -1,14 +1,15 @@
 {
-  "title": "Setembro: receita cresce, mas o churn do plano básico sobe",
-  "subtitle": "Métricas do produto, setembro de 2026 · exemplo",
+  "title": "September: revenue grows, but Basic plan churn climbs",
+  "lang": "en",
+  "subtitle": "Product metrics, September 2026 · example",
   "basis": "docs",
-  "source": "Painel financeiro e de produto, fechamento de 2026-09-30",
-  "period": "setembro de 2026, comparado com agosto",
-  "summary": "Receita e contas ativas sobem; o churn do plano básico passa de 3% e puxa o total.",
+  "source": "Finance and product dashboard, close of 2026-09-30",
+  "period": "September 2026 vs. August",
+  "summary": "Revenue and active accounts rise; Basic plan churn tops 3% and drags the total up.",
   "views": [
     {
       "id": "main",
-      "title": "Visão do mês",
+      "title": "Month overview",
       "layout": {
         "type": "grid",
         "columns": 2,
@@ -20,9 +21,9 @@
           "id": "k",
           "items": [
             {
-              "label": "Receita recorrente",
+              "label": "Recurring revenue",
               "value": 184300,
-              "delta": "+6,1% vs. ago",
+              "delta": "+6.1% vs. Aug",
               "spark": [
                 151,
                 156,
@@ -34,13 +35,13 @@
                 178,
                 184.3
               ],
-              "sparkUnit": " mil",
+              "sparkUnit": "k",
               "prefix": "R$ "
             },
             {
-              "label": "Contas ativas",
+              "label": "Active accounts",
               "value": 2140,
-              "delta": "+92 no mês",
+              "delta": "+92 this month",
               "spark": [
                 1820,
                 1860,
@@ -54,10 +55,10 @@
               ]
             },
             {
-              "label": "Churn mensal",
+              "label": "Monthly churn",
               "value": 2.8,
               "unit": "%",
-              "delta": "+0,5 pp",
+              "delta": "+0.5 pp",
               "deltaKind": "danger",
               "spark": [
                 2.4,
@@ -73,7 +74,7 @@
               "sparkUnit": "%"
             },
             {
-              "label": "Ticket médio",
+              "label": "Avg. ticket",
               "value": 86,
               "delta": "+R$ 2",
               "spark": [
@@ -95,36 +96,36 @@
         {
           "type": "chart",
           "id": "mrr",
-          "title": "Receita recorrente por plano",
+          "title": "Recurring revenue by plan",
           "kind": "stackedBar",
           "height": 240,
           "width": 560,
           "y": {
-            "label": "mil R$",
-            "unit": " mil"
+            "label": "R$ thousands",
+            "unit": "k"
           },
           "series": [
             {
-              "name": "Básico",
+              "name": "Basic",
               "data": [
                 [
-                  "mai",
+                  "May",
                   61
                 ],
                 [
-                  "jun",
+                  "Jun",
                   62
                 ],
                 [
-                  "jul",
+                  "Jul",
                   63
                 ],
                 [
-                  "ago",
+                  "Aug",
                   64
                 ],
                 [
-                  "set",
+                  "Sep",
                   63
                 ]
               ]
@@ -133,23 +134,23 @@
               "name": "Pro",
               "data": [
                 [
-                  "mai",
+                  "May",
                   78
                 ],
                 [
-                  "jun",
+                  "Jun",
                   81
                 ],
                 [
-                  "jul",
+                  "Jul",
                   84
                 ],
                 [
-                  "ago",
+                  "Aug",
                   87
                 ],
                 [
-                  "set",
+                  "Sep",
                   92
                 ]
               ]
@@ -158,23 +159,23 @@
               "name": "Enterprise",
               "data": [
                 [
-                  "mai",
+                  "May",
                   24
                 ],
                 [
-                  "jun",
+                  "Jun",
                   26
                 ],
                 [
-                  "jul",
+                  "Jul",
                   27
                 ],
                 [
-                  "ago",
+                  "Aug",
                   27
                 ],
                 [
-                  "set",
+                  "Sep",
                   29
                 ]
               ]
@@ -184,7 +185,7 @@
         {
           "type": "chart",
           "id": "churn",
-          "title": "Churn por plano",
+          "title": "Churn by plan",
           "kind": "line",
           "height": 220,
           "width": 560,
@@ -193,32 +194,32 @@
             "point"
           ],
           "y": {
-            "label": "% de contas",
+            "label": "% of accounts",
             "unit": "%",
             "min": 0
           },
           "series": [
             {
-              "name": "Básico",
+              "name": "Basic",
               "data": [
                 [
-                  "mai",
+                  "May",
                   2.9
                 ],
                 [
-                  "jun",
+                  "Jun",
                   2.7
                 ],
                 [
-                  "jul",
+                  "Jul",
                   2.8
                 ],
                 [
-                  "ago",
+                  "Aug",
                   2.9
                 ],
                 [
-                  "set",
+                  "Sep",
                   3.6
                 ]
               ]
@@ -227,23 +228,23 @@
               "name": "Pro",
               "data": [
                 [
-                  "mai",
+                  "May",
                   1.8
                 ],
                 [
-                  "jun",
+                  "Jun",
                   1.9
                 ],
                 [
-                  "jul",
+                  "Jul",
                   1.7
                 ],
                 [
-                  "ago",
+                  "Aug",
                   1.8
                 ],
                 [
-                  "set",
+                  "Sep",
                   1.9
                 ]
               ]
@@ -252,23 +253,23 @@
               "name": "Enterprise",
               "data": [
                 [
-                  "mai",
+                  "May",
                   0.6
                 ],
                 [
-                  "jun",
+                  "Jun",
                   0.5
                 ],
                 [
-                  "jul",
+                  "Jul",
                   0.6
                 ],
                 [
-                  "ago",
+                  "Aug",
                   0.5
                 ],
                 [
-                  "set",
+                  "Sep",
                   0.5
                 ]
               ]
@@ -277,50 +278,50 @@
           "refLines": [
             {
               "y": 3,
-              "label": "limite de alerta"
+              "label": "alert threshold"
             }
           ],
           "annotations": [
             {
-              "x": "set",
+              "x": "Sep",
               "y": 3.6,
-              "text": "reajuste do básico"
+              "text": "Basic price increase"
             }
           ]
         },
         {
           "type": "chart",
           "id": "reg",
-          "title": "Contas novas por região em setembro",
+          "title": "New accounts by region in September",
           "kind": "bar",
           "orientation": "horizontal",
           "width": 560,
           "y": {
-            "label": "contas novas",
+            "label": "new accounts",
             "unit": ""
           },
           "series": [
             {
-              "name": "Novas",
+              "name": "New",
               "data": [
                 [
-                  "Sul",
+                  "South",
                   41
                 ],
                 [
-                  "Sudeste",
+                  "Southeast",
                   29
                 ],
                 [
-                  "Nordeste",
+                  "Northeast",
                   12
                 ],
                 [
-                  "Centro-Oeste",
+                  "Center-West",
                   6
                 ],
                 [
-                  "Norte",
+                  "North",
                   4
                 ]
               ]
@@ -330,31 +331,31 @@
         {
           "type": "chart",
           "id": "src",
-          "title": "Origem das contas novas",
+          "title": "Where new accounts came from",
           "kind": "donut",
           "width": 200,
           "height": 200,
           "y": {
-            "label": "contas"
+            "label": "accounts"
           },
           "series": [
             {
-              "name": "Origem",
+              "name": "Source",
               "data": [
                 [
-                  "Busca orgânica",
+                  "Organic search",
                   38
                 ],
                 [
-                  "Indicação",
+                  "Referral",
                   27
                 ],
                 [
-                  "Anúncios",
+                  "Ads",
                   19
                 ],
                 [
-                  "Parcerias",
+                  "Partnerships",
                   8
                 ]
               ]
@@ -363,8 +364,8 @@
         }
       ],
       "annotations": [
-        "O reajuste do plano básico entrou em 2026-09-01; o churn do mês já reflete os cancelamentos de quem não aceitou o preço novo.",
-        "Receita em R$ mil nos gráficos; valor absoluto nos indicadores."
+        "The Basic price increase took effect on 2026-09-01; this month's churn already includes customers who cancelled over the new price.",
+        "Charts show revenue in R$ thousands; KPIs show absolute values."
       ]
     }
   ]

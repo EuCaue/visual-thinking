@@ -1,0 +1,197 @@
+{
+  "title": "Observability is three signals tied by one context",
+  "lang": "en",
+  "subtitle": "Logs, metrics and traces · example",
+  "basis": "docs",
+  "source": "OpenTelemetry docs and the book Observability Engineering",
+  "summary": "All three signals describe the same request; the propagated trace id links them.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Concept",
+      "layout": {
+        "type": "stack",
+        "gap": 48
+      },
+      "blocks": [
+        {
+          "type": "tree",
+          "id": "mm",
+          "title": "What makes up observability",
+          "layout": "mindmap",
+          "root": {
+            "label": "Observability",
+            "text": "Understand internal state from what the system emits",
+            "children": [
+              {
+                "label": "Logs",
+                "text": "timestamped text events",
+                "children": [
+                  {
+                    "label": "structured (JSON)"
+                  },
+                  {
+                    "label": "levels"
+                  },
+                  {
+                    "label": "trace id correlation"
+                  }
+                ]
+              },
+              {
+                "label": "Metrics",
+                "text": "numbers aggregated over time",
+                "children": [
+                  {
+                    "label": "counter"
+                  },
+                  {
+                    "label": "gauge"
+                  },
+                  {
+                    "label": "histogram"
+                  },
+                  {
+                    "label": "cardinality"
+                  }
+                ]
+              },
+              {
+                "label": "Traces",
+                "text": "a request's path across services",
+                "children": [
+                  {
+                    "label": "span"
+                  },
+                  {
+                    "label": "propagated context"
+                  },
+                  {
+                    "label": "sampling"
+                  }
+                ]
+              },
+              {
+                "label": "Context",
+                "text": "what ties the three together",
+                "kind": "accent",
+                "children": [
+                  {
+                    "label": "trace id"
+                  },
+                  {
+                    "label": "resource attributes"
+                  },
+                  {
+                    "label": "baggage"
+                  }
+                ]
+              },
+              {
+                "label": "Uses",
+                "text": "what it's for",
+                "children": [
+                  {
+                    "label": "alerts (SLO)"
+                  },
+                  {
+                    "label": "debugging"
+                  },
+                  {
+                    "label": "capacity"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "cycle",
+          "id": "cy",
+          "title": "How the signals are used in practice",
+          "items": [
+            {
+              "label": "Alert fires",
+              "text": "metric breaches SLO",
+              "detail": "Error rate above 1% for 5 minutes on one endpoint."
+            },
+            {
+              "label": "Open the trace",
+              "text": "which service was slow",
+              "detail": "Via the trace id of failed requests in that window."
+            },
+            {
+              "label": "Read the logs",
+              "text": "what happened there",
+              "detail": "Filtered by the same trace id."
+            },
+            {
+              "label": "Fix and measure",
+              "text": "the metric recovers",
+              "detail": "Closes the loop: the same metric confirms the fix."
+            }
+          ]
+        },
+        {
+          "type": "venn",
+          "id": "v",
+          "title": "What each signal answers",
+          "sets": [
+            {
+              "label": "Logs",
+              "items": [
+                "what, in detail",
+                "error messages"
+              ]
+            },
+            {
+              "label": "Metrics",
+              "items": [
+                "how much, over time",
+                "trend and alerting"
+              ]
+            },
+            {
+              "label": "Traces",
+              "items": [
+                "where, across services",
+                "per-hop latency"
+              ]
+            }
+          ],
+          "overlaps": [
+            {
+              "sets": [
+                0,
+                2
+              ],
+              "label": "trace id in logs"
+            },
+            {
+              "sets": [
+                1,
+                2
+              ],
+              "label": "span metrics"
+            },
+            {
+              "sets": [
+                0,
+                1,
+                2
+              ],
+              "label": "context",
+              "items": [
+                "one request, three views"
+              ]
+            }
+          ]
+        }
+      ],
+      "annotations": [
+        "Continuous profiling sometimes counts as a fourth signal; it's left out because it isn't in stable OpenTelemetry.",
+        "Trace sampling sets cost and completeness; the map doesn't cover that trade-off."
+      ]
+    }
+  ]
+}

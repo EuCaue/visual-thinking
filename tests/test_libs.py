@@ -88,7 +88,7 @@ def test_validator_names_broken_fields():
         f = pathlib.Path(t) / "b.json"; f.write_text(json.dumps(bad))
         r = sh("scripts/build-scene.py", str(f), "--validate-only", "--no-text-lint")
         o = r.stdout
-        for msg in ("style desconhecido", "highlight fora do trecho", "math sem tex", "geo desconhecido", "sem lat/lon válidos", "engine desconhecido"):
+        for msg in ("unknown scene style", "highlight outside the snippet", "math has no tex", "unknown map geo", "has no valid lat/lon", "unknown engine"):
             assert msg in o, (msg, o)
 
 

@@ -10,7 +10,7 @@ from audit_layout import audit
 
 
 def test_catalog_and_free_have_no_spill_or_overlap():
-    found = audit("examples/18-catalogo.json", [375, 1280]) + audit("examples/10-explicacao-livre.json", [375, 1280])
+    found = audit("examples/18-catalog.json", [375, 1280]) + audit("examples/10-free-explanation.json", [375, 1280])
     assert not found, "\n".join(f"{f['width']}px {f.get('view')} · {f.get('block')} · {f['kind']}: {f['text']}" for f in found)
 
 

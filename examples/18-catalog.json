@@ -1,0 +1,1802 @@
+{
+  "title": "Catalog: one example of every block",
+  "subtitle": "28 blocks · example",
+  "basis": "docs",
+  "lang": "en",
+  "summary": "Twenty-eight shapes, one per question.",
+  "views": [
+    {
+      "id": "graph",
+      "title": "graph",
+      "summary": "Groups are boundaries; edge color shows the type.",
+      "blocks": [
+        {
+          "type": "graph",
+          "id": "g",
+          "title": "Order to receipt",
+          "groups": [
+            {
+              "id": "api",
+              "label": "API"
+            },
+            {
+              "id": "wk",
+              "label": "Worker"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "web",
+              "label": "Web",
+              "sub": "builds the order",
+              "kind": "entry"
+            },
+            {
+              "id": "ord",
+              "label": "POST /orders",
+              "sub": "validates, saves",
+              "group": "api",
+              "file": "src/api/orders.js:12"
+            },
+            {
+              "id": "hook",
+              "label": "Webhook",
+              "sub": "marks paid",
+              "group": "api",
+              "kind": "critical"
+            },
+            {
+              "id": "q",
+              "label": "Queue",
+              "sub": "email jobs",
+              "kind": "queue"
+            },
+            {
+              "id": "mail",
+              "label": "emailWorker",
+              "sub": "sends receipt",
+              "group": "wk"
+            },
+            {
+              "id": "db",
+              "label": "Postgres",
+              "sub": "orders",
+              "kind": "store"
+            },
+            {
+              "id": "st",
+              "label": "Stripe",
+              "sub": "charges",
+              "kind": "external"
+            }
+          ],
+          "edges": [
+            {
+              "from": "web",
+              "to": "ord",
+              "label": "POST",
+              "step": 1
+            },
+            {
+              "from": "ord",
+              "to": "db",
+              "label": "writes",
+              "kind": "data",
+              "step": 2
+            },
+            {
+              "from": "st",
+              "to": "hook",
+              "label": "paid",
+              "kind": "event",
+              "step": 3
+            },
+            {
+              "from": "hook",
+              "to": "q",
+              "label": "enqueues",
+              "kind": "event",
+              "step": 4
+            },
+            {
+              "from": "q",
+              "to": "mail",
+              "label": "consumes",
+              "kind": "data",
+              "step": 5
+            },
+            {
+              "from": "mail",
+              "to": "db",
+              "label": "fails",
+              "kind": "error"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entity",
+      "title": "entity",
+      "summary": "A sale has one customer and many items.",
+      "blocks": [
+        {
+          "type": "entity",
+          "id": "e",
+          "title": "Four sales tables",
+          "entities": [
+            {
+              "id": "cliente",
+              "label": "cliente",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "email",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "id": "pedido",
+              "label": "pedido",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "cliente_id",
+                  "type": "uuid",
+                  "fk": "cliente.id"
+                },
+                {
+                  "name": "pago_em",
+                  "type": "timestamptz",
+                  "nullable": true
+                }
+              ]
+            },
+            {
+              "id": "item",
+              "label": "item_pedido",
+              "fields": [
+                {
+                  "name": "pedido_id",
+                  "type": "uuid",
+                  "pk": true,
+                  "fk": "pedido.id"
+                },
+                {
+                  "name": "produto_id",
+                  "type": "uuid",
+                  "pk": true,
+                  "fk": "produto.id"
+                },
+                {
+                  "name": "qtd",
+                  "type": "int"
+                }
+              ]
+            },
+            {
+              "id": "produto",
+              "label": "produto",
+              "fields": [
+                {
+                  "name": "id",
+                  "type": "uuid",
+                  "pk": true
+                },
+                {
+                  "name": "preco",
+                  "type": "numeric(10,2)"
+                }
+              ]
+            }
+          ],
+          "relations": [
+            {
+              "from": "pedido",
+              "to": "cliente",
+              "card": "N:1"
+            },
+            {
+              "from": "item",
+              "to": "pedido",
+              "card": "N:1"
+            },
+            {
+              "from": "item",
+              "to": "produto",
+              "card": "N:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "matrix",
+      "title": "matrix",
+      "summary": "Postgres wins on queries; Dynamo on latency.",
+      "blocks": [
+        {
+          "type": "matrix",
+          "id": "m",
+          "title": "Three databases, four criteria",
+          "columns": [
+            {
+              "label": "Postgres"
+            },
+            {
+              "label": "MongoDB"
+            },
+            {
+              "label": "DynamoDB"
+            }
+          ],
+          "rows": [
+            {
+              "label": "Ad hoc queries",
+              "cells": [
+                true,
+                true,
+                false
+              ]
+            },
+            {
+              "label": "p99 read",
+              "cells": [
+                12,
+                9,
+                4
+              ],
+              "best": "min",
+              "unit": " ms"
+            },
+            {
+              "label": "Monthly cost",
+              "cells": [
+                480,
+                620,
+                910
+              ],
+              "best": "min",
+              "unit": " US$"
+            },
+            {
+              "label": "Model",
+              "cells": [
+                "relational",
+                "document",
+                "key-value"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "title": "decision",
+      "summary": "Kafka leads; the ops weight decides.",
+      "blocks": [
+        {
+          "type": "decision",
+          "id": "d",
+          "title": "Weighted message bus",
+          "mode": "weighted",
+          "weightBasis": "40k msg/s peak outweighs cost",
+          "options": [
+            {
+              "id": "k",
+              "label": "Kafka",
+              "reversibility": "two-way"
+            },
+            {
+              "id": "s",
+              "label": "SQS",
+              "reversibility": "two-way"
+            }
+          ],
+          "criteria": [
+            {
+              "id": "v",
+              "label": "Throughput",
+              "weight": 5,
+              "scores": {
+                "k": {
+                  "score": 10
+                },
+                "s": {
+                  "score": 6
+                }
+              }
+            },
+            {
+              "id": "o",
+              "label": "Operations",
+              "weight": 3,
+              "scores": {
+                "k": {
+                  "score": 4
+                },
+                "s": {
+                  "score": 9
+                }
+              }
+            },
+            {
+              "id": "c",
+              "label": "Cost",
+              "weight": 2,
+              "scores": {
+                "k": {
+                  "score": 6
+                },
+                "s": {
+                  "score": 7
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cards",
+      "title": "cards",
+      "summary": "Webhook is faster; polling is simpler.",
+      "blocks": [
+        {
+          "type": "cards",
+          "id": "c",
+          "title": "Webhook or polling",
+          "items": [
+            {
+              "title": "Webhook",
+              "meta": "Stripe notifies",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "seconds of delay"
+                },
+                {
+                  "kind": "con",
+                  "text": "must be idempotent"
+                }
+              ]
+            },
+            {
+              "title": "Polling",
+              "meta": "every 30 s",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "no public endpoint"
+                },
+                {
+                  "kind": "con",
+                  "text": "calls with nothing new"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steps",
+      "title": "steps",
+      "summary": "Four steps; review gates the deploy.",
+      "blocks": [
+        {
+          "type": "steps",
+          "id": "s",
+          "title": "From commit to production",
+          "items": [
+            {
+              "title": "Commit",
+              "text": "on a task/ branch"
+            },
+            {
+              "title": "PR",
+              "text": "into project/"
+            },
+            {
+              "title": "Review",
+              "text": "one approver",
+              "kind": "critical"
+            },
+            {
+              "title": "Deploy",
+              "text": "merge to master"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "timeline",
+      "title": "timeline",
+      "summary": "The beta lasted seven months.",
+      "blocks": [
+        {
+          "type": "timeline",
+          "id": "t",
+          "title": "From prototype to paid plan",
+          "events": [
+            {
+              "date": "2024-01-10",
+              "title": "Prototype"
+            },
+            {
+              "date": "2024-05-02",
+              "title": "Closed beta",
+              "kind": "milestone"
+            },
+            {
+              "date": "2024-12-01",
+              "title": "Open beta"
+            },
+            {
+              "date": "2025-06-15",
+              "title": "Paid plan",
+              "kind": "milestone"
+            }
+          ],
+          "periods": [
+            {
+              "from": "2024-05-02",
+              "to": "2024-12-01",
+              "label": "beta"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gantt",
+      "title": "gantt",
+      "summary": "The load test holds up cutover.",
+      "blocks": [
+        {
+          "type": "gantt",
+          "id": "gt",
+          "title": "Migration on three fronts",
+          "today": "2026-10-15",
+          "tasks": [
+            {
+              "id": "a",
+              "label": "Schema",
+              "group": "Database",
+              "start": "2026-10-01",
+              "end": "2026-10-17",
+              "progress": 0.8
+            },
+            {
+              "id": "b",
+              "label": "Backfill",
+              "group": "Database",
+              "start": "2026-10-20",
+              "end": "2026-11-07",
+              "deps": [
+                "a"
+              ],
+              "kind": "critical"
+            },
+            {
+              "id": "c",
+              "label": "Load test",
+              "group": "Validation",
+              "start": "2026-11-10",
+              "kind": "milestone",
+              "deps": [
+                "b"
+              ]
+            },
+            {
+              "id": "d",
+              "label": "Cutover",
+              "group": "Cutover",
+              "start": "2026-11-11",
+              "end": "2026-11-20",
+              "deps": [
+                "c"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tree",
+      "title": "tree",
+      "summary": "Dependencies only point down a layer.",
+      "blocks": [
+        {
+          "type": "tree",
+          "id": "tr",
+          "title": "Monorepo layers",
+          "root": {
+            "label": "monorepo",
+            "children": [
+              {
+                "label": "apps",
+                "children": [
+                  {
+                    "label": "web"
+                  },
+                  {
+                    "label": "admin"
+                  }
+                ]
+              },
+              {
+                "label": "libs",
+                "children": [
+                  {
+                    "label": "ui"
+                  },
+                  {
+                    "label": "api-client"
+                  }
+                ]
+              },
+              {
+                "label": "core",
+                "children": [
+                  {
+                    "label": "types"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "mindmap",
+      "title": "mindmap",
+      "summary": "Three signals tied by trace id.",
+      "blocks": [
+        {
+          "type": "tree",
+          "id": "mm",
+          "layout": "mindmap",
+          "title": "Observability",
+          "root": {
+            "label": "Observability",
+            "children": [
+              {
+                "label": "Logs",
+                "children": [
+                  {
+                    "label": "error"
+                  },
+                  {
+                    "label": "context"
+                  }
+                ]
+              },
+              {
+                "label": "Metrics",
+                "children": [
+                  {
+                    "label": "SLO"
+                  },
+                  {
+                    "label": "alert"
+                  }
+                ]
+              },
+              {
+                "label": "Traces",
+                "children": [
+                  {
+                    "label": "latency"
+                  },
+                  {
+                    "label": "trace id"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "quadrant",
+      "title": "quadrant",
+      "summary": "Rollback is likely and severe.",
+      "blocks": [
+        {
+          "type": "quadrant",
+          "id": "q",
+          "title": "Migration risks",
+          "x": {
+            "label": "Likelihood",
+            "low": "rare",
+            "high": "certain"
+          },
+          "y": {
+            "label": "Impact",
+            "low": "minor",
+            "high": "severe"
+          },
+          "quadrants": [
+            "Watch",
+            "Mitigate",
+            "Accept",
+            "Avoid"
+          ],
+          "items": [
+            {
+              "label": "Rollback",
+              "x": 0.8,
+              "y": 0.9
+            },
+            {
+              "label": "Slowness",
+              "x": 0.6,
+              "y": 0.4
+            },
+            {
+              "label": "Orphan data",
+              "x": 0.2,
+              "y": 0.7
+            },
+            {
+              "label": "Duplicate log",
+              "x": 0.3,
+              "y": 0.15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spectrum",
+      "title": "spectrum",
+      "summary": "Dynamo fits only with key access.",
+      "blocks": [
+        {
+          "type": "spectrum",
+          "id": "sp",
+          "title": "Flexible to predictable",
+          "min": "varied queries",
+          "max": "key access",
+          "items": [
+            {
+              "label": "Postgres",
+              "value": 0.18
+            },
+            {
+              "label": "Mongo",
+              "value": 0.45
+            },
+            {
+              "label": "Dynamo",
+              "value": 0.86
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cycle",
+      "title": "cycle",
+      "summary": "The incident loops back to alerting.",
+      "blocks": [
+        {
+          "type": "cycle",
+          "id": "cy",
+          "title": "Incident cycle",
+          "items": [
+            {
+              "label": "Alert"
+            },
+            {
+              "label": "Trace"
+            },
+            {
+              "label": "Logs"
+            },
+            {
+              "label": "Fix"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "funnel",
+      "title": "funnel",
+      "summary": "Half drop between cart and payment.",
+      "blocks": [
+        {
+          "type": "funnel",
+          "id": "fu",
+          "title": "Store conversion",
+          "unit": " visits",
+          "items": [
+            {
+              "label": "Visit",
+              "value": 10000
+            },
+            {
+              "label": "Product",
+              "value": 4200
+            },
+            {
+              "label": "Cart",
+              "value": 1300
+            },
+            {
+              "label": "Payment",
+              "value": 640
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "venn",
+      "title": "venn",
+      "summary": "A shared id links two of the three signals.",
+      "blocks": [
+        {
+          "type": "venn",
+          "id": "vn",
+          "title": "What each signal answers",
+          "sets": [
+            {
+              "label": "Logs",
+              "items": [
+                "what"
+              ]
+            },
+            {
+              "label": "Metrics",
+              "items": [
+                "how much"
+              ]
+            },
+            {
+              "label": "Traces",
+              "items": [
+                "where"
+              ]
+            }
+          ],
+          "overlaps": [
+            {
+              "sets": [
+                0,
+                2
+              ],
+              "label": "trace id"
+            },
+            {
+              "sets": [
+                1,
+                2
+              ],
+              "label": "spans"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kpi",
+      "title": "kpi",
+      "summary": "Revenue up; so is churn.",
+      "blocks": [
+        {
+          "type": "kpi",
+          "id": "k",
+          "title": "September",
+          "items": [
+            {
+              "label": "Revenue",
+              "value": 184300,
+              "prefix": "R$ ",
+              "delta": "+6.1%",
+              "spark": [
+                160,
+                165,
+                170,
+                176,
+                184
+              ]
+            },
+            {
+              "label": "Accounts",
+              "value": 2140,
+              "delta": "+92",
+              "spark": [
+                1900,
+                1960,
+                2010,
+                2080,
+                2140
+              ]
+            },
+            {
+              "label": "Churn",
+              "value": 2.8,
+              "unit": "%",
+              "delta": "+0.5 pp",
+              "deltaKind": "danger",
+              "spark": [
+                2.1,
+                2.2,
+                2.3,
+                2.6,
+                2.8
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "line",
+      "title": "chart: line and area",
+      "summary": "The cache cut p95 in April.",
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "l",
+          "title": "p95 by month",
+          "kind": "line",
+          "y": {
+            "label": "ms",
+            "unit": " ms",
+            "min": 0
+          },
+          "series": [
+            {
+              "name": "Catalog",
+              "data": [
+                [
+                  "Jan",
+                  480
+                ],
+                [
+                  "Feb",
+                  470
+                ],
+                [
+                  "Mar",
+                  460
+                ],
+                [
+                  "Apr",
+                  210
+                ],
+                [
+                  "May",
+                  200
+                ],
+                [
+                  "Jun",
+                  190
+                ]
+              ]
+            },
+            {
+              "name": "Checkout",
+              "data": [
+                [
+                  "Jan",
+                  180
+                ],
+                [
+                  "Feb",
+                  185
+                ],
+                [
+                  "Mar",
+                  182
+                ],
+                [
+                  "Apr",
+                  178
+                ],
+                [
+                  "May",
+                  181
+                ],
+                [
+                  "Jun",
+                  179
+                ]
+              ]
+            }
+          ],
+          "refLines": [
+            {
+              "y": 300,
+              "label": "SLO"
+            }
+          ],
+          "annotations": [
+            {
+              "x": "Apr",
+              "y": 210,
+              "text": "cache"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "a",
+          "title": "Request volume",
+          "kind": "area",
+          "y": {
+            "label": "millions",
+            "unit": " M"
+          },
+          "series": [
+            {
+              "name": "Req.",
+              "data": [
+                [
+                  "Jan",
+                  12
+                ],
+                [
+                  "Feb",
+                  13
+                ],
+                [
+                  "Mar",
+                  13.5
+                ],
+                [
+                  "Apr",
+                  14.2
+                ],
+                [
+                  "May",
+                  15
+                ],
+                [
+                  "Jun",
+                  16
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bars",
+      "title": "chart: bars",
+      "summary": "Pro drives revenue.",
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "b",
+          "title": "5xx errors by month",
+          "kind": "bar",
+          "series": [
+            {
+              "name": "5xx",
+              "data": [
+                [
+                  "Jan",
+                  310
+                ],
+                [
+                  "Feb",
+                  290
+                ],
+                [
+                  "Mar",
+                  520
+                ],
+                [
+                  "Apr",
+                  140
+                ],
+                [
+                  "May",
+                  120
+                ],
+                [
+                  "Jun",
+                  110
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "sb",
+          "title": "Revenue by plan",
+          "kind": "stackedBar",
+          "y": {
+            "label": "R$ thousands",
+            "unit": " k"
+          },
+          "series": [
+            {
+              "name": "Basic",
+              "data": [
+                [
+                  "Jan",
+                  60
+                ],
+                [
+                  "Feb",
+                  61
+                ],
+                [
+                  "Mar",
+                  62
+                ],
+                [
+                  "Apr",
+                  63
+                ],
+                [
+                  "May",
+                  63
+                ],
+                [
+                  "Jun",
+                  64
+                ]
+              ]
+            },
+            {
+              "name": "Pro",
+              "data": [
+                [
+                  "Jan",
+                  78
+                ],
+                [
+                  "Feb",
+                  81
+                ],
+                [
+                  "Mar",
+                  84
+                ],
+                [
+                  "Apr",
+                  87
+                ],
+                [
+                  "May",
+                  92
+                ],
+                [
+                  "Jun",
+                  95
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scatter",
+      "title": "chart: scatter and dot",
+      "summary": "Search is costly and slow.",
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "sc",
+          "title": "Cost vs latency",
+          "kind": "scatter",
+          "x": {
+            "type": "number",
+            "label": "p95 ms"
+          },
+          "y": {
+            "label": "US$ thousands",
+            "unit": " k"
+          },
+          "series": [
+            {
+              "name": "Services",
+              "data": [
+                [
+                  412,
+                  18.4,
+                  "Search"
+                ],
+                [
+                  240,
+                  7.1,
+                  "Recom."
+                ],
+                [
+                  188,
+                  6.2,
+                  "Checkout"
+                ],
+                [
+                  96,
+                  2.1,
+                  "Cart"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "dt",
+          "title": "p50 and p95 by service",
+          "kind": "dot",
+          "y": {
+            "label": "ms",
+            "unit": " ms",
+            "min": 0
+          },
+          "series": [
+            {
+              "name": "p50",
+              "data": [
+                [
+                  "Search",
+                  140
+                ],
+                [
+                  "Checkout",
+                  110
+                ],
+                [
+                  "Auth",
+                  30
+                ]
+              ]
+            },
+            {
+              "name": "p95",
+              "data": [
+                [
+                  "Search",
+                  412
+                ],
+                [
+                  "Checkout",
+                  188
+                ],
+                [
+                  "Auth",
+                  61
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "distribution",
+      "title": "chart: histogram and donut",
+      "summary": "Search's tail passes 500 ms.",
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "h",
+          "title": "Search latency",
+          "kind": "histogram",
+          "bins": 8,
+          "unit": " ms",
+          "series": [
+            {
+              "name": "req.",
+              "values": [
+                38,
+                42,
+                45,
+                51,
+                55,
+                58,
+                60,
+                62,
+                64,
+                66,
+                70,
+                72,
+                75,
+                78,
+                80,
+                84,
+                88,
+                90,
+                95,
+                98,
+                102,
+                110,
+                120,
+                140,
+                160,
+                190,
+                240,
+                320,
+                450,
+                610
+              ]
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "id": "dn",
+          "title": "Account sources",
+          "kind": "donut",
+          "series": [
+            {
+              "name": "Source",
+              "data": [
+                [
+                  "Search",
+                  38
+                ],
+                [
+                  "Referral",
+                  27
+                ],
+                [
+                  "Ads",
+                  19
+                ],
+                [
+                  "Partners",
+                  8
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tornado",
+      "title": "chart: tornado",
+      "summary": "Ops cost swings the decision.",
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "to",
+          "kind": "tornado",
+          "title": "What moves TCO",
+          "baseline": {
+            "label": "Base TCO",
+            "value": 100
+          },
+          "series": [
+            {
+              "name": "Operations",
+              "low": 62,
+              "high": 148
+            },
+            {
+              "name": "Price per msg",
+              "low": 78,
+              "high": 132
+            },
+            {
+              "name": "Throughput",
+              "low": 88,
+              "high": 120
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heatmap",
+      "title": "heatmap",
+      "summary": "Monday mornings are packed.",
+      "blocks": [
+        {
+          "type": "heatmap",
+          "id": "hm",
+          "title": "Tickets by hour",
+          "x": [
+            "08h",
+            "10h",
+            "12h",
+            "14h",
+            "16h"
+          ],
+          "y": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Sat"
+          ],
+          "values": [
+            [
+              15,
+              38,
+              27,
+              42,
+              35
+            ],
+            [
+              12,
+              30,
+              22,
+              34,
+              28
+            ],
+            [
+              11,
+              29,
+              21,
+              33,
+              27
+            ],
+            [
+              4,
+              8,
+              6,
+              7,
+              3
+            ]
+          ]
+        },
+        {
+          "type": "heatmap",
+          "id": "cal",
+          "title": "Tickets by day",
+          "calendar": true,
+          "data": [
+            [
+              "2026-08-01",
+              6
+            ],
+            [
+              "2026-08-02",
+              40
+            ],
+            [
+              "2026-08-03",
+              25
+            ],
+            [
+              "2026-08-04",
+              25
+            ],
+            [
+              "2026-08-05",
+              25
+            ],
+            [
+              "2026-08-06",
+              25
+            ],
+            [
+              "2026-08-07",
+              6
+            ],
+            [
+              "2026-08-08",
+              6
+            ],
+            [
+              "2026-08-09",
+              40
+            ],
+            [
+              "2026-08-10",
+              25
+            ],
+            [
+              "2026-08-11",
+              25
+            ],
+            [
+              "2026-08-12",
+              25
+            ],
+            [
+              "2026-08-13",
+              25
+            ],
+            [
+              "2026-08-14",
+              6
+            ],
+            [
+              "2026-08-15",
+              6
+            ],
+            [
+              "2026-08-16",
+              40
+            ],
+            [
+              "2026-08-17",
+              25
+            ],
+            [
+              "2026-08-18",
+              25
+            ],
+            [
+              "2026-08-19",
+              25
+            ],
+            [
+              "2026-08-20",
+              25
+            ],
+            [
+              "2026-08-21",
+              6
+            ],
+            [
+              "2026-08-22",
+              6
+            ],
+            [
+              "2026-08-23",
+              40
+            ],
+            [
+              "2026-08-24",
+              25
+            ],
+            [
+              "2026-08-25",
+              25
+            ],
+            [
+              "2026-08-26",
+              25
+            ],
+            [
+              "2026-08-27",
+              25
+            ],
+            [
+              "2026-08-28",
+              6
+            ],
+            [
+              "2026-08-29",
+              6
+            ],
+            [
+              "2026-08-30",
+              40
+            ],
+            [
+              "2026-08-31",
+              25
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sankey",
+      "title": "sankey",
+      "summary": "Infra takes half.",
+      "blocks": [
+        {
+          "type": "sankey",
+          "id": "sk",
+          "title": "Budget to vendor",
+          "unit": " k",
+          "nodes": [
+            {
+              "id": "o",
+              "label": "Budget"
+            },
+            {
+              "id": "i",
+              "label": "Infra"
+            },
+            {
+              "id": "d",
+              "label": "Data"
+            },
+            {
+              "id": "a",
+              "label": "AWS"
+            },
+            {
+              "id": "r",
+              "label": "RDS"
+            },
+            {
+              "id": "w",
+              "label": "Warehouse"
+            }
+          ],
+          "links": [
+            {
+              "from": "o",
+              "to": "i",
+              "value": 175
+            },
+            {
+              "from": "o",
+              "to": "d",
+              "value": 65
+            },
+            {
+              "from": "i",
+              "to": "a",
+              "value": 80
+            },
+            {
+              "from": "i",
+              "to": "r",
+              "value": 95
+            },
+            {
+              "from": "d",
+              "to": "w",
+              "value": 65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "treemap",
+      "title": "treemap and sunburst",
+      "summary": "RDS is the largest item.",
+      "blocks": [
+        {
+          "type": "treemap",
+          "id": "tm",
+          "title": "Area = value",
+          "unit": " k",
+          "root": {
+            "label": "IT",
+            "children": [
+              {
+                "label": "Infra",
+                "children": [
+                  {
+                    "label": "RDS",
+                    "value": 95
+                  },
+                  {
+                    "label": "AWS",
+                    "value": 80
+                  }
+                ]
+              },
+              {
+                "label": "Data",
+                "children": [
+                  {
+                    "label": "Warehouse",
+                    "value": 65
+                  }
+                ]
+              },
+              {
+                "label": "Tools",
+                "children": [
+                  {
+                    "label": "SaaS",
+                    "value": 40
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "treemap",
+          "id": "sun",
+          "layout": "sunburst",
+          "title": "Same total as rings",
+          "unit": " k",
+          "root": {
+            "label": "IT",
+            "children": [
+              {
+                "label": "Infra",
+                "children": [
+                  {
+                    "label": "RDS",
+                    "value": 95
+                  },
+                  {
+                    "label": "AWS",
+                    "value": 80
+                  }
+                ]
+              },
+              {
+                "label": "Data",
+                "children": [
+                  {
+                    "label": "Warehouse",
+                    "value": 65
+                  }
+                ]
+              },
+              {
+                "label": "Tools",
+                "children": [
+                  {
+                    "label": "SaaS",
+                    "value": 40
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "layout": {
+        "type": "row"
+      }
+    },
+    {
+      "id": "map",
+      "title": "map",
+      "summary": "SP leads on cost.",
+      "blocks": [
+        {
+          "type": "map",
+          "id": "br",
+          "title": "Cost by state",
+          "geo": "br",
+          "unit": " R$",
+          "values": {
+            "SP": 12.5,
+            "RJ": 11.2,
+            "MG": 9.8,
+            "PR": 10.4,
+            "BA": 8.1,
+            "RS": 9.9
+          },
+          "points": [
+            {
+              "label": "CD",
+              "lat": -23.36,
+              "lon": -46.88
+            }
+          ]
+        },
+        {
+          "type": "map",
+          "id": "w",
+          "title": "Customers by country",
+          "geo": "world",
+          "values": {
+            "Brazil": 420,
+            "Portugal": 60,
+            "Argentina": 35
+          }
+        }
+      ]
+    },
+    {
+      "id": "code",
+      "title": "code and math",
+      "summary": "Distance dominates cost.",
+      "blocks": [
+        {
+          "type": "code",
+          "id": "cd",
+          "title": "The calculation",
+          "lang": "ts",
+          "start": 14,
+          "code": "export function custo(d: number, m: number, t: Tabela) {\n  const porKm = t.porKm * d;\n  const excesso = Math.max(0, m - 5) * t.porKg;\n  return t.base + porKm + excesso;\n}",
+          "highlight": [
+            {
+              "line": 15,
+              "note": "70% of average cost"
+            }
+          ]
+        },
+        {
+          "type": "math",
+          "id": "mt",
+          "title": "The formula",
+          "tex": "C = b + k\\,d + p\\,\\max(0, m - 5)",
+          "text": "$d$ in km, $m$ in kg."
+        }
+      ]
+    },
+    {
+      "id": "text",
+      "title": "callout and text",
+      "summary": "One sentence nobody should miss.",
+      "blocks": [
+        {
+          "type": "callout",
+          "id": "cl",
+          "kind": "warn",
+          "text": "The API returns 200 before the email goes out; if the worker stops, nobody notices.",
+          "title": "The blind spot"
+        },
+        {
+          "type": "text",
+          "id": "tx",
+          "title": "Context",
+          "text": "A short paragraph for when the drawing needs more than the labels can hold."
+        }
+      ]
+    },
+    {
+      "id": "free",
+      "title": "free",
+      "summary": "Two visits: only the first hits the origin.",
+      "blocks": [
+        {
+          "type": "free",
+          "id": "fr",
+          "title": "Edge cache",
+          "width": 560,
+          "height": 200,
+          "elements": [
+            {
+              "type": "rect",
+              "id": "u",
+              "x": 16,
+              "y": 64,
+              "w": 120,
+              "h": 56,
+              "text": "Browser",
+              "kind": "external"
+            },
+            {
+              "type": "rect",
+              "id": "e",
+              "x": 216,
+              "y": 64,
+              "w": 128,
+              "h": 56,
+              "text": "Edge",
+              "sub": "cache 60 s"
+            },
+            {
+              "type": "rect",
+              "id": "o",
+              "x": 424,
+              "y": 64,
+              "w": 120,
+              "h": 56,
+              "text": "Origin",
+              "kind": "store"
+            },
+            {
+              "type": "arrow",
+              "from": "u",
+              "to": "e",
+              "label": "GET"
+            },
+            {
+              "type": "arrow",
+              "from": "e",
+              "to": "o",
+              "label": "miss",
+              "dashed": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

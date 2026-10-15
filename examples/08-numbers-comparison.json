@@ -1,0 +1,332 @@
+{
+  "title": "Search dominates latency and cost; the other services are noise",
+  "lang": "en",
+  "subtitle": "Eight services measured in the same week · example",
+  "basis": "docs",
+  "source": "Production metrics, week of 2026-09-22; cost from the monthly cloud report",
+  "summary": "Search is the slowest, most variable and costliest; trimming its tail pays more than tuning the other seven.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Compare numbers",
+      "layout": {
+        "type": "grid",
+        "columns": 2,
+        "gap": 56
+      },
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "p95",
+          "title": "p95 latency by service, sorted",
+          "kind": "bar",
+          "orientation": "horizontal",
+          "width": 520,
+          "y": {
+            "label": "p95 in ms",
+            "unit": " ms"
+          },
+          "series": [
+            {
+              "name": "p95",
+              "data": [
+                [
+                  "Search",
+                  412
+                ],
+                [
+                  "Recommendations",
+                  240
+                ],
+                [
+                  "Checkout",
+                  188
+                ],
+                [
+                  "Catalog",
+                  121
+                ],
+                [
+                  "Cart",
+                  96
+                ],
+                [
+                  "Auth",
+                  74
+                ],
+                [
+                  "Notifications",
+                  58
+                ],
+                [
+                  "Profile",
+                  44
+                ]
+              ]
+            }
+          ],
+          "refLines": [
+            {
+              "y": 300,
+              "label": "SLO"
+            }
+          ],
+          "caption": "Sorted high to low; the 300 ms SLO is per service."
+        },
+        {
+          "type": "chart",
+          "id": "spread",
+          "title": "Variability: p50, p95 and p99",
+          "kind": "dot",
+          "width": 520,
+          "height": 300,
+          "y": {
+            "label": "ms",
+            "unit": " ms",
+            "min": 0
+          },
+          "series": [
+            {
+              "name": "p50",
+              "data": [
+                [
+                  "Search",
+                  140
+                ],
+                [
+                  "Recs",
+                  90
+                ],
+                [
+                  "Checkout",
+                  110
+                ],
+                [
+                  "Catalog",
+                  60
+                ],
+                [
+                  "Cart",
+                  40
+                ],
+                [
+                  "Auth",
+                  30
+                ],
+                [
+                  "Notif.",
+                  25
+                ],
+                [
+                  "Profile",
+                  20
+                ]
+              ]
+            },
+            {
+              "name": "p95",
+              "data": [
+                [
+                  "Search",
+                  412
+                ],
+                [
+                  "Recs",
+                  240
+                ],
+                [
+                  "Checkout",
+                  188
+                ],
+                [
+                  "Catalog",
+                  121
+                ],
+                [
+                  "Cart",
+                  96
+                ],
+                [
+                  "Auth",
+                  74
+                ],
+                [
+                  "Notif.",
+                  58
+                ],
+                [
+                  "Profile",
+                  44
+                ]
+              ]
+            },
+            {
+              "name": "p99",
+              "data": [
+                [
+                  "Search",
+                  980
+                ],
+                [
+                  "Recs",
+                  420
+                ],
+                [
+                  "Checkout",
+                  260
+                ],
+                [
+                  "Catalog",
+                  190
+                ],
+                [
+                  "Cart",
+                  140
+                ],
+                [
+                  "Auth",
+                  110
+                ],
+                [
+                  "Notif.",
+                  90
+                ],
+                [
+                  "Profile",
+                  70
+                ]
+              ]
+            }
+          ],
+          "caption": "The p50 to p99 gap is the tail; for search it's 7×."
+        },
+        {
+          "type": "chart",
+          "id": "cost",
+          "title": "Monthly cost vs. latency",
+          "kind": "scatter",
+          "width": 520,
+          "height": 300,
+          "x": {
+            "type": "number",
+            "label": "p95 in ms"
+          },
+          "y": {
+            "label": "monthly cost, US$ thousands",
+            "unit": "k"
+          },
+          "series": [
+            {
+              "name": "Services",
+              "data": [
+                [
+                  412,
+                  18.4,
+                  "Search"
+                ],
+                [
+                  240,
+                  7.1,
+                  "Recommendations"
+                ],
+                [
+                  188,
+                  6.2,
+                  "Checkout"
+                ],
+                [
+                  121,
+                  3.9,
+                  "Catalog"
+                ],
+                [
+                  96,
+                  2.1,
+                  "Cart"
+                ],
+                [
+                  74,
+                  1.6,
+                  "Auth"
+                ],
+                [
+                  58,
+                  1.1,
+                  "Notifications"
+                ],
+                [
+                  44,
+                  0.9,
+                  "Profile"
+                ]
+              ]
+            }
+          ],
+          "caption": "Each dot is a service; search sits alone in the slow, costly corner."
+        },
+        {
+          "type": "chart",
+          "id": "hist",
+          "title": "Search request distribution",
+          "kind": "histogram",
+          "width": 520,
+          "height": 300,
+          "bins": 10,
+          "unit": " ms",
+          "series": [
+            {
+              "name": "requests",
+              "values": [
+                38,
+                42,
+                45,
+                51,
+                55,
+                58,
+                60,
+                62,
+                64,
+                66,
+                70,
+                72,
+                75,
+                78,
+                80,
+                84,
+                88,
+                90,
+                95,
+                98,
+                102,
+                110,
+                115,
+                120,
+                130,
+                140,
+                150,
+                160,
+                175,
+                190,
+                210,
+                240,
+                280,
+                320,
+                380,
+                450,
+                520,
+                610,
+                720,
+                910
+              ]
+            }
+          ],
+          "caption": "Sample of 40 requests: most under 150 ms, a long tail up to 910 ms."
+        }
+      ],
+      "annotations": [
+        "Search p99 (980 ms) blows the SLO by 3×; it's the only service with a tail above 500 ms.",
+        "Cost includes compute and index storage; search takes 44% of the total."
+      ]
+    }
+  ]
+}

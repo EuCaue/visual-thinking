@@ -8,7 +8,7 @@ Graph nodes and edges, and entity tables and relations, are matched by id
 `diff`: "added" (only after), "removed" (only before, kept so the reader sees
 it go) or "changed" (in both, label, sub, kind, group, file or fields differ).
 Every other block is taken from `after`. The runtime draws the marks and lists
-them in the legend under "Mudanças".
+them in the legend under "Changes".
 """
 
 import copy, json, pathlib, sys
@@ -94,7 +94,7 @@ def main():
     out["summary"] = after.get("summary", "")
     pathlib.Path(sys.argv[3]).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n")
     print(pathlib.Path(sys.argv[3]).resolve())
-    print(out["subtitle"])
+    print(f"+{total['added']} added · {total['changed']} changed · −{total['removed']} removed")
 
 
 if __name__ == "__main__":

@@ -47,8 +47,8 @@ def test_collision_guards():
         text=True,
     )
     out = res.stdout + res.stderr
-    assert "duplicada" in out, "venn com interseção duplicada devia avisar"
-    assert "mesmas pontas" in out, "setas duplicadas deviam falhar"
+    assert "duplicate overlap" in out, "venn com interseção duplicada devia avisar"
+    assert "same ends" in out, "setas duplicadas deviam falhar"
 
 
 def test_runtime_guards_present():

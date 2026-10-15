@@ -1,0 +1,217 @@
+{
+  "title": "CDN serves from the edge; origin only on a stale copy",
+  "lang": "en",
+  "subtitle": "How an edge cache serves a page · example",
+  "basis": "docs",
+  "source": "CDN provider docs and RFC 9111 (HTTP Caching)",
+  "summary": "The first visit pays the trip to origin; later ones come from the edge while the TTL holds.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Explanation",
+      "layout": {
+        "type": "stack",
+        "gap": 40
+      },
+      "blocks": [
+        {
+          "type": "free",
+          "id": "f",
+          "title": "Two visits to the same page",
+          "width": 840,
+          "height": 420,
+          "elements": [
+            {
+              "type": "group",
+              "x": 0,
+              "y": 0,
+              "w": 400,
+              "h": 400,
+              "label": "First visit: empty cache"
+            },
+            {
+              "type": "rect",
+              "id": "u1",
+              "x": 32,
+              "y": 56,
+              "w": 120,
+              "h": 56,
+              "text": "Browser",
+              "sub": "in São Paulo",
+              "kind": "external"
+            },
+            {
+              "type": "rect",
+              "id": "e1",
+              "x": 240,
+              "y": 56,
+              "w": 128,
+              "h": 56,
+              "text": "SP edge",
+              "sub": "cache MISS",
+              "kind": "component"
+            },
+            {
+              "type": "rect",
+              "id": "o1",
+              "x": 240,
+              "y": 240,
+              "w": 128,
+              "h": 56,
+              "text": "Origin",
+              "sub": "in Virginia, 140 ms",
+              "kind": "store"
+            },
+            {
+              "type": "arrow",
+              "from": "u1",
+              "to": "e1",
+              "label": "GET /page",
+              "kind": "control"
+            },
+            {
+              "type": "arrow",
+              "from": "e1",
+              "to": "o1",
+              "label": "GET /page",
+              "kind": "control",
+              "detail": "Only happens when the edge has no valid copy."
+            },
+            {
+              "type": "arrow",
+              "from": "o1",
+              "to": "e1",
+              "label": "200, max-age=600",
+              "kind": "data",
+              "route": "curve"
+            },
+            {
+              "type": "badge",
+              "x": 32,
+              "y": 150,
+              "text": "~180 ms",
+              "kind": "warn"
+            },
+            {
+              "type": "text",
+              "x": 32,
+              "y": 330,
+              "w": 340,
+              "size": "sm",
+              "text": "The edge keeps the response for 600 s, as Cache-Control asked."
+            },
+            {
+              "type": "group",
+              "x": 440,
+              "y": 0,
+              "w": 400,
+              "h": 400,
+              "label": "Second visit, 2 min later"
+            },
+            {
+              "type": "rect",
+              "id": "u2",
+              "x": 472,
+              "y": 56,
+              "w": 120,
+              "h": 56,
+              "text": "Browser",
+              "sub": "anyone in SP",
+              "kind": "external"
+            },
+            {
+              "type": "rect",
+              "id": "e2",
+              "x": 680,
+              "y": 56,
+              "w": 128,
+              "h": 56,
+              "text": "SP edge",
+              "sub": "cache HIT, age 120",
+              "kind": "ok"
+            },
+            {
+              "type": "rect",
+              "id": "o2",
+              "x": 680,
+              "y": 240,
+              "w": 128,
+              "h": 56,
+              "text": "Origin",
+              "sub": "not called",
+              "kind": "plain"
+            },
+            {
+              "type": "arrow",
+              "from": "u2",
+              "to": "e2",
+              "label": "GET /page",
+              "kind": "control"
+            },
+            {
+              "type": "arrow",
+              "from": "e2",
+              "to": "o2",
+              "label": "nothing",
+              "kind": "plain",
+              "dashed": true
+            },
+            {
+              "type": "badge",
+              "x": 472,
+              "y": 150,
+              "text": "~12 ms",
+              "kind": "ok"
+            },
+            {
+              "type": "text",
+              "x": 472,
+              "y": 330,
+              "w": 340,
+              "size": "sm",
+              "text": "After 600 s the copy expires and the next visit goes back to the left case."
+            }
+          ]
+        },
+        {
+          "type": "steps",
+          "id": "s",
+          "title": "What lets the edge answer on its own",
+          "stepWidth": 180,
+          "items": [
+            {
+              "title": "Has a copy?",
+              "text": "URL and Vary keys match",
+              "kind": "decision"
+            },
+            {
+              "title": "Still fresh?",
+              "text": "age < max-age, or revalidate with ETag",
+              "kind": "decision"
+            },
+            {
+              "title": "Serve from edge",
+              "text": "HIT, local network latency",
+              "kind": "ok"
+            },
+            {
+              "title": "Otherwise, fetch from origin",
+              "text": "MISS, store the new response",
+              "kind": "warn"
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "id": "c",
+          "kind": "note",
+          "text": "Purging the URL resets the edge TTL without waiting 600 s; that's how a deploy drops the old copy early."
+        }
+      ],
+      "annotations": [
+        "Latencies are typical SP ↔ Virginia values; real numbers depend on provider and time of day.",
+        "stale-while-revalidate serves the stale copy while fetching a new one; left out of the diagram for simplicity."
+      ]
+    }
+  ]
+}

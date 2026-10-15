@@ -1,0 +1,64 @@
+{
+  "title": "A paid order reaches the database in two hops",
+  "lang": "en",
+  "views": [
+    {
+      "id": "main",
+      "title": "Checkout",
+      "blocks": [
+        {
+          "type": "graph",
+          "id": "flow",
+          "title": "From click to stored order",
+          "nodes": [
+            {
+              "id": "web",
+              "label": "Browser",
+              "sub": "checkout page",
+              "kind": "entry"
+            },
+            {
+              "id": "api",
+              "label": "API",
+              "sub": "validates and charges",
+              "kind": "component"
+            },
+            {
+              "id": "pay",
+              "label": "Payments",
+              "sub": "card processor",
+              "kind": "external"
+            },
+            {
+              "id": "db",
+              "label": "Postgres",
+              "sub": "orders table",
+              "kind": "store"
+            }
+          ],
+          "edges": [
+            {
+              "from": "web",
+              "to": "api",
+              "label": "POST /orders",
+              "main": true
+            },
+            {
+              "from": "api",
+              "to": "pay",
+              "label": "charge"
+            },
+            {
+              "from": "api",
+              "to": "db",
+              "label": "insert order",
+              "kind": "data",
+              "main": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "summary": "The browser talks only to the API; the API charges the card and stores the order."
+}

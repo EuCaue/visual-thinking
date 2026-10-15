@@ -1,0 +1,240 @@
+{
+  "title": "PKCE replaces the client secret with a one-time challenge",
+  "subtitle": "OAuth 2.0 Authorization Code with PKCE, RFC 7636 · example",
+  "basis": "docs",
+  "source": "RFC 6749, RFC 7636 and the provider's docs",
+  "summary": "The app sends only the hash of a random verifier; whoever intercepts the code lacks the original to redeem it.",
+  "views": [
+    {
+      "id": "flow",
+      "title": "Flow",
+      "summary": "The authorization code only becomes a token if the app proves it holds the secret it hashed first.",
+      "layout": {
+        "type": "stack",
+        "gap": 40
+      },
+      "blocks": [
+        {
+          "type": "graph",
+          "id": "g",
+          "direction": "DOWN",
+          "groups": [
+            {
+              "id": "app",
+              "label": "App (browser or mobile)"
+            },
+            {
+              "id": "idp",
+              "label": "Authorization server"
+            }
+          ],
+          "nodes": [
+            {
+              "id": "start",
+              "label": "User clicks sign in",
+              "sub": "no secret embedded in the app",
+              "kind": "entry",
+              "group": "app",
+              "status": "verified"
+            },
+            {
+              "id": "gen",
+              "label": "Generates code_verifier",
+              "sub": "43 to 128 random characters",
+              "kind": "component",
+              "group": "app",
+              "status": "verified"
+            },
+            {
+              "id": "chal",
+              "label": "Computes code_challenge",
+              "sub": "BASE64URL(SHA-256(verifier))",
+              "kind": "component",
+              "group": "app",
+              "status": "verified"
+            },
+            {
+              "id": "authz",
+              "label": "GET /authorize",
+              "sub": "gets challenge and method=S256",
+              "kind": "entry",
+              "group": "idp",
+              "status": "verified"
+            },
+            {
+              "id": "login",
+              "label": "Login and consent",
+              "sub": "stores the challenge in the session",
+              "kind": "component",
+              "group": "idp",
+              "status": "verified"
+            },
+            {
+              "id": "cb",
+              "label": "Redirect with code",
+              "sub": "short-lived, single-use code",
+              "kind": "component",
+              "group": "app",
+              "status": "verified"
+            },
+            {
+              "id": "token",
+              "label": "POST /token",
+              "sub": "code + code_verifier",
+              "kind": "critical",
+              "group": "idp",
+              "status": "verified",
+              "notes": [
+                "Without PKCE, an intercepted code would be enough to get tokens."
+              ]
+            },
+            {
+              "id": "check",
+              "label": "SHA-256(verifier) == challenge?",
+              "sub": "constant-time comparison",
+              "kind": "decision",
+              "group": "idp",
+              "status": "verified"
+            },
+            {
+              "id": "ok",
+              "label": "Tokens issued",
+              "sub": "access_token, refresh_token",
+              "kind": "component",
+              "group": "idp",
+              "status": "verified"
+            },
+            {
+              "id": "fail",
+              "label": "invalid_grant",
+              "sub": "code discarded",
+              "kind": "error",
+              "group": "idp",
+              "status": "verified"
+            },
+            {
+              "id": "attacker",
+              "label": "Interceptor",
+              "sub": "sees the code in the redirect",
+              "kind": "external",
+              "status": "inferred",
+              "evidence": "Threat scenario from RFC 7636 section 1; not a system component."
+            }
+          ],
+          "edges": [
+            {
+              "from": "start",
+              "to": "gen",
+              "label": "starts",
+              "kind": "control",
+              "step": 1
+            },
+            {
+              "from": "gen",
+              "to": "chal",
+              "label": "verifier",
+              "kind": "data",
+              "step": 2
+            },
+            {
+              "from": "chal",
+              "to": "authz",
+              "label": "challenge, S256",
+              "kind": "control",
+              "step": 3
+            },
+            {
+              "from": "authz",
+              "to": "login",
+              "label": "session",
+              "kind": "control",
+              "step": 4
+            },
+            {
+              "from": "login",
+              "to": "cb",
+              "label": "302 ?code=",
+              "kind": "event",
+              "step": 5
+            },
+            {
+              "from": "cb",
+              "to": "token",
+              "label": "code + verifier",
+              "kind": "control",
+              "step": 6,
+              "detail": "The verifier hasn't left the app until now; it travels only in this call, over TLS."
+            },
+            {
+              "from": "token",
+              "to": "check",
+              "label": "compares",
+              "kind": "control",
+              "step": 7
+            },
+            {
+              "from": "check",
+              "to": "ok",
+              "label": "match",
+              "kind": "control",
+              "step": 8
+            },
+            {
+              "from": "check",
+              "to": "fail",
+              "label": "mismatch",
+              "kind": "error"
+            },
+            {
+              "from": "attacker",
+              "to": "token",
+              "label": "code without verifier",
+              "kind": "error",
+              "detail": "Has the code but not the verifier: the exchange fails."
+            }
+          ]
+        },
+        {
+          "type": "steps",
+          "id": "s",
+          "title": "The same flow in five steps",
+          "stepWidth": 160,
+          "items": [
+            {
+              "title": "Generate",
+              "text": "random verifier in the app"
+            },
+            {
+              "title": "Challenge",
+              "text": "verifier hash goes to /authorize"
+            },
+            {
+              "title": "Authorize",
+              "text": "user signs in; app gets the code"
+            },
+            {
+              "title": "Prove",
+              "text": "code + verifier to /token"
+            },
+            {
+              "title": "Issue",
+              "text": "hash matches; tokens come back",
+              "kind": "ok"
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "id": "c",
+          "kind": "note",
+          "text": "PKCE doesn't replace TLS or protect the token once issued. It closes one specific gap: the authorization code in transit through the redirect."
+        }
+      ],
+      "annotations": [
+        "method=plain is in the RFC, but this provider accepts only S256 (docs, Security section).",
+        "Code expiry (minutes) is a recommendation; the exact value depends on the provider."
+      ]
+    }
+  ],
+  "lang": "en"
+}

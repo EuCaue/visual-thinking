@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Inject a scene JSON into templates/canvas.html.
 
-Usage: build-scene.py scene.json out.html [title] [--cdn] [--fragment] [--validate-only] [--no-text-lint]
+Usage: build-scene.py scene.json [out.html] [title] [--open] [--cdn] [--fragment] [--validate-only] [--no-text-lint]
+
+Without out.html the page is written next to the scene (my-scene.json -> my-scene.html).
+--open opens the built page in the default browser.
 
 The page works offline by default: the libraries it uses are inlined (fetched once
 into .vt-libs/). --cdn keeps <script src> tags instead, for a lighter file that needs
@@ -75,43 +78,43 @@ def check_tornado(b, p, c):
     if base is not None:
         if isinstance(base, dict):
             if "value" in base and not isinstance(base["value"], (int, float)):
-                p(c + f"tornado baseline value inválido: {base['value']!r}")
+                p(c + f"tornado baseline value is invalid: {base['value']!r}")
         elif not isinstance(base, (int, float)):
-            p(c + f"tornado baseline inválido: {base!r}")
+            p(c + f"tornado baseline is invalid: {base!r}")
     series = b.get("series")
     if not series or not isinstance(series, list):
-        p(c + "tornado sem series")
+        p(c + "tornado has no series")
         return
     for se in series:
         if not isinstance(se, dict):
-            p(c + "série tornado deve ser objeto")
+            p(c + "tornado series must be an object")
             continue
         if not se.get("name"):
-            p(c + f"série tornado sem name: {json.dumps(se, ensure_ascii=False)[:80]}")
+            p(c + f"tornado series has no name: {json.dumps(se, ensure_ascii=False)[:80]}")
         if "low" not in se or not isinstance(se["low"], (int, float)):
-            p(c + f"série '{se.get('name', '?')}' sem valor numérico 'low'")
+            p(c + f"series '{se.get('name', '?')}' has no numeric 'low'")
         if "high" not in se or not isinstance(se["high"], (int, float)):
-            p(c + f"série '{se.get('name', '?')}' sem valor numérico 'high'")
+            p(c + f"series '{se.get('name', '?')}' has no numeric 'high'")
 
 
 def check_chart(b, p, c):
     if b.get("kind") and b["kind"] not in KINDS:
-        p(c + f"kind desconhecido: {b['kind']!r}")
+        p(c + f"unknown kind: {b['kind']!r}")
     if b.get("kind") == "tornado":
         check_tornado(b, p, c)
         return
     s = b.get("series") or []
     if b.get("kind") == "donut":
         if s and len(s) > 5:
-            p(c + f"donut com {len(s)} partes; máximo 5")
+            p(c + f"donut has {len(s)} parts; max 5")
         return
     if len(s) > 6:
-        p(c + f"{len(s)} séries; máximo 6")
+        p(c + f"{len(s)} series; max 6")
     for se in s:
         if not se.get("name"):
-            p(c + f"série sem name: {json.dumps(se, ensure_ascii=False)[:80]}")
+            p(c + f"series has no name: {json.dumps(se, ensure_ascii=False)[:80]}")
         if not (se.get("data") or se.get("values")):
-            p(c + f"série '{se.get('name')}' sem data")
+            p(c + f"series '{se.get('name')}' has no data")
 
 
 def check_graph(b, p, w, c):
@@ -120,25 +123,25 @@ def check_graph(b, p, w, c):
     for n in nodes:
         nid = n.get("id")
         if not nid:
-            p(c + "nó sem id")
+            p(c + "node has no id")
             continue
         if not ID_RE.match(str(nid)):
-            p(c + f"id inválido {nid!r}: use letras, dígitos e _")
+            p(c + f"invalid id {nid!r}: use letters, digits and _")
         if not n.get("sub"):
-            p(c + f"nó '{nid}' sem sub (responsabilidade)")
+            p(c + f"node '{nid}' has no sub (its job)")
         if n.get("kind") and n["kind"] not in GRAPH_KINDS:
-            p(c + f"nó '{nid}' kind desconhecido: {n['kind']!r}")
+            p(c + f"node '{nid}' has unknown kind: {n['kind']!r}")
         if n.get("status") and n["status"] not in ("verified", "inferred", "unknown"):
-            p(c + f"nó '{nid}' status desconhecido: {n['status']!r}")
+            p(c + f"node '{nid}' has unknown status: {n['status']!r}")
         if n.get("reversibility") and n["reversibility"] not in ("one-way", "two-way"):
-            p(c + f"nó '{nid}' reversibility desconhecido: {n['reversibility']!r}")
+            p(c + f"node '{nid}' has unknown reversibility: {n['reversibility']!r}")
         if n.get("consequence") is not None:
             cons = n["consequence"]
             if not isinstance(cons, dict):
-                p(c + f"nó '{nid}' consequence deve ser objeto")
+                p(c + f"node '{nid}' consequence must be an object")
             else:
                 if "order" in cons and not isinstance(cons["order"], int):
-                    p(c + f"nó '{nid}' consequence.order deve ser inteiro")
+                    p(c + f"node '{nid}' consequence.order must be an integer")
                 if cons.get("polarity") and cons["polarity"] not in (
                     "ok",
                     "danger",
@@ -147,58 +150,58 @@ def check_graph(b, p, w, c):
                 ):
                     p(
                         c
-                        + f"nó '{nid}' consequence.polarity desconhecido: {cons['polarity']!r}"
+                        + f"node '{nid}' has unknown consequence.polarity: {cons['polarity']!r}"
                     )
         if "prob" in n and (
             not isinstance(n["prob"], (int, float)) or not (0 <= n["prob"] <= 1)
         ):
-            p(c + f"nó '{nid}' prob deve ser número entre 0 e 1: {n['prob']!r}")
-        check_diff(n, p, c, f"nó '{nid}'")
+            p(c + f"node '{nid}' prob must be a number from 0 to 1: {n['prob']!r}")
+        check_diff(n, p, c, f"node '{nid}'")
     dup = {i for i in ids if ids.count(i) > 1}
     if dup:
-        p(c + f"ids de nó duplicados: {sorted(dup)}")
+        p(c + f"duplicate node ids: {sorted(dup)}")
     gids = {g.get("id") for g in groups}
     for g in groups:
         if not g.get("id"):
-            p(c + "grupo sem id")
+            p(c + "group has no id")
         used = any(n.get("group") == g.get("id") for n in nodes)
         if not used:
-            p(c + f"grupo '{g.get('id')}' sem nenhum nó (runtime apaga em silêncio)")
+            p(c + f"group '{g.get('id')}' has no nodes (the runtime drops it silently)")
         if g.get("view") and g["view"] not in (b.get("_view_ids") or ()):
-            p(c + f"grupo '{g['id']}' aponta para vista inexistente: {g['view']!r}")
+            p(c + f"group '{g['id']}' points to a missing view: {g['view']!r}")
     for n in nodes:
         if n.get("group") and n["group"] not in gids:
-            p(c + f"nó '{n['id']}' em grupo inexistente: {n['group']!r}")
+            p(c + f"node '{n['id']}' is in a missing group: {n['group']!r}")
         if n.get("view") and n["view"] not in (b.get("_view_ids") or ()):
-            p(c + f"nó '{n['id']}' aponta para vista inexistente: {n['view']!r}")
+            p(c + f"node '{n['id']}' points to a missing view: {n['view']!r}")
     for e in b.get("edges") or []:
         for end in ("from", "to"):
             if e.get(end) not in ids:
                 p(
                     c
-                    + f"edge sem '{end}' válido: {json.dumps(e, ensure_ascii=False)[:80]}"
+                    + f"edge has no valid '{end}': {json.dumps(e, ensure_ascii=False)[:80]}"
                 )
         lbl = e.get("label")
         if not lbl:
-            p(c + f"edge {e.get('from')}→{e.get('to')} sem label")
+            p(c + f"edge {e.get('from')}→{e.get('to')} has no label")
         elif len(lbl) > 28:
             p(
                 c
-                + f"edge '{lbl}' com {len(lbl)} caracteres; máximo 28, o resto vai em detail"
+                + f"edge '{lbl}' has {len(lbl)} characters; max 28, put the rest in detail"
             )
         if e.get("kind") and e["kind"] not in EDGE_KINDS:
-            p(c + f"edge kind desconhecido: {e['kind']!r}")
+            p(c + f"unknown edge kind: {e['kind']!r}")
         if e.get("reversibility") and e["reversibility"] not in ("one-way", "two-way"):
-            p(c + f"edge reversibility desconhecido: {e['reversibility']!r}")
+            p(c + f"unknown edge reversibility: {e['reversibility']!r}")
         if e.get("consequence") is not None:
             cons = e["consequence"]
             if not isinstance(cons, dict):
-                p(c + f"edge {e.get('from')}→{e.get('to')} consequence deve ser objeto")
+                p(c + f"edge {e.get('from')}→{e.get('to')} consequence must be an object")
             else:
                 if "order" in cons and not isinstance(cons["order"], int):
                     p(
                         c
-                        + f"edge {e.get('from')}→{e.get('to')} consequence.order deve ser inteiro"
+                        + f"edge {e.get('from')}→{e.get('to')} consequence.order must be an integer"
                     )
                 if cons.get("polarity") and cons["polarity"] not in (
                     "ok",
@@ -208,21 +211,21 @@ def check_graph(b, p, w, c):
                 ):
                     p(
                         c
-                        + f"edge {e.get('from')}→{e.get('to')} consequence.polarity desconhecido: {cons['polarity']!r}"
+                        + f"edge {e.get('from')}→{e.get('to')} has unknown consequence.polarity: {cons['polarity']!r}"
                     )
         if "prob" in e and (
             not isinstance(e["prob"], (int, float)) or not (0 <= e["prob"] <= 1)
         ):
             p(
                 c
-                + f"edge {e.get('from')}→{e.get('to')} prob deve ser número entre 0 e 1: {e['prob']!r}"
+                + f"edge {e.get('from')}→{e.get('to')} prob must be a number from 0 to 1: {e['prob']!r}"
             )
     if b.get("engine") and b["engine"] not in ("elk", "dagre"):
-        p(c + f"engine desconhecido: {b['engine']!r} (elk ou dagre)")
+        p(c + f"unknown engine: {b['engine']!r} (elk or dagre)")
     if len(nodes) + len(groups) > 12:
         w(
             c
-            + f"{len(nodes)} nós + {len(groups)} grupos numa vista; máximo 12, divida em vistas"
+            + f"{len(nodes)} nodes + {len(groups)} groups in one view; max 12, split into views"
         )
 
 
@@ -235,84 +238,84 @@ def check_free(b, p, w, c):
         if t in ("rect", "ellipse"):
             for f in ("x", "y", "w", "h"):
                 if e.get(f) is None:
-                    p(c + f"{t} '{e.get('id', e.get('text', '?'))}' sem {f}")
+                    p(c + f"{t} '{e.get('id', e.get('text', '?'))}' has no {f}")
             continue
         if t in ("image", "video"):
             for f in ("x", "y", "w", "h", "src"):
                 if e.get(f) is None:
-                    p(c + f"{t} '{e.get('id', '?')}' sem {f}")
+                    p(c + f"{t} '{e.get('id', '?')}' has no {f}")
             src = e.get("src") or ""
             if src.startswith("/") and "://" not in src:
                 w(
                     c
-                    + f"{t} '{e.get('id', '?')}' com src absoluto local; quebra ao enviar, use relativo ou http(s)"
+                    + f"{t} '{e.get('id', '?')}' has a local absolute src; it breaks when shared, use a relative or http(s) path"
                 )
             continue
         if t in ("line", "arrow"):
             if not (e.get("from") or "x1" in e):
-                p(c + f"{t} sem from nem x1/y1")
+                p(c + f"{t} has neither from nor x1/y1")
             if not (e.get("to") or "x2" in e):
-                p(c + f"{t} sem to nem x2/y2")
+                p(c + f"{t} has neither to nor x2/y2")
             if e.get("from") and e["from"] not in by_id:
-                p(c + f"{t} aponta para elemento inexistente: {e['from']!r}")
+                p(c + f"{t} points to a missing element: {e['from']!r}")
             if e.get("to") and e["to"] not in by_id:
-                p(c + f"{t} aponta para elemento inexistente: {e['to']!r}")
+                p(c + f"{t} points to a missing element: {e['to']!r}")
     pairs = [
         (e.get("from"), e.get("to"))
         for e in (b.get("elements") or [])
         if e.get("type") in ("line", "arrow") and e.get("from") and e.get("to")
     ]
     if len(set(pairs)) != len(pairs):
-        p(c + "duas setas com as mesmas pontas; rótulos colidem, some ou inverta uma")
+        p(c + "two arrows share the same ends; labels collide, merge or reverse one")
 
 
 def check_decision(b, p, w, c):
     opts = b.get("options")
     if not opts or not isinstance(opts, list):
-        p(c + "decision sem options")
+        p(c + "decision has no options")
     else:
         for opt in opts:
             if not isinstance(opt, dict):
-                p(c + "opção deve ser objeto")
+                p(c + "option must be an object")
                 continue
             oid = opt.get("id")
             if not oid:
-                p(c + "opção sem id")
+                p(c + "option has no id")
             if not opt.get("label"):
-                p(c + f"opção '{oid or '?'}' sem label")
+                p(c + f"option '{oid or '?'}' has no label")
             if "reversibility" in opt and opt["reversibility"] not in (
                 "one-way",
                 "two-way",
             ):
                 p(
                     c
-                    + f"opção '{oid or '?'}' reversibility desconhecido: {opt['reversibility']!r}"
+                    + f"option '{oid or '?'}' has unknown reversibility: {opt['reversibility']!r}"
                 )
             if (
                 "vetoBelow" in opt
                 and opt["vetoBelow"] is not None
                 and not isinstance(opt["vetoBelow"], (int, float))
             ):
-                p(c + f"opção '{oid or '?'}' vetoBelow inválido: {opt['vetoBelow']!r}")
+                p(c + f"option '{oid or '?'}' has invalid vetoBelow: {opt['vetoBelow']!r}")
 
     crits = b.get("criteria")
     if not crits or not isinstance(crits, list):
-        p(c + "decision sem criteria")
+        p(c + "decision has no criteria")
     else:
         for cr in crits:
             if not isinstance(cr, dict):
-                p(c + "critério deve ser objeto")
+                p(c + "criterion must be an object")
                 continue
             cid = cr.get("id")
             if not cid:
-                p(c + "critério sem id")
+                p(c + "criterion has no id")
             if not cr.get("label"):
-                p(c + f"critério '{cid or '?'}' sem label")
+                p(c + f"criterion '{cid or '?'}' has no label")
             w_val = cr.get("weight")
             if w_val is None or not isinstance(w_val, (int, float)) or w_val < 0:
                 p(
                     c
-                    + f"critério '{cid or '?'}' weight inválido (esperado número >= 0): {w_val!r}"
+                    + f"criterion '{cid or '?'}' has invalid weight (expected a number >= 0): {w_val!r}"
                 )
             if (
                 "vetoBelow" in cr
@@ -321,7 +324,7 @@ def check_decision(b, p, w, c):
             ):
                 p(
                     c
-                    + f"critério '{cid or '?'}' vetoBelow inválido (esperado número): {cr['vetoBelow']!r}"
+                    + f"criterion '{cid or '?'}' has invalid vetoBelow (expected a number): {cr['vetoBelow']!r}"
                 )
             if "reversibility" in cr and cr["reversibility"] not in (
                 "one-way",
@@ -329,131 +332,131 @@ def check_decision(b, p, w, c):
             ):
                 p(
                     c
-                    + f"critério '{cid or '?'}' reversibility desconhecido: {cr['reversibility']!r}"
+                    + f"criterion '{cid or '?'}' has unknown reversibility: {cr['reversibility']!r}"
                 )
             scores = cr.get("scores")
             if scores is None or not isinstance(scores, dict):
-                p(c + f"critério '{cid or '?'}' sem scores")
+                p(c + f"criterion '{cid or '?'}' has no scores")
             else:
                 for opt_id, sc in scores.items():
                     if not isinstance(sc, dict):
                         p(
                             c
-                            + f"critério '{cid or '?'}' score para '{opt_id}' deve ser objeto"
+                            + f"criterion '{cid or '?'}' score for '{opt_id}' must be an object"
                         )
 
     if "reversibility" in b and b["reversibility"] not in ("one-way", "two-way"):
-        p(c + f"decision reversibility desconhecido: {b['reversibility']!r}")
+        p(c + f"unknown decision reversibility: {b['reversibility']!r}")
     if (
         "vetoBelow" in b
         and b["vetoBelow"] is not None
         and not isinstance(b["vetoBelow"], (int, float))
     ):
-        p(c + f"decision vetoBelow inválido: {b['vetoBelow']!r}")
+        p(c + f"invalid decision vetoBelow: {b['vetoBelow']!r}")
     if not b.get("weightBasis"):
-        w(c + "decision sem weightBasis (declare de onde vêm os pesos)")
+        w(c + "decision has no weightBasis (say where the weights come from)")
 
 
 def check_diff(o, p, c, what):
     if o.get("diff") and o["diff"] not in DIFFS:
-        p(c + f"{what} diff desconhecido: {o['diff']!r} (use added, removed, changed)")
+        p(c + f"{what} has unknown diff: {o['diff']!r} (use added, removed, changed)")
 
 
 def check_entity(b, p, w, c):
     ents = b.get("entities") or []
     if not ents:
-        p(c + "entity sem entities")
+        p(c + "entity has no entities")
     ids = [e.get("id") for e in ents]
     for e in ents:
         eid = e.get("id")
         if not eid:
-            p(c + "entidade sem id")
+            p(c + "entity has no id")
             continue
         if not ID_RE.match(str(eid)):
-            p(c + f"id inválido {eid!r}: use letras, dígitos e _")
+            p(c + f"invalid id {eid!r}: use letters, digits and _")
         if not e.get("fields"):
-            w(c + f"entidade '{eid}' sem fields")
+            w(c + f"entity '{eid}' has no fields")
         names = [f if isinstance(f, str) else f.get("name") for f in e.get("fields") or []]
         if any(not n for n in names):
-            p(c + f"entidade '{eid}' tem campo sem name")
+            p(c + f"entity '{eid}' has a field with no name")
         dup = {n for n in names if n and names.count(n) > 1}
         if dup:
-            p(c + f"entidade '{eid}' com campos duplicados: {sorted(dup)}")
-        check_diff(e, p, c, f"entidade '{eid}'")
+            p(c + f"entity '{eid}' has duplicate fields: {sorted(dup)}")
+        check_diff(e, p, c, f"entity '{eid}'")
     dup = {i for i in ids if i and ids.count(i) > 1}
     if dup:
-        p(c + f"ids de entidade duplicados: {sorted(dup)}")
+        p(c + f"duplicate entity ids: {sorted(dup)}")
     for r in b.get("relations") or []:
         for end in ("from", "to"):
             if r.get(end) not in ids:
-                p(c + f"relação sem '{end}' válido: {json.dumps(r, ensure_ascii=False)[:80]}")
-        check_diff(r, p, c, "relação")
+                p(c + f"relation has no valid '{end}': {json.dumps(r, ensure_ascii=False)[:80]}")
+        check_diff(r, p, c, "relation")
     if len(ents) > 12:
-        w(c + f"{len(ents)} entidades numa vista; máximo 12, divida por domínio")
+        w(c + f"{len(ents)} entities in one view; max 12, split by domain")
 
 
 def check_heatmap(b, p, c):
     if b.get("calendar"):
         for d in b.get("data") or []:
             if not (isinstance(d, list) and len(d) == 2 and isinstance(d[1], (int, float))):
-                p(c + f"heatmap calendar: cada item é [data, número]: {d!r}")
+                p(c + f"heatmap calendar: each item is [date, number]: {d!r}")
                 break
         if not b.get("data"):
-            p(c + "heatmap calendar sem data")
+            p(c + "heatmap calendar has no data")
         return
     xs, ys, vals = b.get("x") or [], b.get("y") or [], b.get("values") or []
     if not xs or not ys:
-        p(c + "heatmap sem x/y (rótulos das colunas e linhas)")
+        p(c + "heatmap has no x/y (column and row labels)")
     if len(vals) != len(ys):
-        p(c + f"heatmap com {len(vals)} linhas em values para {len(ys)} rótulos em y")
+        p(c + f"heatmap has {len(vals)} rows in values for {len(ys)} labels in y")
     for i, row in enumerate(vals):
         if len(row) != len(xs):
-            p(c + f"heatmap linha {i} com {len(row)} valores para {len(xs)} colunas")
+            p(c + f"heatmap row {i} has {len(row)} values for {len(xs)} columns")
             break
         if any(v is not None and not isinstance(v, (int, float)) for v in row):
-            p(c + f"heatmap linha {i} com valor não numérico (use null para vazio)")
+            p(c + f"heatmap row {i} has a non-numeric value (use null for empty)")
             break
 
 
 def check_gantt(b, p, c):
     tasks = b.get("tasks") or []
     if not tasks:
-        p(c + "gantt sem tasks")
+        p(c + "gantt has no tasks")
     ids = {t.get("id") for t in tasks if t.get("id")}
     date = re.compile(r"^\d{4}-\d{2}-\d{2}")
     for t in tasks:
         lbl = t.get("label") or t.get("id") or "?"
         if not t.get("label"):
-            p(c + f"tarefa '{lbl}' sem label")
+            p(c + f"task '{lbl}' has no label")
         if not (t.get("start") and date.match(str(t["start"]))):
-            p(c + f"tarefa '{lbl}' sem start AAAA-MM-DD")
+            p(c + f"task '{lbl}' has no start YYYY-MM-DD")
         if t.get("end") and not date.match(str(t["end"])):
-            p(c + f"tarefa '{lbl}' com end inválido: {t['end']!r}")
+            p(c + f"task '{lbl}' has invalid end: {t['end']!r}")
         if t.get("end") and t.get("start") and str(t["end"]) < str(t["start"]):
-            p(c + f"tarefa '{lbl}' termina antes de começar")
+            p(c + f"task '{lbl}' ends before it starts")
         for d in t.get("deps") or []:
             if d not in ids:
-                p(c + f"tarefa '{lbl}' depende de id inexistente: {d!r}")
+                p(c + f"task '{lbl}' depends on a missing id: {d!r}")
         if t.get("progress") is not None and not (0 <= t["progress"] <= 1):
-            p(c + f"tarefa '{lbl}' progress fora de 0..1")
+            p(c + f"task '{lbl}' progress is outside 0..1")
 
 
 def check_sankey(b, p, c):
     ids = [n.get("id") for n in b.get("nodes") or []]
     if not ids:
-        p(c + "sankey sem nodes")
+        p(c + "sankey has no nodes")
     for n in b.get("nodes") or []:
         if not n.get("label"):
-            p(c + f"nó '{n.get('id')}' sem label")
+            p(c + f"node '{n.get('id')}' has no label")
     links = b.get("links") or []
     if not links:
-        p(c + "sankey sem links")
+        p(c + "sankey has no links")
     for l in links:
         for end in ("from", "to"):
             if l.get(end) not in ids:
-                p(c + f"link sem '{end}' válido: {json.dumps(l, ensure_ascii=False)[:80]}")
+                p(c + f"link has no valid '{end}': {json.dumps(l, ensure_ascii=False)[:80]}")
         if not isinstance(l.get("value"), (int, float)) or l["value"] <= 0:
-            p(c + f"link {l.get('from')}→{l.get('to')} sem value positivo")
+            p(c + f"link {l.get('from')}→{l.get('to')} has no positive value")
     # cycles break the layout
     adj = {}
     for l in links:
@@ -472,23 +475,23 @@ def check_sankey(b, p, c):
         return r
 
     if any(cyc(n) for n in list(adj)):
-        p(c + "sankey com ciclo; fluxo deve seguir em uma direção (use graph para ciclos)")
+        p(c + "sankey has a cycle; flow must go one way (use graph for cycles)")
 
 
 def check_treemap(b, p, c):
     root = b.get("root")
     if not isinstance(root, dict) or not root.get("children"):
-        p(c + "treemap sem root.children")
+        p(c + "treemap has no root.children")
         return
 
     def walk(n, path):
         kids = n.get("children") or []
         if not n.get("label"):
-            p(c + f"treemap: nó sem label em {' › '.join(path) or 'raiz'}")
+            p(c + f"treemap: node with no label under {' › '.join(path) or 'root'}")
         if not kids:
             v = n.get("value")
             if not isinstance(v, (int, float)) or v < 0:
-                p(c + f"treemap: folha '{n.get('label', '?')}' sem value numérico >= 0")
+                p(c + f"treemap: leaf '{n.get('label', '?')}' has no numeric value >= 0")
         for k in kids:
             walk(k, path + [str(n.get("label", ""))])
 
@@ -498,68 +501,68 @@ def check_treemap(b, p, c):
 def check_code(b, p, w, c):
     code = b.get("code")
     if not isinstance(code, str) or not code.strip():
-        p(c + "code sem code")
+        p(c + "code has no code")
         return
     n = code.count("\n") + 1
     if n > 60:
-        w(c + f"code com {n} linhas; mostre só o trecho que importa (até 60)")
+        w(c + f"code has {n} lines; show only the part that matters (up to 60)")
     start = b.get("start", 1)
     for h in b.get("highlight") or []:
         ln = h if isinstance(h, int) else h.get("line") if isinstance(h, dict) else None
         if not isinstance(ln, int) or not (start <= ln < start + n):
-            p(c + f"highlight fora do trecho: {h!r} (linhas {start} a {start + n - 1})")
+            p(c + f"highlight outside the snippet: {h!r} (lines {start} to {start + n - 1})")
 
 
 def check_map(b, p, w, c):
     geo = b.get("geo", "world")
     if geo not in ("world", "br") and not str(geo).startswith(("http://", "https://")):
-        p(c + f"map geo desconhecido: {geo!r} (world, br ou URL de GeoJSON/TopoJSON)")
+        p(c + f"unknown map geo: {geo!r} (world, br or a GeoJSON/TopoJSON URL)")
     vals = b.get("values") or {}
     items = vals.items() if isinstance(vals, dict) else [((v or {}).get("key") or (v or {}).get("id") or (v or {}).get("name"), (v or {}).get("value")) for v in vals]
     for k, v in items:
         if not k:
-            p(c + "map: valor sem key")
+            p(c + "map: value has no key")
         if not isinstance(v, (int, float)):
-            p(c + f"map: valor de {k!r} não numérico: {v!r}")
+            p(c + f"map: value for {k!r} is not numeric: {v!r}")
     for pt in b.get("points") or []:
         lat, lon = pt.get("lat"), pt.get("lon")
         if not (isinstance(lat, (int, float)) and -90 <= lat <= 90 and isinstance(lon, (int, float)) and -180 <= lon <= 180):
-            p(c + f"map: ponto '{pt.get('label', '?')}' sem lat/lon válidos")
+            p(c + f"map: point '{pt.get('label', '?')}' has no valid lat/lon")
     if not vals and not b.get("points"):
-        p(c + "map sem values nem points")
+        p(c + "map has neither values nor points")
 
 
 def check_custom(b, p, w, c, lib_names):
     kinds = [k for k in ("svg", "html", "draw") if b.get(k)]
     if len(kinds) != 1:
-        p(c + "custom precisa de exatamente um entre svg, html e draw")
+        p(c + "custom needs exactly one of svg, html and draw")
         return
     if not (b.get("alt") or "").strip():
-        w(c + "custom sem alt: uma frase com o que o desenho mostra (modo leitura e leitor de tela)")
+        w(c + "custom has no alt: one sentence on what the drawing shows (reading mode and screen readers)")
     if kinds[0] in ("svg", "html") and not (isinstance(b.get("width"), (int, float)) and isinstance(b.get("height"), (int, float))):
-        p(c + f"custom {kinds[0]} precisa de width e height")
+        p(c + f"custom {kinds[0]} needs width and height")
     if COLOR_RE.search(b[kinds[0]]):
-        w(c + "custom com cor literal; use var(--s1)... para dados, var(--fg) e var(--fg-muted) para texto, para valer nos dois temas")
+        w(c + "custom has a literal color; use var(--s1)... for data, var(--fg) and var(--fg-muted) for text, so it works in both themes")
     used = set(re.findall(r"var\(--([a-z0-9-]+)\s*[,)]", b[kinds[0]]))  # names built in code (var(--s' + i + ')) are not checked
     for name in sorted(used - TOKENS):
         near = difflib.get_close_matches(name, sorted(TOKENS), n=2)
-        w(c + f"custom usa var(--{name}), que não existe" + (f"; quis dizer {' ou '.join('--' + x for x in near)}?" if near else "; veja os tokens em formats.md"))
+        w(c + f"custom uses var(--{name}), which does not exist" + (f"; did you mean {' or '.join('--' + x for x in near)}?" if near else "; see the tokens in formats.md"))
     if "accent" in used:
-        w(c + "custom usa var(--accent) num desenho; --accent é seleção e foco, dado usa var(--s1) a var(--s6)")
+        w(c + "custom uses var(--accent) in a drawing; --accent is for selection and focus, data uses var(--s1) to var(--s6)")
     for n in b.get("libs") or []:
         if n not in lib_names:
-            p(c + f"custom usa lib desconhecida {n!r}; declare em scene.libs ou use uma das embutidas")
+            p(c + f"custom uses unknown lib {n!r}; declare it in scene.libs or use a built-in one")
 
 
 def check_block(b, p, w, c):
     t = b.get("type")
     if t not in TYPES:
-        p(c + f"block type desconhecido: {t!r}")
+        p(c + f"unknown block type: {t!r}")
         return
     if not b.get("id"):
-        p(c + f"block '{t}' sem id")
+        p(c + f"block '{t}' has no id")
     if not b.get("title"):
-        w(c + f"block '{b.get('id')}' sem title (o título deve dizer o que se aprende)")
+        w(c + f"block '{b.get('id')}' has no title (the title should say what the reader learns)")
     if t == "chart":
         check_chart(b, p, c)
     elif t == "graph":
@@ -582,69 +585,69 @@ def check_block(b, p, w, c):
         check_code(b, p, w, c)
     elif t == "math":
         if not (b.get("tex") or "").strip():
-            p(c + "math sem tex")
+            p(c + "math has no tex")
     elif t == "map":
         check_map(b, p, w, c)
     elif t == "custom":
         check_custom(b, p, w, c, b.get("_lib_names") or ())
     elif t in ("matrix",):
         if not (b.get("columns") or b.get("rows")):
-            p(c + "matrix sem columns/rows")
+            p(c + "matrix has no columns/rows")
     elif t in ("cards", "steps", "cycle", "funnel"):
         if not b.get("items"):
-            p(c + f"{t} sem items")
+            p(c + f"{t} has no items")
     elif t == "timeline":
         for ev in b.get("events") or []:
             if not ev.get("date"):
-                p(c + f"evento '{ev.get('title', '?')}' sem date")
+                p(c + f"event '{ev.get('title', '?')}' has no date")
     elif t in ("quadrant", "spectrum"):
         for it in b.get("items") or []:
             for f in ("x", "y") if t == "quadrant" else ("value",):
                 v = it.get(f)
                 if v is None or not (0 <= v <= 1):
-                    p(c + f"{t} '{it.get('label', '?')}': {f}={v} fora de 0..1")
+                    p(c + f"{t} '{it.get('label', '?')}': {f}={v} is outside 0..1")
     elif t == "venn":
         n = len(b.get("sets") or [])
         if n not in (2, 3):
-            p(c + f"venn com {n} conjuntos; use 2 ou 3")
+            p(c + f"venn has {n} sets; use 2 or 3")
         seen = set()
         for o in b.get("overlaps") or []:
             key = tuple(sorted((o.get("sets") or [])))
             if key in seen:
                 w(
                     c
-                    + f"venn com interseção duplicada {list(key)}; rótulos colidem, una as duas"
+                    + f"venn has a duplicate overlap {list(key)}; labels collide, merge them"
                 )
             seen.add(key)
     elif t == "kpi":
         if not b.get("items"):
-            p(c + "kpi sem items")
+            p(c + "kpi has no items")
 
 
 def check_scenarios(sc, p, c):
     if not isinstance(sc, dict):
-        p(c + "scenarios deve ser objeto")
+        p(c + "scenarios must be an object")
         return
     ctrls = sc.get("controls")
     if ctrls is not None:
         if not isinstance(ctrls, list):
-            p(c + "scenarios controls deve ser lista")
+            p(c + "scenarios controls must be a list")
         else:
             for ctrl in ctrls:
                 if not isinstance(ctrl, dict):
-                    p(c + "controle de cenário deve ser objeto")
+                    p(c + "scenario control must be an object")
                     continue
                 if not ctrl.get("id"):
-                    p(c + "controle de cenário sem id")
+                    p(c + "scenario control has no id")
                 if not ctrl.get("label"):
-                    p(c + f"controle de cenário '{ctrl.get('id', '?')}' sem label")
+                    p(c + f"scenario control '{ctrl.get('id', '?')}' has no label")
                 if "options" in ctrl and not isinstance(ctrl["options"], list):
                     p(
                         c
-                        + f"controle de cenário '{ctrl.get('id', '?')}' options deve ser lista"
+                        + f"scenario control '{ctrl.get('id', '?')}' options must be a list"
                     )
     if "overrides" in sc and not isinstance(sc["overrides"], dict):
-        p(c + "scenarios overrides deve ser objeto")
+        p(c + "scenarios overrides must be an object")
 
 
 # ---------- text budget: the drawing carries the meaning; text only labels it.
@@ -691,45 +694,45 @@ def overlap(a, b):
 def check_text(scene, w):
     for k, cap in CAP_SCENE.items():
         if words(scene.get(k) or "") > cap:
-            w(f"texto: scene {k} com {words(scene[k])} palavras; máximo {cap}")
+            w(f"text: scene {k} has {words(scene[k])} words; max {cap}")
     for k in ("summary", "subtitle", "title"):
         if META_RE.search(scene.get(k) or ""):
-            w(f"texto: scene {k} descreve a página ou a navegação; diga o achado")
+            w(f"text: scene {k} describes the page or navigation; state the finding")
     for v in scene.get("views") or []:
         vid = v.get("id")
         total = words(v.get("summary") or "")
         if words(v.get("summary") or "") > CAP_FIELD["summary"]:
-            w(f"texto: vista '{vid}' summary com {words(v['summary'])} palavras; máximo 25")
+            w(f"text: view '{vid}' summary has {words(v['summary'])} words; max 25")
         if META_RE.search(v.get("summary") or ""):
-            w(f"texto: vista '{vid}' summary descreve a navegação; diga o achado da vista")
+            w(f"text: view '{vid}' summary describes navigation; state the view's finding")
         for a in v.get("annotations") or []:
             total += words(a)
             if words(a) > 25:
-                w(f"texto: vista '{vid}' anotação com {words(a)} palavras; máximo 25")
+                w(f"text: view '{vid}' annotation has {words(a)} words; max 25")
         labels = []
         for b in v.get("blocks") or []:
-            c = f"texto: vista '{vid}' · block '{b.get('id')}': "
+            c = f"text: view '{vid}' · block '{b.get('id')}': "
             t = b.get("type")
             if words(b.get("title") or "") > CAP_BLOCK_TITLE:
-                w(c + f"title com {words(b['title'])} palavras; máximo {CAP_BLOCK_TITLE}")
+                w(c + f"title has {words(b['title'])} words; max {CAP_BLOCK_TITLE}")
             if t in SKIP_TEXT_TYPES:
                 continue
             if t == "callout" and b.get("label") and b.get("label") == b.get("title"):
-                w(c + "callout label repete o title; tire o label")
+                w(c + "callout label repeats the title; drop the label")
             if t in PARAGRAPH_TYPES and URL_RE.search(b.get("text") or ""):
-                w(c + "URL no texto; links vão em source, que o painel já lista")
+                w(c + "URL in the text; links go in source, which the panel already lists")
             if t in PARAGRAPH_TYPES:
                 total += words(b.get("text") or "")
                 if words(b.get("text") or "") > 40:
-                    w(c + f"{t} com {words(b['text'])} palavras; máximo 40")
+                    w(c + f"{t} has {words(b['text'])} words; max 40")
                 continue
             total += _walk_text(b, c, w, labels, top=True)
         s = v.get("summary") or ""
         hits = sorted({l for l in labels if len(l) > 2 and l.lower() in s.lower()})
         if len(hits) >= 3:
-            w(f"texto: vista '{vid}' summary repete {len(hits)} rótulos do desenho ({', '.join(hits[:4])}); diga o que eles significam juntos")
+            w(f"text: view '{vid}' summary repeats {len(hits)} labels from the drawing ({', '.join(hits[:4])}); say what they mean together")
         if total > CAP_VIEW_WORDS:
-            w(f"texto: vista '{vid}' com {total} palavras; acima de {CAP_VIEW_WORDS} a página virou texto, corte detail/text sem fato novo")
+            w(f"text: view '{vid}' has {total} words; above {CAP_VIEW_WORDS} the page has turned into prose, cut detail/text with no new fact")
 
 
 def _walk_text(o, c, w, labels, top=False):
@@ -750,9 +753,9 @@ def _walk_text(o, c, w, labels, top=False):
                 continue
             n += words(v)
             if k in CAP_FIELD and not (top and k == "text") and words(v) > CAP_FIELD[k]:
-                w(c + f"'{name}' {k} com {words(v)} palavras; máximo {CAP_FIELD[k]}")
+                w(c + f"'{name}' {k} has {words(v)} words; max {CAP_FIELD[k]}")
             if META_ITEM_RE.search(v):
-                w(c + f"'{name}' {k} fala da navegação ou da página: {v[:50]!r}")
+                w(c + f"'{name}' {k} talks about navigation or the page: {v[:50]!r}")
         elif isinstance(v, (list, dict)) and k not in ("data", "values", "spark", "cells", "scores"):
             n += _walk_text(v, c, w, labels)
     for k in ("detail", "note"):
@@ -760,47 +763,47 @@ def _walk_text(o, c, w, labels, top=False):
         if isinstance(d, str):
             ref = " ".join(str(o.get(x) or "") for x in ("label", "title", "sub", "text", "meta"))
             if ref.strip() and overlap(d, ref) >= 0.6:
-                w(c + f"'{name}' {k} repete o rótulo/sub sem fato novo; apague ou troque por evidência")
+                w(c + f"'{name}' {k} repeats the label/sub with no new fact; delete it or replace it with evidence")
     return n
 
 
 def check_scene(scene, p, w):
     if not scene.get("title"):
-        p("scene sem title")
+        p("scene has no title")
     if scene.get("style") not in (None, "clean", "sketch"):
-        p(f"scene style desconhecido: {scene['style']!r} (clean ou sketch)")
+        p(f"unknown scene style: {scene['style']!r} (clean or sketch)")
     if scene.get("lang") not in (None, "pt", "en"):
-        p(f"scene lang desconhecido: {scene['lang']!r} (pt ou en)")
+        p(f"unknown scene lang: {scene['lang']!r} (pt or en)")
     if not (scene.get("summary") or "").strip():
-        w("scene sem summary")
+        w("scene has no summary")
     lib_names = {"rough", "hljs", "katex", "topojson", "dagre"}
     for l in scene.get("libs") or []:
         if not (isinstance(l, dict) and l.get("name") and l.get("url")):
-            p(f"scene libs: cada item é {{name, url, global}}: {l!r}")
+            p(f"scene libs: each item is {{name, url, global}}: {l!r}")
             continue
         if not str(l["url"]).startswith(LIB_HOSTS) or "@" not in str(l["url"]):
-            p(f"scene lib '{l['name']}': URL precisa vir de jsDelivr, cdnjs ou unpkg com versão fixa (nome@1.2.3)")
+            p(f"scene lib '{l['name']}': URL must come from jsDelivr, cdnjs or unpkg with a pinned version (name@1.2.3)")
         lib_names.add(l["name"])
     views = scene.get("views")
     if not views or not isinstance(views, list):
-        p("scene sem views")
+        p("scene has no views")
         return
     view_ids = {v.get("id") for v in views if v.get("id")}
     for v in views:
         vid = v.get("id")
         if not vid:
-            p("vista sem id")
+            p("view has no id")
             continue
         if not v.get("title"):
-            w(f"vista '{vid}' sem title")
+            w(f"view '{vid}' has no title")
         if len(views) > 1 and not (v.get("summary") or "").strip():
-            w(f"vista '{vid}' sem summary (uma frase com o achado da vista)")
+            w(f"view '{vid}' has no summary (one sentence with the view's finding)")
         if "scenarios" in v and v["scenarios"] is not None:
-            check_scenarios(v["scenarios"], p, f"vista '{vid}': ")
+            check_scenarios(v["scenarios"], p, f"view '{vid}': ")
         for b in v.get("blocks") or []:
             b["_view_ids"] = view_ids
             b["_lib_names"] = lib_names
-            check_block(b, p, w, f"vista '{vid}' · block '{b.get('id')}': ")
+            check_block(b, p, w, f"view '{vid}' · block '{b.get('id')}': ")
 
 
 def needs(scene):
@@ -875,7 +878,7 @@ def geo_data(key, w):
         with urllib.request.urlopen(url, timeout=60) as r:
             data = json.loads(r.read())
     except Exception as e:
-        w(f"mapa '{key}' sem rede ({e}); a página baixa a geometria ao abrir")
+        w(f"map '{key}': no network ({e}); the page fetches the geometry when opened")
         return None
     if key == "br":
         for ft in data["features"]:
@@ -912,7 +915,7 @@ def inline_libs(page, w):
                 with urllib.request.urlopen(url, timeout=30) as r:
                     lib.write_bytes(r.read())
             except Exception as e:
-                w(f"self-contained sem rede para {url}: mantendo a tag CDN ({e})")
+                w(f"self-contained: no network for {url}; keeping the CDN tag ({e})")
                 continue
         page = page.replace(
             f'<script src="{url}"></script>',
@@ -923,13 +926,13 @@ def inline_libs(page, w):
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    if len(args) < 2 and "--validate-only" not in sys.argv:
+    if not args:
         sys.exit(__doc__.strip())
     src = pathlib.Path(args[0])
     try:
         scene = json.loads(src.read_text())
     except Exception as e:
-        sys.exit(f"{src}: JSON inválido: {e}")
+        sys.exit(f"{src}: invalid JSON: {e}")
     problems = []
     warns = []
     p = problems.append
@@ -939,19 +942,19 @@ def main():
         if "--no-text-lint" not in sys.argv:
             check_text(scene, w)
     except Exception as e:
-        problems.append(f"validação interrompida: {e}")
+        problems.append(f"validation stopped: {e}")
     for b in [b for v in scene.get("views", []) for b in (v.get("blocks") or [])]:
         b.pop("_view_ids", None)
         b.pop("_lib_names", None)
     for q in warns:
-        print(f"{src}: nota: {q}")
+        print(f"{src}: note: {q}")
     for q in problems:
         print(f"{src}: {q}")
     if "--validate-only" in sys.argv:
         sys.exit(1 if problems else 0)
     if problems:
         sys.exit(
-            f"{src}: {len(problems)} problema(s); cena não construída. Corrija ou remova o que não faz sentido."
+            f"{src}: {len(problems)} problem(s); scene not built. Fix or remove what does not make sense."
         )
     title = args[2] if len(args) > 2 else scene.get("title", "Canvas")
     tpl = (
@@ -978,7 +981,7 @@ def main():
     lib_urls.update({l["name"]: {"url": l["url"], "global": l.get("global", l["name"])} for l in scene.get("libs") or []})
     tags = "".join(f'<script src="{lib_urls[n]["url"]}"></script>\n' for n in libs)
     for g in geos:
-        data = geo_data(g, lambda q: print(f"{src}: nota: {q}"))
+        data = geo_data(g, lambda q: print(f"{src}: note: {q}"))
         if data:
             tags += f'<script id="vt-geo-{g}" type="application/json">{data}</script>\n'
     page = page.replace("<!-- VT:LIBS -->", tags.rstrip("\n") or "<!-- VT:LIBS -->", 1)
@@ -991,11 +994,11 @@ def main():
     if "--cdn" not in sys.argv:
         page = inline_libs(page, p)
 
-    out = pathlib.Path(args[1]).resolve()
+    out = (pathlib.Path(args[1]) if len(args) > 1 else src.with_suffix(".html")).resolve()
     if "--fragment" not in sys.argv:
         head, body = page.split("</style>", 1)
         page = (
-            '<!doctype html>\n<html lang="pt-BR">\n<head>\n'
+            '<!doctype html>\n<html lang="' + ("pt-BR" if scene.get("lang") == "pt" else scene.get("lang") or "en") + '">\n<head>\n'
             + head
             + "</style>\n</head>\n<body>"
             + body
@@ -1008,6 +1011,9 @@ def main():
         [v["id"] for v in scene.get("views", [scene])],
         "(fragment)" if "--fragment" in sys.argv else "(standalone)",
     )
+    if "--open" in sys.argv:
+        import webbrowser
+        webbrowser.open(out.as_uri())
 
 
 if __name__ == "__main__":

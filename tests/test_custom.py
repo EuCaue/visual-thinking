@@ -5,7 +5,7 @@ import json, pathlib, re, subprocess, sys, tempfile, html as H
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from _headless import build, CHROME
 
-EX = json.loads(pathlib.Path("examples/21-desenho-livre.json").read_text())
+EX = json.loads(pathlib.Path("examples/21-custom-drawing.json").read_text())
 PROBE = """<script>setTimeout(function () { var q = function (s) { return document.querySelectorAll(s).length; };
 var views = ['svg', 'draw', 'lib'], out = {}, i = 0;
 (function next() { if (i >= views.length) { document.title = JSON.stringify(out); return; } var v = views[i++]; document.querySelector('#views [data-view="' + v + '"]').click();
@@ -39,9 +39,9 @@ def test_validator():
         {"type": "custom", "id": "c", "title": "c", "draw": "return", "libs": ["nope"]},
     ]}]}
     o = validate(base)
-    for msg in ("exatamente um entre svg, html e draw", "precisa de width e height", "cor literal", "lib desconhecida 'nope'", "versão fixa", "custom sem alt"):
+    for msg in ("exactly one of svg, html and draw", "needs width and height", "literal color", "unknown lib 'nope'", "pinned version", "custom has no alt"):
         assert msg in o, (msg, o)
-    assert "nota" not in validate(EX).replace("nota: vista", ""), validate(EX)
+    assert "note" not in validate(EX).replace("note: view", ""), validate(EX)
 
 
 if __name__ == "__main__":

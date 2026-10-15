@@ -1,6 +1,6 @@
 # Examples: generic versus annotated
 
-Same subject each time. Left is what agents draw by default; right is what the skill asks for. The diagrams below are written as Mermaid so they fit in this file; the deliverable to the user is a page from `templates/` (canvas, composed SVG or Mermaid viewer), with the same nodes, labels and annotations. The scenes in `examples/` are the reference pages: `01-arquitetura.json` holds an overview plus two process views, `02-comparacao-tecnologias.json` a matrix with cards and a spectrum, and so on; `sh scripts/build-examples.sh` renders them.
+Same subject each time. Left is what agents draw by default; right is what the skill asks for. The diagrams below are written as Mermaid so they fit in this file; the deliverable to the user is a page from `templates/` (canvas, composed SVG or Mermaid viewer), with the same nodes, labels and annotations. The scenes in `examples/` are the reference pages: `01-architecture.json` holds an overview plus two process views, `02-tech-comparison.json` a matrix with cards and a spectrum, and so on; `sh scripts/build-examples.sh` renders them.
 
 ## 1. Boxes and arrows versus a mechanism the reader can follow
 

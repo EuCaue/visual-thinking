@@ -30,7 +30,7 @@ PROBE = r"""
     var pre = document.createElement('pre'); pre.id = 'vt-probe'; pre.textContent = JSON.stringify(out); document.body.appendChild(pre);
   }
   window.__errs = []; window.addEventListener('error', function (e) { window.__errs.push(String(e.message)); });
-  (function wait() { var w = document.getElementById('world'); if ((w && w.children.length && w.getAttribute('transform') && !/Calculando/.test(document.getElementById('status').textContent)) || Date.now() - t0 > 6000) setTimeout(function () { if (window.__probeAct) window.__probeAct(); setTimeout(done, 300); }, 300); else setTimeout(wait, 50); })();
+  (function wait() { var w = document.getElementById('world'); if ((w && w.children.length && w.getAttribute('transform') && !/Calculando|Computing/.test(document.getElementById('status').textContent)) || Date.now() - t0 > 6000) setTimeout(function () { if (window.__probeAct) window.__probeAct(); setTimeout(done, 300); }, 300); else setTimeout(wait, 50); })();
 })();
 </script>
 """

@@ -49,7 +49,7 @@ Scene fields: `title` (the finding), `subtitle` (scope, date, source in short), 
 
 Optional libraries load only when a scene uses them: the build adds the script for `style: sketch` (rough.js 4.6.6), `code` (highlight.js 11.12), `math` (KaTeX 0.19, MathML output, no fonts), `map` (topojson-client 3.1 plus the geometry, embedded in the page) and `engine: dagre` (dagre 3.1). A page assembled by hand loads them from the CDN on first use. The build inlines them (offline by default; `--cdn` keeps links).
 
-Text budget, warned by the build (`texto:` lines, `--no-text-lint` silences them): page `title` and `subtitle` 12 words, block `title` 8, node `sub` and card `meta` 6, `text` 15, `detail`, `note`, summaries and annotations 25, a whole view 250. Summaries and details that talk about the page or the navigation, details that repeat their node, and summaries that list the drawing's labels are flagged too.
+Text budget, warned by the build (`text:` lines, `--no-text-lint` silences them): page `title` and `subtitle` 12 words, block `title` 8, node `sub` and card `meta` 6, `text` 15, `detail`, `note`, summaries and annotations 25, a whole view 250. Summaries and details that talk about the page or the navigation, details that repeat their node, and summaries that list the drawing's labels are flagged too.
 
 `layout.type`: `stack` (one below the other, narrative order), `row` (side by side, for things to compare), `grid` with `columns` (a block with `"full": true` takes a whole row). On screens under 700px every layout stacks and graphs flow top-down; on wider screens a layout wider than the legible width stacks too.
 

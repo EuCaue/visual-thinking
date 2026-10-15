@@ -50,7 +50,7 @@ def test_step_playback():
 
 def test_new_blocks_render():
     with tempfile.TemporaryDirectory() as t:
-        for name in ("13-modelo-de-dados", "14-cronograma", "15-fluxo-orcamento", "16-mapa-de-calor"):
+        for name in ("13-data-model", "14-schedule", "15-budget-flow", "16-heatmap"):
             scene = json.loads(pathlib.Path(f"examples/{name}.json").read_text())
             for w in (375, 1280):
                 r = run(build(scene, t, name), w, 860, "?mode=draw")

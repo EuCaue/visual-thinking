@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Dois anos do protótipo ao plano pago, com um reinício no meio</title>
+<title>Two years from prototype to paid plan, with a restart in between</title>
 <!--
   visual-thinking :: canvas template (composable visual reasoning canvas)
   Fill ONLY: <title> above and the JSON inside <script id="scene">. Schema: formats.md, "canvas".
@@ -580,15 +580,15 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 
 <script id="scene" type="application/json">
 {
-  "title": "Dois anos do protótipo ao plano pago, com um reinício no meio",
-  "subtitle": "História do produto, 2023 a 2026 · exemplo",
+  "title": "Two years from prototype to paid plan, with a restart in between",
+  "subtitle": "Product history, 2023 to 2026 · example",
   "basis": "docs",
-  "source": "Changelog e atas de planejamento",
-  "summary": "Dez marcos em 31 meses; a troca de banco adiou o beta aberto em dois meses.",
+  "source": "Changelog and planning notes",
+  "summary": "Ten milestones in 31 months; the database switch pushed the open beta back two months.",
   "views": [
     {
       "id": "main",
-      "title": "História",
+      "title": "History",
       "layout": {
         "type": "stack",
         "gap": 48
@@ -597,116 +597,117 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
         {
           "type": "timeline",
           "id": "t",
-          "title": "Do protótipo ao plano pago",
+          "title": "From prototype to paid plan",
           "orientation": "vertical",
           "width": 560,
           "events": [
             {
               "date": "2023-11",
-              "title": "Protótipo",
-              "text": "Três telas, sem backend, validado com 12 entrevistas."
+              "title": "Prototype",
+              "text": "Three screens, no backend, validated with 12 interviews."
             },
             {
               "date": "2024-02",
-              "title": "Beta fechado",
-              "text": "40 contas convidadas, feedback semanal.",
+              "title": "Closed beta",
+              "text": "40 invited accounts, weekly feedback.",
               "kind": "milestone"
             },
             {
               "date": "2024-05",
-              "title": "Troca de banco",
-              "text": "SQLite para Postgres; o beta fechado seguiu com migração dupla por três semanas."
+              "title": "Database switch",
+              "text": "SQLite to Postgres; the closed beta ran on dual writes for three weeks."
             },
             {
               "date": "2024-07",
-              "title": "Reinício do frontend",
-              "text": "A SPA foi reescrita em componentes menores; nenhuma funcionalidade nova por dois meses."
+              "title": "Frontend restart",
+              "text": "The SPA was rewritten into smaller components; no new features for two months."
             },
             {
               "date": "2024-09",
-              "title": "Beta aberto",
-              "text": "Cadastro livre, 1.200 contas no primeiro mês.",
+              "title": "Open beta",
+              "text": "Open sign-up, 1,200 accounts in the first month.",
               "kind": "milestone"
             },
             {
               "date": "2024-12",
-              "title": "Integração com Stripe",
-              "text": "Pagamento por cartão; primeiro plano pago em teste."
+              "title": "Stripe integration",
+              "text": "Card payments; first paid plan in testing."
             },
             {
               "date": "2025-01",
-              "title": "Plano pago",
-              "text": "Primeira receita recorrente.",
+              "title": "Paid plan",
+              "text": "First recurring revenue.",
               "kind": "milestone"
             },
             {
               "date": "2025-06",
               "title": "v1.0",
-              "text": "SLA publicado, suporte em horário comercial.",
+              "text": "Published SLA, business-hours support.",
               "kind": "milestone"
             },
             {
               "date": "2025-11",
-              "title": "API pública",
-              "text": "Tokens por conta, limite de 1.000 req/min."
+              "title": "Public API",
+              "text": "Per-account tokens, 1,000 req/min limit."
             },
             {
               "date": "2026-06",
-              "title": "Segunda região",
-              "text": "Réplica de leitura na Europa; latência média caiu 38% para clientes europeus."
+              "title": "Second region",
+              "text": "Read replica in Europe; average latency fell 38% for European customers."
             }
           ],
           "periods": [
             {
               "from": "2024-02",
               "to": "2024-09",
-              "label": "Beta fechado"
+              "label": "Closed beta"
             },
             {
               "from": "2025-01",
               "to": "2025-06",
-              "label": "Rumo à 1.0"
+              "label": "Road to 1.0"
             }
           ],
-          "caption": "Datas do changelog; o texto de cada marco vem das atas."
+          "caption": "Dates from the changelog; each milestone's text comes from the notes."
         },
         {
           "type": "timeline",
           "id": "r",
-          "title": "Roteiro até o fim de 2026",
+          "title": "Roadmap to the end of 2026",
           "orientation": "horizontal",
           "width": 640,
           "events": [
             {
               "date": "2026-10",
-              "title": "Auditoria SOC 2",
-              "text": "janela de evidências aberta"
+              "title": "SOC 2 audit",
+              "text": "evidence window open"
             },
             {
               "date": "2026-11",
-              "title": "Exportação em lote",
-              "text": "CSV e Parquet"
+              "title": "Bulk export",
+              "text": "CSV and Parquet"
             },
             {
               "date": "2026-12",
               "title": "Plano Enterprise",
-              "text": "SSO e contratos anuais",
+              "text": "SSO and annual contracts",
               "kind": "milestone"
             },
             {
               "date": "2027-02",
-              "title": "Terceira região",
-              "text": "Ásia-Pacífico"
+              "title": "Third region",
+              "text": "Asia-Pacific"
             }
           ]
         }
       ],
       "annotations": [
-        "O reinício do frontend em 2024-07 não aparece no changelog público; vem da ata de 2024-06-28.",
-        "Datas futuras são compromissos do planejamento, não entregas."
+        "The 2024-07 frontend restart isn't in the public changelog; it comes from the 2024-06-28 notes.",
+        "Future dates are planning commitments, not deliveries."
       ]
     }
-  ]
+  ],
+  "lang": "en"
 }
 </script>
 
@@ -745,8 +746,9 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 (function () {
   'use strict';
   var SC = JSON.parse(document.getElementById('scene').textContent);
-  var LANG = String(SC.lang || document.documentElement.lang || 'pt').slice(0, 2).toLowerCase();
-  var EN = {"Colunas": "Columns", "Linhas": "Rows", "tabela · ": "table · ", " linhas": " rows", "Copiar texto": "Copy text", "Texto copiado": "Text copied", "Limpar seleção": "Clear selection", " (Líder)": " (Leader)", " abaixo": " below", " campos": " fields", " colunas": " columns", " conjuntos": " sets", " consequências abaixo": " consequences below", " critérios": " criteria", " elementos": " elements", " estágios": " stages", " eventos": " events", " itens": " items", " no total": " in total", " opções": " options", " pontos": " points", " tarefas": " tasks", "% de chance": "% chance", "% do anterior": "% of previous", "% do total ": "% of total ", "% entre mín e máx": "% between min and max", ". Clique para alternar.": ". Click to switch.", "A biblioteca de fluxo (d3-sankey) não carregou.": "The flow library (d3-sankey) did not load.", "A biblioteca de gráficos (d3) não carregou.": "The chart library (d3) did not load.", "A biblioteca de layout (elkjs) não carregou.": "The layout library (elkjs) did not load.", "Abaixo": "Below", "Abaixo do corte mínimo (": "Below the minimum cut (", "Abrir vista": "Open view", "Acima": "Above", "Ajuste os sliders para simular cenários": "Move the sliders to simulate scenarios", "Alternar tema": "Switch theme", "Análise de Decisão Multi-Critério": "Multi-criteria decision analysis", "Aponta para": "Points to", "Atenção": "Warning", "Avaliação específica": "Specific assessment", "Ações da ligação": "Link actions", "Ações do bloco": "Block actions", "Ações do canvas": "Canvas actions", "Ações do elemento": "Element actions", "Balanço": "Balance", "Banco de dados": "Database", "Barra: proporção ao maior valor da linha": "Bar: share of the largest value in the row", "Base": "Basis", "Baseado em documentação": "Based on documentation", "Buscar no desenho": "Search the drawing", "Calendário": "Calendar", "Caminho crítico": "Critical path", "Caminho crítico (vermelho)": "Critical path (red)", "Caminho de consequência": "Consequence path", "Caminho de erro": "Error path", "Campo de destino": "Target field", "Campo de origem": "Source field", "Campos": "Fields", "Caso base": "Base case", "Chamada síncrona": "Synchronous call", "Chave primária": "Primary key", "Chave estrangeira": "Foreign key", "Ciclo": "Cycle", "Claro": "Light", "Clique para inspecionar ": "Click to inspect ", "Clique para mostrar ou esconder": "Click to show or hide", "Comparação": "Comparison", "Componente": "Component", "Composição": "Composition", "Concluído": "Done", "Confiança": "Confidence", "Conforme documentação": "Per documentation", "Conjuntos": "Sets", "Consequência de ": "Consequence of ", "Consequências no caminho": "Consequences on path", "Conversão total": "Total conversion", "Cor indica o lado, força indica a distância de ": "Color shows the side, strength the distance from ", "Critério": "Criterion", "Critério de corte (veto)": "Cut-off criterion (veto)", "Critério de veto": "Veto criterion", "Critérios": "Criteria", "Critérios e Avaliação": "Criteria and scores", "Critérios e Pesos": "Criteria and weights", "Critérios ponderados": "Weighted criteria", "Da esquerda para a direita": "Left to right", "Da origem": "Of source", "Data": "Date", "Decisão": "Decision", "Dentro": "Inside", "Depende de": "Depends on", "Descrição": "Description", "Desde o início": "Since start", "Desde o anterior": "Since previous", "Desenho": "Drawing", "Diagrama": "Diagram", "Dispor da esquerda para a direita": "Lay out left to right", "Dispor de cima para baixo": "Lay out top to bottom", "Do destino": "Of target", "Do estágio anterior": "Of previous stage", "Do grupo": "Of group", "Do primeiro": "Of first", "Do total": "Of total", "Duração": "Duration", "Duração total": "Total duration", "Elemento": "Element", "Elementos": "Elements", "Em aberto": "Open", "Em comum": "Shared", "Em comum com ": "Shared with ", "Entra": "In", "Entrada total": "Total input", "Entidades": "Entities", "Esconder painel de detalhes": "Hide details panel", "Escuro": "Dark", "Espectro": "Spectrum", "Estágio ": "Stage ", "Estágios": "Stages", "Etapa": "Step", "Etapa ": "Step ", "Etapas": "Steps", "Evento": "Event", "Evento anotado": "Annotated event", "Evento assíncrono": "Async event", "Eventos": "Events", "Eventos anotados": "Annotated events", "Evidência": "Evidence", "Evidência / Nota": "Evidence / note", "Exportar PNG": "Export PNG", "Exportar SVG": "Export SVG", "Exportar bloco (PNG)": "Export block (PNG)", "Copiar link para este elemento": "Copy link to this element", "Link copiado": "Link copied", "Faixa": "Range", "Faixa escura: parte concluída": "Dark band: done", "Fila ou broker": "Queue or broker", "Fim": "End", "Fluxo": "Flow", "Fonte": "Source", "Funil": "Funnel", "Gráfico": "Chart", "Indicadores": "Indicators", "Interpretação": "Interpretation", "Interseção": "Intersection", "Interseções": "Intersections", "Início": "Start", "Ir para a origem": "Go to source", "Ir para o destino": "Go to target", "Isolar vizinhança": "Isolate neighborhood", "Itens": "Items", "Largura da faixa = valor": "Band width = value", "Ler como texto": "Read as text", "Libera": "Unblocks", "Lido no código": "Read in code", "Ligação": "Link", "Ligações": "Links", "Linha de referência": "Reference line", "Linha do tempo": "Timeline", "Linhas × colunas": "Rows × columns", "Líder / Recomendado": "Leader / recommended", "Líder atual": "Current leader", "Maior": "Largest", "Maior é melhor": "Higher is better", "Maiores": "Largest", "Maiores fluxos": "Largest flows", "Mais forte = maior valor": "Stronger = higher value", "Mapa": "Map", "Mapa de calor": "Heatmap", "Mapa mental": "Mind map", "Marca": "Milestone", "Marco": "Milestone", "Marcas": "Marks", "Matriz de Decisão": "Decision matrix", "Melhor em": "Best at", "Menor é melhor": "Lower is better", "Mesmo ponto, outras séries": "Same point, other series", "Modelo de dados": "Data model", "Mostrar painel de detalhes": "Show details panel", "Mostrar tudo": "Show all", "Mudanças": "Changes", "Máximo": "Max", "Média": "Mean", "Mínimo": "Min", "Na série": "In series", "Nada encontrado para \"": "Nothing found for \"", "Negrito: melhor da linha": "Bold: best in row", "Negrito: melhor do critério": "Bold: best on criterion", "Nesta vista": "In this view", "No ciclo": "In cycle", "Nota": "Note", "Nota mínima de corte": "Minimum cut-off score", "Não documentado": "Not documented", "Níveis": "Levels", "Nível": "Level", "Nível ": "Level ", "Novo": "New", "Alterado": "Changed", "Removido": "Removed", "Observações": "Notes", "Opcional (aceita nulo)": "Optional (nullable)", "Opção Recomendada (1º lugar)": "Recommended option (1st)", "Opções": "Options", "Opções avaliadas": "Options assessed", "Pacotes em movimento": "Packets in motion", "Para": "To", "Parte do total": "Share of total", "Partes": "Parts", "Período": "Period", "Períodos": "Periods", "Peso do critério": "Criterion weight", "Pirâmide": "Pyramid", "Ponto crítico": "Critical point", "Ponto de entrada": "Entry point", "Pontos críticos": "Critical points", "Pontuação": "Score", "Pontuação final": "Final score", "Por opção": "By option", "Por quadrante": "By quadrant", "Porta de 1 via": "One-way door", "Porta de 1 via (irreversível)": "One-way door (irreversible)", "Porta de 1 via: alto custo de reversão": "One-way door: costly to reverse", "Porta de 2 vias": "Two-way door", "Porta de 2 vias (reversível)": "Two-way door (reversible)", "Porta de 2 vias: reversível": "Two-way door: reversible", "Posição": "Position", "Posição no ranking": "Rank", "Premissa de pesos": "Weight basis", "Primeiro nível": "First level", "Proporção": "Share", "Quadrante": "Quadrant", "Ranking de Opções": "Option ranking", "Recebe de": "Receives from", "Recomendação": "Recommendation", "Referenciada por": "Referenced by", "Referências": "References", "Relação": "Relation", "Relações": "Relations", "Reproduzir passo a passo": "Play step by step", "Responsável": "Owner", "Risco": "Risk", "Sai": "Out", "Sai para": "Goes to", "Saída de erro": "Error exit", "Sem dado": "No data", "Sem dados.": "No data.", "Sem tarefas.": "No tasks.", "Sequência": "Sequence", "Série": "Series", "Séries": "Series", "Só aqui": "Only here", "Só neste conjunto": "Only in this set", "Tarefas": "Tasks", "Tem · traço: não tem": "Has · dash: does not", "Tema: ": "Theme: ", "Tendência": "Trend", "Texto": "Text", "Total": "Total", "Vai para": "Goes to", "Valor": "Value", "Valor bruto": "Raw value", "Valores": "Values", "Variação": "Change", "Variável": "Variable", "Vem de": "Comes from", "Ver detalhes": "See details", "Ver o desenho": "See the drawing", "Ver resumo do bloco": "Block summary", "Ver tudo de uma vez": "See everything at once", "Verificado no código": "Verified in code", "Violação de Corte (Vetada)": "Cut-off violation (vetoed)", "Violou cláusula de corte": "Violated cut-off", "Visão geral": "Overview", "Válido": "Valid", "Vídeo": "Video", "Vizinhos": "Neighbors", "abrir ›": "open ›", "barras": "bars", "barras empilhadas": "stacked bars", "calendário": "calendar", "ciclo · ": "cycle · ", "decisão · ": "decision · ", "depois de ": "after ", "desenho": "drawing", "destino": "target", "diagrama · ": "diagram · ", "dispersão": "scatter", "espectro": "spectrum", "fluxo": "flow", "frequência": "frequency", "funil": "funnel", "gráfico": "chart", "histograma": "histogram", "indicadores": "indicators", "linha": "line", "mapa de calor": "heatmap", "mapa mental": "mind map", "matriz · ": "matrix · ", "melhor em ": "best at ", "máximo": "max", "mínimo": "min", "nota": "note", "não": "no", "origem": "source", "pirâmide": "pyramid", "pontos": "points", "próxima": "next", "anterior": "previous", "quadrante": "quadrant", "referência": "reference", "rosca": "donut", "sim": "yes", "texto": "text", "total": "total", "venn · ": "venn · ", "área": "area", "árvore": "tree", "hoje": "today", "marco": "milestone", "modelo · ": "model · ", "cronograma · ": "schedule · ", " entidades": " entities", "Cronograma": "Schedule", "Inferido": "Inferred", "Desconhecido": "Unknown", "Verificado": "Verified", "Decidido": "Decided", "Sugerido": "Suggested", "Proposta": "Proposal", "Sistema externo": "External system", "Destaque": "Highlight", "Ok": "Ok", "Dados": "Data", "Fronteiras": "Boundaries", "Extremos": "Ends", "Passo": "Step", "Probabilidade": "Probability", "Caminhos": "Paths", "Alcance": "Reach", "Ordem/polaridade": "Order/polarity", "Raiz": "Root", "Calculando layout…": "Computing layout…", "O desenho falhou. Veja o console.": "Drawing failed. See the console.", "Anotações": "Annotations", "Legenda": "Legend", "Dias": "Days", "Escala": "Scale", "Grupos": "Groups", "Entradas": "Inputs", "Intervalo": "Range", "Ordem": "Order", "Campo": "Field", "Tipo": "Type", "opcional": "optional", "Eixo horizontal: ": "Horizontal axis: ", " · vertical: ": " · vertical: ", "Tarefa": "Task", "De": "From", "Baixo": "Low", "Alto": "High", "Parte": "Part", "Peso": "Weight", "Pesos: ": "Weights: ", "Outras": "Other", "novo": "new", "removido": "removed", "alterado": "changed", "Cardinalidade ": "Cardinality ", "Do orçamento": "Of budget", "Hoje (": "Today (", "Parar": "Stop", "Passo ": "Step ", " de ": " of ", "Abrir no editor": "Open in editor", "Inspecionar": "Inspect", "Notas": "Notes", "A biblioteca ": "The library ", " não carregou.": " did not load.", "Fórmula": "Formula", "Código": "Code", "Linha ": "Line ", "Linguagem": "Language", "Linhas": "Lines", "Destaques": "Highlights", "Linha com nota": "Line with a note", "Coordenadas": "Coordinates", "Área do ponto = valor": "Dot area = value", "Ponto": "Point", "Regiões com dado": "Regions with data", "de mapas": "for maps", "código": "code", "fórmula": "formula", "mapa": "map", "Região": "Region", "O desenho próprio falhou: ": "The custom drawing failed: ", "desenho próprio": "custom drawing"};
+  // interface language: the scene's lang, else the reader's browser (Portuguese stays Portuguese, everything else reads English)
+  var LANG = String(SC.lang || (/^pt/i.test(navigator.language || '') ? 'pt' : 'en')).slice(0, 2).toLowerCase();
+  var EN = {"1-way (irreversível)": "1-way (irreversible)", "º": "", " a favor · ": " for · ", " contra": " against", "% do caminho de \"": "% of the way from \"", "\" a \"": "\" to \"", "º de ": " of ", " (mais próximo de ": " (closest to ", "Queda (low)": "Drop (low)", "Alta (high)": "Rise (high)", "Critérios e Pesos": "Criteria and weights", "Pontuação ponderada": "Weighted score", "corte < ": "cut < ", "Líder (": "Leader (", ") sob veto": ") vetoed", "Líder: ": "Leader: ", " · Margem: +": " · Margin: +", " · Virada: ": " · Flips on: ", "A favor": "For", "Contra": "Against", "Colunas": "Columns", "Linhas": "Rows", "tabela · ": "table · ", " linhas": " rows", "Copiar texto": "Copy text", "Texto copiado": "Text copied", "Limpar seleção": "Clear selection", " (Líder)": " (Leader)", " abaixo": " below", " campos": " fields", " colunas": " columns", " conjuntos": " sets", " consequências abaixo": " consequences below", " critérios": " criteria", " elementos": " elements", " estágios": " stages", " eventos": " events", " itens": " items", " no total": " in total", " opções": " options", " pontos": " points", " tarefas": " tasks", "% de chance": "% chance", "% do anterior": "% of previous", "% do total ": "% of total ", "% entre mín e máx": "% between min and max", ". Clique para alternar.": ". Click to switch.", "A biblioteca de fluxo (d3-sankey) não carregou.": "The flow library (d3-sankey) did not load.", "A biblioteca de gráficos (d3) não carregou.": "The chart library (d3) did not load.", "A biblioteca de layout (elkjs) não carregou.": "The layout library (elkjs) did not load.", "Abaixo": "Below", "Abaixo do corte mínimo (": "Below the minimum cut (", "Abrir vista": "Open view", "Acima": "Above", "Ajuste os sliders para simular cenários": "Move the sliders to simulate scenarios", "Alternar tema": "Switch theme", "Análise de Decisão Multi-Critério": "Multi-criteria decision analysis", "Aponta para": "Points to", "Atenção": "Warning", "Avaliação específica": "Specific assessment", "Ações da ligação": "Link actions", "Ações do bloco": "Block actions", "Ações do canvas": "Canvas actions", "Ações do elemento": "Element actions", "Balanço": "Balance", "Banco de dados": "Database", "Barra: proporção ao maior valor da linha": "Bar: share of the largest value in the row", "Base": "Basis", "Baseado em documentação": "Based on documentation", "Buscar no desenho": "Search the drawing", "Calendário": "Calendar", "Caminho crítico": "Critical path", "Caminho crítico (vermelho)": "Critical path (red)", "Caminho de consequência": "Consequence path", "Caminho de erro": "Error path", "Campo de destino": "Target field", "Campo de origem": "Source field", "Campos": "Fields", "Caso base": "Base case", "Chamada síncrona": "Synchronous call", "Chave primária": "Primary key", "Chave estrangeira": "Foreign key", "Ciclo": "Cycle", "Claro": "Light", "Clique para inspecionar ": "Click to inspect ", "Clique para mostrar ou esconder": "Click to show or hide", "Comparação": "Comparison", "Componente": "Component", "Composição": "Composition", "Concluído": "Done", "Confiança": "Confidence", "Conforme documentação": "Per documentation", "Conjuntos": "Sets", "Consequência de ": "Consequence of ", "Consequências no caminho": "Consequences on path", "Conversão total": "Total conversion", "Cor indica o lado, força indica a distância de ": "Color shows the side, strength the distance from ", "Critério": "Criterion", "Critério de corte (veto)": "Cut-off criterion (veto)", "Critério de veto": "Veto criterion", "Critérios": "Criteria", "Critérios e Avaliação": "Criteria and scores", "Critérios e Pesos": "Criteria and weights", "Critérios ponderados": "Weighted criteria", "Da esquerda para a direita": "Left to right", "Da origem": "Of source", "Data": "Date", "Decisão": "Decision", "Dentro": "Inside", "Depende de": "Depends on", "Descrição": "Description", "Desde o início": "Since start", "Desde o anterior": "Since previous", "Desenho": "Drawing", "Diagrama": "Diagram", "Dispor da esquerda para a direita": "Lay out left to right", "Dispor de cima para baixo": "Lay out top to bottom", "Do destino": "Of target", "Do estágio anterior": "Of previous stage", "Do grupo": "Of group", "Do primeiro": "Of first", "Do total": "Of total", "Duração": "Duration", "Duração total": "Total duration", "Elemento": "Element", "Elementos": "Elements", "Em aberto": "Open", "Em comum": "Shared", "Em comum com ": "Shared with ", "Entra": "In", "Entrada total": "Total input", "Entidades": "Entities", "Esconder painel de detalhes": "Hide details panel", "Escuro": "Dark", "Espectro": "Spectrum", "Estágio ": "Stage ", "Estágios": "Stages", "Etapa": "Step", "Etapa ": "Step ", "Etapas": "Steps", "Evento": "Event", "Evento anotado": "Annotated event", "Evento assíncrono": "Async event", "Eventos": "Events", "Eventos anotados": "Annotated events", "Evidência": "Evidence", "Evidência / Nota": "Evidence / note", "Exportar PNG": "Export PNG", "Exportar SVG": "Export SVG", "Exportar bloco (PNG)": "Export block (PNG)", "Copiar link para este elemento": "Copy link to this element", "Link copiado": "Link copied", "Faixa": "Range", "Faixa escura: parte concluída": "Dark band: done", "Fila ou broker": "Queue or broker", "Fim": "End", "Fluxo": "Flow", "Fonte": "Source", "Funil": "Funnel", "Gráfico": "Chart", "Indicadores": "Indicators", "Interpretação": "Interpretation", "Interseção": "Intersection", "Interseções": "Intersections", "Início": "Start", "Ir para a origem": "Go to source", "Ir para o destino": "Go to target", "Isolar vizinhança": "Isolate neighborhood", "Itens": "Items", "Largura da faixa = valor": "Band width = value", "Ler como texto": "Read as text", "Libera": "Unblocks", "Lido no código": "Read in code", "Ligação": "Link", "Ligações": "Links", "Linha de referência": "Reference line", "Linha do tempo": "Timeline", "Linhas × colunas": "Rows × columns", "Líder / Recomendado": "Leader / recommended", "Líder atual": "Current leader", "Maior": "Largest", "Maior é melhor": "Higher is better", "Maiores": "Largest", "Maiores fluxos": "Largest flows", "Mais forte = maior valor": "Stronger = higher value", "Mapa": "Map", "Mapa de calor": "Heatmap", "Mapa mental": "Mind map", "Marca": "Milestone", "Marco": "Milestone", "Marcas": "Marks", "Matriz de Decisão": "Decision matrix", "Melhor em": "Best at", "Menor é melhor": "Lower is better", "Mesmo ponto, outras séries": "Same point, other series", "Modelo de dados": "Data model", "Mostrar painel de detalhes": "Show details panel", "Mostrar tudo": "Show all", "Mudanças": "Changes", "Máximo": "Max", "Média": "Mean", "Mínimo": "Min", "Na série": "In series", "Nada encontrado para \"": "Nothing found for \"", "Negrito: melhor da linha": "Bold: best in row", "Negrito: melhor do critério": "Bold: best on criterion", "Nesta vista": "In this view", "No ciclo": "In cycle", "Nota": "Note", "Nota mínima de corte": "Minimum cut-off score", "Não documentado": "Not documented", "Níveis": "Levels", "Nível": "Level", "Nível ": "Level ", "Novo": "New", "Alterado": "Changed", "Removido": "Removed", "Observações": "Notes", "Opcional (aceita nulo)": "Optional (nullable)", "Opção Recomendada (1º lugar)": "Recommended option (1st)", "Opções": "Options", "Opções avaliadas": "Options assessed", "Pacotes em movimento": "Packets in motion", "Para": "To", "Parte do total": "Share of total", "Partes": "Parts", "Período": "Period", "Períodos": "Periods", "Peso do critério": "Criterion weight", "Pirâmide": "Pyramid", "Ponto crítico": "Critical point", "Ponto de entrada": "Entry point", "Pontos críticos": "Critical points", "Pontuação": "Score", "Pontuação final": "Final score", "Por opção": "By option", "Por quadrante": "By quadrant", "Porta de 1 via": "One-way door", "Porta de 1 via (irreversível)": "One-way door (irreversible)", "Porta de 1 via: alto custo de reversão": "One-way door: costly to reverse", "Porta de 2 vias": "Two-way door", "Porta de 2 vias (reversível)": "Two-way door (reversible)", "Porta de 2 vias: reversível": "Two-way door: reversible", "Posição": "Position", "Posição no ranking": "Rank", "Premissa de pesos": "Weight basis", "Primeiro nível": "First level", "Proporção": "Share", "Quadrante": "Quadrant", "Ranking de Opções": "Option ranking", "Recebe de": "Receives from", "Recomendação": "Recommendation", "Referenciada por": "Referenced by", "Referências": "References", "Relação": "Relation", "Relações": "Relations", "Reproduzir passo a passo": "Play step by step", "Responsável": "Owner", "Risco": "Risk", "Sai": "Out", "Sai para": "Goes to", "Saída de erro": "Error exit", "Sem dado": "No data", "Sem dados.": "No data.", "Sem tarefas.": "No tasks.", "Sequência": "Sequence", "Série": "Series", "Séries": "Series", "Só aqui": "Only here", "Só neste conjunto": "Only in this set", "Tarefas": "Tasks", "Tem · traço: não tem": "Has · dash: does not", "Tema: ": "Theme: ", "Tendência": "Trend", "Texto": "Text", "Total": "Total", "Vai para": "Goes to", "Valor": "Value", "Valor bruto": "Raw value", "Valores": "Values", "Variação": "Change", "Variável": "Variable", "Vem de": "Comes from", "Ver detalhes": "See details", "Ver o desenho": "See the drawing", "Ver resumo do bloco": "Block summary", "Ver tudo de uma vez": "See everything at once", "Verificado no código": "Verified in code", "Violação de Corte (Vetada)": "Cut-off violation (vetoed)", "Violou cláusula de corte": "Violated cut-off", "Visão geral": "Overview", "Válido": "Valid", "Vídeo": "Video", "Vizinhos": "Neighbors", "abrir ›": "open ›", "barras": "bars", "barras empilhadas": "stacked bars", "calendário": "calendar", "ciclo · ": "cycle · ", "decisão · ": "decision · ", "depois de ": "after ", "desenho": "drawing", "destino": "target", "diagrama · ": "diagram · ", "dispersão": "scatter", "espectro": "spectrum", "fluxo": "flow", "frequência": "frequency", "funil": "funnel", "gráfico": "chart", "histograma": "histogram", "indicadores": "indicators", "linha": "line", "mapa de calor": "heatmap", "mapa mental": "mind map", "matriz · ": "matrix · ", "melhor em ": "best at ", "máximo": "max", "mínimo": "min", "nota": "note", "não": "no", "origem": "source", "pirâmide": "pyramid", "pontos": "points", "próxima": "next", "anterior": "previous", "quadrante": "quadrant", "referência": "reference", "rosca": "donut", "sim": "yes", "texto": "text", "total": "total", "venn · ": "venn · ", "área": "area", "árvore": "tree", "hoje": "today", "marco": "milestone", "modelo · ": "model · ", "cronograma · ": "schedule · ", " entidades": " entities", "Cronograma": "Schedule", "Inferido": "Inferred", "Desconhecido": "Unknown", "Verificado": "Verified", "Decidido": "Decided", "Sugerido": "Suggested", "Proposta": "Proposal", "Sistema externo": "External system", "Destaque": "Highlight", "Ok": "Ok", "Dados": "Data", "Fronteiras": "Boundaries", "Extremos": "Ends", "Passo": "Step", "Probabilidade": "Probability", "Caminhos": "Paths", "Alcance": "Reach", "Ordem/polaridade": "Order/polarity", "Raiz": "Root", "Calculando layout…": "Computing layout…", "O desenho falhou. Veja o console.": "Drawing failed. See the console.", "Anotações": "Annotations", "Legenda": "Legend", "Dias": "Days", "Escala": "Scale", "Grupos": "Groups", "Entradas": "Inputs", "Intervalo": "Range", "Ordem": "Order", "Campo": "Field", "Tipo": "Type", "opcional": "optional", "Eixo horizontal: ": "Horizontal axis: ", " · vertical: ": " · vertical: ", "Tarefa": "Task", "De": "From", "Baixo": "Low", "Alto": "High", "Parte": "Part", "Peso": "Weight", "Pesos: ": "Weights: ", "Outras": "Other", "novo": "new", "removido": "removed", "alterado": "changed", "Cardinalidade ": "Cardinality ", "Do orçamento": "Of budget", "Hoje (": "Today (", "Parar": "Stop", "Passo ": "Step ", " de ": " of ", "Abrir no editor": "Open in editor", "Inspecionar": "Inspect", "Notas": "Notes", "A biblioteca ": "The library ", " não carregou.": " did not load.", "Fórmula": "Formula", "Código": "Code", "Linha ": "Line ", "Linguagem": "Language", "Linhas": "Lines", "Destaques": "Highlights", "Linha com nota": "Line with a note", "Coordenadas": "Coordinates", "Área do ponto = valor": "Dot area = value", "Ponto": "Point", "Regiões com dado": "Regions with data", "de mapas": "for maps", "código": "code", "fórmula": "formula", "mapa": "map", "Região": "Region", "O desenho próprio falhou: ": "The custom drawing failed: ", "desenho próprio": "custom drawing"};
   function T(s) { return LANG === 'en' && EN[s] != null ? EN[s] : s; }
   var views = SC.views || [Object.assign({ id: 'main', title: SC.title }, SC)];
   var root = document.documentElement, SVG = 'http://www.w3.org/2000/svg';
@@ -866,7 +868,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   function clearSel() { world.querySelectorAll('.sel').forEach(function (x) { x.classList.remove('sel'); }); world.querySelectorAll('.lit-dim, .lit-on').forEach(function (x) { x.classList.remove('lit-dim', 'lit-on'); }); (current && current.blocks || []).forEach(function (b) { b._lit = null; }); selectedNode = null; }
   function bindSelect(node, infoFn) { node.addEventListener('click', function (ev) { ev.stopPropagation(); if (dragMoved() || ev.altKey) return; clearSel(); node.classList.add('sel'); selectedNode = node; showInfo(typeof infoFn === 'function' ? infoFn() : infoFn); hashSet(node); }); node.setAttribute('tabindex', '0'); node.setAttribute('role', 'button'); node.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); node.dispatchEvent(new MouseEvent('click', { bubbles: true })); } }); }
   // sources read as short names (the last meaningful part of a path or URL); the full value stays in the link and its title
-  function srcShort(x) { var t = String(x).replace(/^https?:\/\//, '').replace(/[?#].*$/, '').replace(/\/+$/, ''), parts = t.split(/[\/:]/).filter(Boolean), last = parts[parts.length - 1] || t; if (parts.length === 1) return last; return /^\d+$/.test(last) ? parts.slice(-2).join('/') : last; }
+  function srcShort(x) { if (!/^https?:\/\//.test(String(x)) && /\s/.test(String(x))) return String(x); var t = String(x).replace(/^https?:\/\//, '').replace(/[?#].*$/, '').replace(/\/+$/, ''), parts = t.split(/[\/:]/).filter(Boolean), last = parts[parts.length - 1] || t; if (parts.length === 1) return last; return /^\d+$/.test(last) ? parts.slice(-2).join('/') : last; }
   function sourcesHtml(src) { var list = (Array.isArray(src) ? src : [src]).map(function (x) { var u = /^https?:\/\//.test(x), lb = esc(srcShort(x)); return '<span class="src">' + (u ? '<a href="' + esc(x) + '" title="' + esc(x) + '" target="_blank" rel="noopener">' + lb + '</a>' : '<span title="' + esc(x) + '">' + lb + '</span>') + '</span>'; }); return list.length > 3 ? list.slice(0, 2).join('') + '<details class="src-more"><summary>' + T('mais ') + (list.length - 2) + '</summary>' + list.slice(2).join('') + '</details>' : list.join(''); }
   function summaryInfo() {
     var v = current, isFirst = v === views[0];
@@ -941,8 +943,8 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       var info = function () { return { crumb: b.title || 'Sensibilidade', title: s.name, sub: 'amplitude ' + withUnit(s.high - s.low, unit), kv: [[T('Caso base'), withUnit(baseVal, unit) + (baseLabel ? ' · ' + baseLabel : '')], ['Queda', withUnit(s.low, unit) + ' (' + deltaStr(baseVal, s.low, unit) + ')'], ['Alta', withUnit(s.high, unit) + ' (' + deltaStr(baseVal, s.high, unit) + ')']], sections: [] }; };
       bindSelect(rl, info); bindSelect(rr, info);
     });
-    legendAdd(T('Variação'), 'low', { sw: 'fill s2', label: 'Queda (low)' });
-    legendAdd(T('Variação'), 'high', { sw: 'fill s1', label: 'Alta (high)' });
+    legendAdd(T('Variação'), 'low', { sw: 'fill s2', label: T('Queda (low)') });
+    legendAdd(T('Variação'), 'high', { sw: 'fill s1', label: T('Alta (high)') });
     if (gb) gb._info = function () { return { title: b.title || 'Sensibilidade', sub: b.caption || '', kv: [[T('Caso base'), withUnit(baseVal, unit) + (baseLabel ? ' · ' + baseLabel : '')], ['Fator determinante', series.length ? series[0].name + ' (amplitude ' + withUnit(series[0].high - series[0].low, unit) + ')' : '—']], sections: [{ label: 'Fatores por amplitude', rows: series.map(function (s) { return { sw: 'fill s1', b: s.name, d: (s.lowLabel || withUnit(s.low, unit)) + ' … ' + (s.highLabel || withUnit(s.high, unit)), v: '±' + withUnit(Math.max(baseVal - s.low, s.high - baseVal), unit) }; }) }] }; };
     return { w: w, h: h + 6 };
   }
@@ -1137,7 +1139,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     rows.forEach(function (r) { var nums = r.cells.map(function (c) { var v = cellValue(c).value; return typeof v === 'number' ? v : null; }), has = nums.filter(function (n) { return n != null; }); var bestv = has.length && r.best ? (r.best === 'min' ? Math.min.apply(null, has) : Math.max.apply(null, has)) : null; var strBest = typeof r.best === 'number' ? r.best : null; r._best = r.cells.map(function (c, i) { var v = cellValue(c).value; return (bestv != null && v === bestv) || (strBest === i); }); r._best.forEach(function (bb, i) { if (bb) wins[i]++; }); });
     if (!b.cellWidth && b.stack !== false && totalW > aw) return drawMatrixStacked(b, g, gb, cols, rows, wins);
     var anchor = function (i) { return kinds[i] === 'num' ? ['end', xs[i] + widths[i] - 10] : kinds[i] === 'bool' ? ['middle', xs[i] + widths[i] / 2] : ['start', xs[i] + 10]; };
-    cols.forEach(function (c, i) { var a = anchor(i), hit = el('rect', { 'class': 'col-hit', x: xs[i], y: -2, width: widths[i], height: hh + 2, rx: 6 }, g); txt(g, a[1], 14, c.label, 'nm b', a[0]); if (c.sub) txt(g, a[1], 28, c.sub, 'xs muted', a[0]); if (wins[i] && b.best !== false) txt(g, a[1], hasSub ? 42 : 28, T('melhor em ') + wins[i] + (rows.length ? ' de ' + rows.length : ''), 'xs muted', a[0]);
+    cols.forEach(function (c, i) { var a = anchor(i), hit = el('rect', { 'class': 'col-hit', x: xs[i], y: -2, width: widths[i], height: hh + 2, rx: 6 }, g); txt(g, a[1], 14, c.label, 'nm b', a[0]); if (c.sub) txt(g, a[1], 28, c.sub, 'xs muted', a[0]); if (wins[i] && b.best !== false) txt(g, a[1], hasSub ? 42 : 28, T('melhor em ') + wins[i] + (rows.length ? T(' de ') + rows.length : ''), 'xs muted', a[0]);
       bindSelect(hit, function () { return { crumb: b.title || T('Comparação'), title: c.label, sub: c.sub || '', kv: [wins[i] ? [T('Melhor em'), wins[i] + T(' de ') + rows.length + T(' critérios'), 'ui'] : null].filter(Boolean), sections: [{ label: T('Critérios'), rows: rows.map(function (r) { var o = cellValue(r.cells[i]); return { b: r.label, d: o.note || '', v: cellText(o, r), vcls: r._best[i] ? 'best' : '' }; }) }, c.text ? { prose: c.text } : null] }; }); });
     var y = hh + 4; el('line', { 'class': 'hair-strong', x1: 0, x2: totalW, y1: y - 4, y2: y - 4 }, g);
     var collapsed = b._collapsed || (b._collapsed = {}), counts = {}; rows.forEach(function (r) { if (r.group) counts[r.group] = (counts[r.group] || 0) + 1; });
@@ -1191,7 +1193,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       if (i) el('line', { 'class': 'hair-strong', x1: 0, x2: w, y1: y - 14, y2: y - 14 }, g);
       txt(hg, 0, y + 14, c.label, 'h it-title'); var hy = y + 20;
       if (c.sub) { txt(hg, 0, hy + 12, c.sub, 'xs muted'); hy += 16; }
-      if (wins[i] && b.best !== false) txt(hg, w, y + 14, T('melhor em ') + wins[i] + ' de ' + rows.length, 'xs accent', 'end');
+      if (wins[i] && b.best !== false) txt(hg, w, y + 14, T('melhor em ') + wins[i] + T(' de ') + rows.length, 'xs accent', 'end');
       y = hy + 8;
       rows.forEach(function (r) {
         var c0 = r.cells[i], o = (c0 && typeof c0 === 'object') ? c0 : { value: c0 }, v = o.value, isBest = r._best[i], cy = y + rh / 2;
@@ -1296,7 +1298,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 
     var thCrit = document.createElement('th');
     thCrit.style.width = critColW + 'px';
-    thCrit.innerHTML = '<div style="font-size:var(--fs-md); font-weight:600; color:var(--fg);">Critérios &amp; Pesos</div>' +
+    thCrit.innerHTML = '<div style="font-size:var(--fs-md); font-weight:600; color:var(--fg);">' + T('Critérios e Pesos') + '</div>' +
       '<div style="font-size:var(--fs-xs); color:var(--fg-muted); font-weight:400; margin-top:2px;">' +
       esc(b.weightBasis || T('Ajuste os sliders para simular cenários')) + '</div>';
     trHead.appendChild(thCrit);
@@ -1343,7 +1345,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     trSum.className = 'summary-row';
 
     var tdSumCrit = document.createElement('td');
-    tdSumCrit.innerHTML = '<div><b style="font-size:var(--fs-md); color:var(--fg);">Pontuação Ponderada</b></div>' +
+    tdSumCrit.innerHTML = '<div><b style="font-size:var(--fs-md); color:var(--fg);">' + T('Pontuação ponderada') + '</b></div>' +
       '<div class="vt-dec-sens" id="sens_' + esc(b.id) + '"></div>';
     trSum.appendChild(tdSumCrit);
 
@@ -1362,7 +1364,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 
       td.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">' +
         '<span class="vt-dec-rank-badge' + (isLead ? ' lead' : '') + (isVeto ? ' vetoed' : '') + '" data-rank="' + esc(opt.id) + '">' +
-        (isVeto ? 'VETO' : rk + 'º') + '</span>' +
+        (isVeto ? 'VETO' : rk + T('º')) + '</span>' +
         '<span style="font-family:var(--font-data); font-weight:600; font-size:var(--fs-md);" data-score="' + esc(opt.id) + '">' +
         fmtFull(s, 1) + '</span>' +
         '</div>' +
@@ -1388,7 +1390,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       tr.dataset.crit = c.id;
 
       var tdCrit = document.createElement('td');
-      var vetoBadge = c.vetoBelow != null ? '<span class="vt-dec-veto">corte &lt; ' + c.vetoBelow + '</span>' : '';
+      var vetoBadge = c.vetoBelow != null ? '<span class="vt-dec-veto">' + T('corte < ').replace('<', '&lt;') + c.vetoBelow + '</span>' : '';
       tdCrit.innerHTML = '<div class="vt-dec-crit-label"><b>' + esc(c.label) + '</b>' + vetoBadge + '</div>' +
         '<div class="vt-dec-crit-ctrl">' +
         '<input type="range" min="0" max="100" value="' + (c.weight != null ? c.weight : 50) + '" class="vt-dec-slider" data-crit-slider="' + esc(c.id) + '" title="Ajuste o peso de ' + esc(c.label) + '" />' +
@@ -1455,16 +1457,16 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       var ru = rk.runnerUp;
       if (!ld) return;
       if (calc.vetoes[ld.id]) {
-        sensEl.innerHTML = '<span style="color:var(--danger); font-weight:600;">⚠️ Líder (' + esc(ld.label) + ') sob veto</span>';
+        sensEl.innerHTML = '<span style="color:var(--danger); font-weight:600;">' + T('Líder (') + esc(ld.label) + T(') sob veto') + '</span>';
         return;
       }
       var ldScore = calc.scores[ld.id];
       var ruScore = ru ? calc.scores[ru.id] : 0;
       var diff = ldScore - ruScore;
-      var txt = 'Líder: <b class="vt-dec-sens-tag">' + esc(ld.label) + '</b> (' + fmtFull(ldScore, 1) + ' pts)';
+      var txt = T('Líder: ') + '<b class="vt-dec-sens-tag">' + esc(ld.label) + '</b> (' + fmtFull(ldScore, 1) + ' pts)';
       if (ru) {
         if (diff > 0.05) {
-          txt += ' · Margem: +' + fmtFull(diff, 1) + ' vs ' + esc(ru.label);
+          txt += T(' · Margem: +') + fmtFull(diff, 1) + ' vs ' + esc(ru.label);
         } else {
           txt += ' · <span style="color:var(--warn); font-weight:500;">Empate técnico com ' + esc(ru.label) + '</span>';
         }
@@ -1482,7 +1484,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
           }
         });
         if (bestShiftCrit) {
-          txt += ' · Virada: <i>' + esc(bestShiftCrit.label) + '</i>';
+          txt += T(' · Virada: ') + '<i>' + esc(bestShiftCrit.label) + '</i>';
         }
       }
       sensEl.innerHTML = txt;
@@ -1522,7 +1524,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 
           var rkEl = container.querySelector('[data-rank="' + opt.id + '"]');
           if (rkEl) {
-            rkEl.textContent = isV ? 'VETO' : rk + 'º';
+            rkEl.textContent = isV ? 'VETO' : rk + T('º');
             rkEl.classList.toggle('lead', isLd);
             rkEl.classList.toggle('vetoed', isV);
           }
@@ -1644,7 +1646,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
           return {
             b: c.label,
             code: 'peso ' + (curW[c.id] != null ? curW[c.id] : c.weight),
-            d: (c.vetoBelow != null ? 'corte < ' + c.vetoBelow : '') + (c.unit ? ' · ' + c.unit : ''),
+            d: (c.vetoBelow != null ? T('corte < ') + c.vetoBelow : '') + (c.unit ? ' · ' + c.unit : ''),
             v: (curW[c.id] != null ? curW[c.id] : c.weight) + ''
           };
         });
@@ -1671,7 +1673,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
         legendAdd(T('Decisão'), 'veto', { sw: 'glyph|✕', label: T('Critério de corte (veto)') });
       }
       if (opts.some(function (o) { return o.reversibility === 'one-way'; })) {
-        legendAdd(T('Decisão'), 'rev1', { sw: 'node k-warn', label: '1-way (irreversível)' });
+        legendAdd(T('Decisão'), 'rev1', { sw: 'node k-warn', label: T('1-way (irreversível)') });
       }
     }
 
@@ -1699,10 +1701,10 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       pts.forEach(function (o) { var k = o.kind === 'pro' ? 'pro' : o.kind === 'con' ? 'con' : 'neu'; txt(ig, 2, y + 11, k === 'pro' ? '+' : k === 'con' ? '−' : '·', 'b ' + k, 'middle').setAttribute('style', 'font-size:13px'); y += para(ig, 14, y + 11, o.text, F.sm, 'small', cw - 22, 15) + 5; });
       if (!pts.length && it.text) para(ig, 0, y + 11, it.text, F.sm, 'small muted', cw - 4, 15);
       var pros = pts.filter(function (p) { return p.kind === 'pro'; }), cons = pts.filter(function (p) { return p.kind === 'con'; }), neu = pts.filter(function (p) { return p.kind !== 'pro' && p.kind !== 'con'; });
-      bindSelect(ig, function () { return { crumb: b.title || T('Comparação'), title: it.title, sub: it.meta || '', file: it.file || '', kv: [pros.length || cons.length ? [T('Balanço'), pros.length + ' a favor · ' + cons.length + ' contra', 'ui'] : null].filter(Boolean), sections: [pros.length ? { label: 'A favor', rows: pros.map(function (p) { return { pt: 'pro', b: p.text, d: p.detail || '' }; }) } : null, cons.length ? { label: 'Contra', rows: cons.map(function (p) { return { pt: 'con', b: p.text, d: p.detail || '' }; }) } : null, neu.length ? { label: T('Observações'), rows: neu.map(function (p) { return { pt: 'neu', b: p.text, d: p.detail || '' }; }) } : null, it.text && pts.length ? { prose: it.text } : null, it.detail ? { prose: it.detail } : null] }; });
+      bindSelect(ig, function () { return { crumb: b.title || T('Comparação'), title: it.title, sub: it.meta || '', file: it.file || '', kv: [pros.length || cons.length ? [T('Balanço'), pros.length + T(' a favor · ') + cons.length + T(' contra'), 'ui'] : null].filter(Boolean), sections: [pros.length ? { label: T('A favor'), rows: pros.map(function (p) { return { pt: 'pro', b: p.text, d: p.detail || '' }; }) } : null, cons.length ? { label: T('Contra'), rows: cons.map(function (p) { return { pt: 'con', b: p.text, d: p.detail || '' }; }) } : null, neu.length ? { label: T('Observações'), rows: neu.map(function (p) { return { pt: 'neu', b: p.text, d: p.detail || '' }; }) } : null, it.text && pts.length ? { prose: it.text } : null, it.detail ? { prose: it.detail } : null] }; });
     });
-    if (items.some(function (it) { return (it.points || []).some(function (p) { return p.kind === 'pro'; }); })) legendAdd(T('Marcas'), 'pro', { sw: 'glyph|+', label: 'A favor' });
-    if (items.some(function (it) { return (it.points || []).some(function (p) { return p.kind === 'con'; }); })) legendAdd(T('Marcas'), 'con', { sw: 'glyph|−', label: 'Contra' });
+    if (items.some(function (it) { return (it.points || []).some(function (p) { return p.kind === 'pro'; }); })) legendAdd(T('Marcas'), 'pro', { sw: 'glyph|+', label: T('A favor') });
+    if (items.some(function (it) { return (it.points || []).some(function (p) { return p.kind === 'con'; }); })) legendAdd(T('Marcas'), 'con', { sw: 'glyph|−', label: T('Contra') });
     if (gb) gb._info = function () { return { title: b.title || T('Comparação'), sub: b.caption || '', sections: [{ label: T('Opções'), rows: items.map(function (it, i) { var pts = (it.points || []).map(function (p) { return typeof p === 'string' ? { text: p } : p; }); return { b: it.title, d: it.meta || '', v: pts.length ? pts.filter(function (p) { return p.kind === 'pro'; }).length + ' / ' + pts.filter(function (p) { return p.kind === 'con'; }).length : '', onclick: function () { clickItem(gb, i); } }; }) }] }; };
     return { w: Math.min(perRow, items.length) * (cw + gap) - gap, h: yy - gap };
   }
@@ -1740,7 +1742,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     var tms = items.map(function (it) { return wrap(it.title || '', F.nm, sw - 44) || ['']; });
     var hs = items.map(function (it, i) { return 30 + tms[i].length * 15 + (it.text ? wrap(it.text, F.xs, sw - 24).length * 13 : 0); }), H = Math.max.apply(null, hs), ys = [], acc = 0; hs.forEach(function (h) { ys.push(acc); acc += h + gap; });
     items.forEach(function (it, i) { var hh = vert ? hs[i] : H, ig = el('g', { 'class': 'item nd', transform: vert ? 'translate(0 ' + ys[i] + ')' : 'translate(' + (i * (sw + gap)) + ' 0)', 'data-i': i }, g); el('rect', { x: 0, y: 0, width: sw, height: hh, rx: 12, 'class': 'n-fill-' + (it.kind || 'plain') }, ig); if (it.detail) hitTip(ig, function () { return '<div class="t">' + esc(it.title) + '</div><div class="w">' + esc(brief(it.detail)) + '</div>'; }); txt(ig, 12, 20, (i + 1) + '', 'mono muted'); var ty = 20; tms[i].forEach(function (l) { txt(ig, 30, ty, l, 'nm b'); ty += 15; }); if (it.text) para(ig, 12, ty + 6, it.text, F.xs, 'xs muted', sw - 24, 13); if (i < items.length - 1) el('path', { 'class': 'ed plain', d: vert ? 'M' + (sw / 2) + ' ' + (hh + 4) + ' V' + (hh + gap - 6) : 'M' + (sw + 4) + ' ' + (H / 2) + ' H' + (sw + gap - 6) }, ig);
-      bindSelect(ig, function () { var prev = items[i - 1], next = items[i + 1]; return { crumb: b.title || T('Etapas'), title: it.title, sub: T('Etapa ') + (i + 1) + ' de ' + items.length, tags: it.kind && KIND_L[it.kind] && it.kind !== 'plain' ? [{ text: KIND_L[it.kind] }] : [], sections: [it.text ? { prose: it.text } : null, it.detail ? { label: 'Detalhe', prose: it.detail } : null, { label: T('Sequência'), rows: [prev ? { b: prev.title, d: T('anterior'), onclick: function () { clickItem(gb, i - 1); } } : null, next ? { b: next.title, d: T('próxima'), onclick: function () { clickItem(gb, i + 1); } } : null].filter(Boolean) }] }; }); });
+      bindSelect(ig, function () { var prev = items[i - 1], next = items[i + 1]; return { crumb: b.title || T('Etapas'), title: it.title, sub: T('Etapa ') + (i + 1) + T(' de ') + items.length, tags: it.kind && KIND_L[it.kind] && it.kind !== 'plain' ? [{ text: KIND_L[it.kind] }] : [], sections: [it.text ? { prose: it.text } : null, it.detail ? { label: 'Detalhe', prose: it.detail } : null, { label: T('Sequência'), rows: [prev ? { b: prev.title, d: T('anterior'), onclick: function () { clickItem(gb, i - 1); } } : null, next ? { b: next.title, d: T('próxima'), onclick: function () { clickItem(gb, i + 1); } } : null].filter(Boolean) }] }; }); });
     if (gb) gb._info = function () { return { title: b.title || T('Etapas'), sub: b.caption || '', kv: [[T('Etapas'), items.length + '']], sections: [{ label: T('Sequência'), rows: items.map(function (it, i) { return { b: it.title, code: (i + 1) + '', onclick: function () { clickItem(gb, i); } }; }) }] }; };
     return vert ? { w: sw, h: acc - gap } : { w: items.length * (sw + gap) - gap, h: H };
   }
@@ -1789,7 +1791,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     var poleWrap = W(lo, F.sm) + W(hi, F.sm) + 24 > w - 32; txt(g, 16, y + 22, lo, 'small muted'); txt(g, w - 16, y + (poleWrap ? 38 : 22), hi, 'small muted', 'end');
     var lastX = -1e9, row = 0, maxRow = 0;
     items.forEach(function (it, k) { var x = X(it.value); row = (x - lastX < W(it.label, F.sm) + 12) ? row + 1 : 0; maxRow = Math.max(maxRow, row); lastX = x; var ty = y - 16 - row * 16, ig = el('g', { 'class': 'item nd', 'data-i': it._i }, g); el('circle', { cx: x, cy: y, r: 5, 'class': 'mk-dot ' + (it.cls || 's1') }, ig); el('line', { 'class': 'hair-strong', x1: x, x2: x, y1: y - 7, y2: ty + 4 }, ig); txt(ig, x, ty, it.label, 'small', 'middle'); el('rect', { 'class': 'hit', x: x - W(it.label, F.sm) / 2 - 6, y: ty - 12, width: W(it.label, F.sm) + 12, height: y - ty + 20 }, ig);
-      bindSelect(ig, function () { return { crumb: b.title || T('Espectro'), title: it.label, sub: it.text || '', kv: [[T('Posição'), fmtFull(Math.round(it.value * 100)) + '% do caminho de "' + lo + '" a "' + hi + '"', 'ui'], [T('Ordem'), (k + 1) + 'º de ' + items.length + (k === 0 ? ' (mais próximo de ' + lo + ')' : k === items.length - 1 ? ' (mais próximo de ' + hi + ')' : ''), 'ui']], sections: [it.detail ? { prose: it.detail } : null] }; }); });
+      bindSelect(ig, function () { return { crumb: b.title || T('Espectro'), title: it.label, sub: it.text || '', kv: [[T('Posição'), fmtFull(Math.round(it.value * 100)) + T('% do caminho de "') + lo + T('" a "') + hi + '"', 'ui'], [T('Ordem'), (k + 1) + T('º de ') + items.length + (k === 0 ? T(' (mais próximo de ') + lo + ')' : k === items.length - 1 ? T(' (mais próximo de ') + hi + ')' : ''), 'ui']], sections: [it.detail ? { prose: it.detail } : null] }; }); });
     if (gb) gb._info = function () { return { title: b.title || T('Espectro'), sub: b.caption || '', kv: [[T('Extremos'), lo + ' → ' + hi, 'ui']], sections: [{ label: T('Da esquerda para a direita'), rows: items.map(function (it) { return { b: it.label, d: it.text || '', v: fmtFull(Math.round(it.value * 100)) + '%', onclick: function () { clickItem(gb, it._i); } }; }) }] }; };
     return { w: w, h: y + (poleWrap ? 48 : 32), y0: -maxRow * 16 };
   }
@@ -1799,7 +1801,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     var items = (b.items || []).map(function (it) { return typeof it === 'string' ? { label: it } : it; }), n = items.length, bw = Math.min(220, Math.max(150, Math.max.apply(null, items.map(function (it) { return W(it.label || '', F.nm); }).concat([0])) + 48)), tls = items.map(function (it) { return it.text ? wrap(it.text, F.xs, bw - 20).slice(0, 2) : []; }), nl = Math.max.apply(null, tls.map(function (l) { return l.length; }).concat([0])), bh = nl ? 34 + nl * 13 : 40, R = b.radius || Math.max(Math.max(bh * n / Math.PI, bw * 0.75), Math.min(Math.max(120, n * (bw + 48) / (2 * Math.PI) * 1.45), (availW() - bw - 16) / 2)), cx = R + bw / 2 + 8, cy = R + bh / 2 + 8;
     var exitAngle = function (a) { var t = 0; while (t < Math.PI / n) { t += 0.004; var dx = Math.abs(R * Math.cos(a + t) - R * Math.cos(a)), dy = Math.abs(R * Math.sin(a + t) - R * Math.sin(a)); if (dx > bw / 2 + 5 || dy > bh / 2 + 5) return t; } return Math.PI / n; };
     items.forEach(function (it, i) { var a = -Math.PI / 2 + i / n * Math.PI * 2, a2 = -Math.PI / 2 + (i + 1) / n * Math.PI * 2, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a), ga = exitAngle(a), gb2 = exitAngle(a2 + Math.PI) ; gb2 = (function () { var t = 0; while (t < Math.PI / n) { t += 0.004; var dx = Math.abs(R * Math.cos(a2 - t) - R * Math.cos(a2)), dy = Math.abs(R * Math.sin(a2 - t) - R * Math.sin(a2)); if (dx > bw / 2 + 9 || dy > bh / 2 + 9) return t; } return Math.PI / n; })(); if (a2 - gb2 > a + ga) { var p0 = [cx + R * Math.cos(a + ga), cy + R * Math.sin(a + ga)], p1 = [cx + R * Math.cos(a2 - gb2), cy + R * Math.sin(a2 - gb2)]; el('path', { 'class': 'ed accent', d: 'M' + p0[0].toFixed(1) + ' ' + p0[1].toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1) }, g); } var ig = el('g', { 'class': 'item nd', transform: 'translate(' + (x - bw / 2) + ' ' + (y - bh / 2) + ')', 'data-i': i }, g); el('rect', { x: 0, y: 0, width: bw, height: bh, rx: 10, 'class': 'n-fill-' + (it.kind || 'component') }, ig); var ly = nl ? 20 : bh / 2 + 4; txt(ig, 12, ly, (i + 1) + '', 'mono muted'); txt(ig, bw / 2 + 6, ly, it.label, 'nm b', 'middle'); tls[i].forEach(function (l, k) { txt(ig, bw / 2, 36 + k * 13, l, 'xs muted', 'middle'); });
-      bindSelect(ig, function () { var nx = items[(i + 1) % n], pv = items[(i + n - 1) % n]; return { crumb: b.title || T('Ciclo'), title: it.label, sub: T('Estágio ') + (i + 1) + ' de ' + n, sections: [it.text ? { prose: it.text } : null, it.detail ? { label: 'Detalhe', prose: it.detail } : null, { label: T('No ciclo'), rows: [{ b: pv.label, d: 'vem antes', onclick: function () { clickItem(gb, (i + n - 1) % n); } }, { b: nx.label, d: 'vem depois', onclick: function () { clickItem(gb, (i + 1) % n); } }] }] }; }); });
+      bindSelect(ig, function () { var nx = items[(i + 1) % n], pv = items[(i + n - 1) % n]; return { crumb: b.title || T('Ciclo'), title: it.label, sub: T('Estágio ') + (i + 1) + T(' de ') + n, sections: [it.text ? { prose: it.text } : null, it.detail ? { label: 'Detalhe', prose: it.detail } : null, { label: T('No ciclo'), rows: [{ b: pv.label, d: 'vem antes', onclick: function () { clickItem(gb, (i + n - 1) % n); } }, { b: nx.label, d: 'vem depois', onclick: function () { clickItem(gb, (i + 1) % n); } }] }] }; }); });
     if (gb) gb._info = function () { return { title: b.title || T('Ciclo'), sub: b.caption || '', kv: [[T('Estágios'), n + '']], sections: [{ label: T('Ordem'), rows: items.map(function (it, i) { return { b: it.label, code: (i + 1) + '', onclick: function () { clickItem(gb, i); } }; }) }] }; };
     return { w: 2 * R + bw + 16, h: 2 * R + bh + 32, y0: -12 };
   }
@@ -2172,7 +2174,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       hl.forEach(function (x) { var i = x.line - first; if (i < 0 || i >= lines.length) return; el('rect', { 'class': 'vt-code-hl', x: 1, y: pad + offs[i] * lh, width: w - 2, height: rows[i] * lh }, g); });
       foreign(g, 0, pad, w, acc0 * lh, '<div class="ln">' + lines.map(function (_, i) { return '<span style="height:' + rows[i] * lh + 'px"' + (hlAt[first + i] ? ' class="on"' : '') + '>' + (first + i) + '</span>'; }).join('') + '</div><pre style="margin-left:' + gutter + 'px;white-space:pre-wrap;word-break:break-all;width:' + (cpl * cw0 + 2) + 'px"><code class="hljs">' + code + '</code></pre>', 'vt-code');
       hl.forEach(function (x) { var i = x.line - first; if (i < 0 || i >= lines.length || !x.note) return; var ig = el('g', { 'class': 'item', 'data-i': x.line }, g); el('circle', { 'class': 'vt-code-dot', cx: w - 7, cy: pad + offs[i] * lh + lh / 2, r: 4 }, ig); el('rect', { 'class': 'hit', x: 0, y: pad + offs[i] * lh, width: w, height: rows[i] * lh }, ig); hitTip(ig, function () { return '<div class="t">' + T('Linha ') + x.line + '</div>' + esc(x.note); }); bindSelect(ig, function () { return { crumb: b.title || b.file || T('Código'), title: T('Linha ') + x.line, sub: x.note, file: b.file ? b.file.replace(/:\d+(-\d+)?$/, '') + ':' + x.line : '', sections: [{ html: '<pre class="vt-tex">' + esc(lines[i]) + '</pre>' }] }; }); });
-      if (hl.some(function (x) { return x.note; })) legendAdd('Marcas', 'codenote', { sw: 'dot s1', label: T('Linha com nota') });
+      if (hl.some(function (x) { return x.note; })) legendAdd(T('Marcas'), 'codenote', { sw: 'dot s1', label: T('Linha com nota') });
       if (gb) gb._info = function () { return { title: b.title || T('Código'), sub: b.caption || '', file: b.file || '', kv: [b.lang ? [T('Linguagem'), b.lang] : null, [T('Linhas'), first + '–' + (first + lines.length - 1)]].filter(Boolean), sections: [hl.length ? { label: T('Destaques'), rows: hl.map(function (x) { return { b: T('Linha ') + x.line, d: x.note || '', onclick: x.note ? function () { clickItem(gb, x.line); } : null }; }) } : null, b.text ? { prose: b.text } : null] }; };
       return { w: w, h: h };
     }, function () { return libMissing(g, 'highlight.js'); });
@@ -2199,8 +2201,8 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
         el('circle', { 'class': 'map-pt', cx: xy[0], cy: xy[1], r: r0 }, ig); if (pt.label && b.pointLabels !== false) txt(ig, xy[0] + r0 + 4, xy[1] + 4, pt.label, 'map-l');
         hitTip(ig, function () { return '<div class="t">' + esc(pt.label || '') + '</div>' + (pt.value != null ? '<span class="v">' + esc(fmtFull(pt.value) + (b.pointUnit || unit)) + '</span>' : '') + (pt.text ? '<div class="d">' + esc(pt.text) + '</div>' : ''); });
         bindSelect(ig, function () { return { crumb: b.title || T('Mapa'), title: pt.label || '', sub: pt.text || '', kv: [pt.value != null ? [T('Valor'), fmtFull(pt.value) + (b.pointUnit || unit)] : null, [T('Coordenadas'), pt.lat.toFixed(3) + ', ' + pt.lon.toFixed(3)]].filter(Boolean), sections: [pt.detail ? { prose: pt.detail } : null] }; }); });
-      if (nums.length) legendAdd('Escala', 'int' + unit, { sw: 'fill', label: T('Mais forte = maior valor') + (unit ? ' (' + unit.trim() + ')' : '') });
-      if ((b.points || []).length) legendAdd('Marcas', 'pt', { sw: 'dot s5', label: (b.points.some(function (p) { return p.value != null; }) ? T('Área do ponto = valor') : T('Ponto')) });
+      if (nums.length) legendAdd(T('Escala'), 'int' + unit, { sw: 'fill', label: T('Mais forte = maior valor') + (unit ? ' (' + unit.trim() + ')' : '') });
+      if ((b.points || []).length) legendAdd(T('Marcas'), 'pt', { sw: 'dot s5', label: (b.points.some(function (p) { return p.value != null; }) ? T('Área do ponto = valor') : T('Ponto')) });
       var list = fc.features.map(function (f, i) { var v = valOf(f); return v ? { i: i, v: v, nm: (f.properties && (f.properties.name || f.properties.NAME)) || f.id } : null; }).filter(Boolean).sort(function (a, c) { return c.v.value - a.v.value; });
       if (gb) gb._info = function () { return { title: b.title || T('Mapa'), sub: b.caption || '', kv: [[T('Regiões com dado'), list.length + T(' de ') + fc.features.length, 'ui']], sections: [{ label: T('Maiores'), rows: list.slice(0, 8).map(function (x) { return { b: x.v.label || x.nm, v: fmtFull(x.v.value) + unit, onclick: function () { clickItem(gb, x.i); } }; }) }] }; };
       return { w: w, h: h };
@@ -2413,7 +2415,9 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   // pan and zoom write the transform at most once per frame; animated moves and reads of the layout flush it at once
   var applyQ = 0, wasFar = null;
   function commit() { if (applyQ) { cancelAnimationFrame(applyQ); applyQ = 0; } world.setAttribute('transform', 'translate(' + tx + ' ' + ty + ') scale(' + s + ')'); var far = s < 0.55; if (far !== wasFar) { wasFar = far; world.classList.toggle('far', far); } }
-  function apply(animated) { if (animated && ms('--d-slow') && !document.hidden) { world.style.transition = 'transform ' + tok('--t-slow') + ', opacity ' + tok('--t-base'); setTimeout(function () { world.style.transition = ''; }, ms('--d-slow') + 20); commit(); return; } if (!animated && !document.hidden) { if (!applyQ) applyQ = requestAnimationFrame(function () { applyQ = 0; commit(); }); return; } commit(); }
+  function apply(animated) { if (animated && ms('--d-slow') && !document.hidden) { world.style.transition = 'transform ' + tok('--t-slow') + ', opacity ' + tok('--t-base'); setTimeout(function () { world.style.transition = ''; }, ms('--d-slow') + 20); commit(); return; } commit(); }
+  // gestures (drag, pinch, wheel) fire faster than the screen; they write once per frame
+  function applyFrame() { if (document.hidden) { commit(); return; } if (!applyQ) applyQ = requestAnimationFrame(function () { applyQ = 0; commit(); }); }
   function pad() { var small = (wrap_.clientWidth || window.innerWidth) < 700, wr = wrap_.getBoundingClientRect(), tl = document.querySelector('.float.tl'), br = document.querySelector('.float.br'), tb = tl && wr.height ? tl.getBoundingClientRect().bottom - wr.top : 48, bb = br && wr.height ? wr.bottom - br.getBoundingClientRect().top : 48;
     // content starts below the floating search/levels/scenario bars and stops above the zoom buttons
     return { x: small ? 24 : 96, top: Math.max(small ? 56 : 48, tb + 16), bottom: Math.max(40, bb + 12) }; }
@@ -2427,7 +2431,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   var fitS = null, fitTx = 0, fitTy = 0;
   // f / fit button: legible fit first; pressed again without moving, everything at once; again, back to legible
   function fitToggle() { var still = fitS != null && Math.abs(s - fitS) < 1e-3 && Math.abs(tx - fitTx) < 1 && Math.abs(ty - fitTy) < 1; fit(true, still && fitMode === 'legible' ? 'overview' : 'legible'); }
-  function zoomBy(k, cx, cy, animated) { var r = wrap_.getBoundingClientRect(), mx = cx == null ? r.width / 2 : cx, my = cy == null ? r.height / 2 : cy, ns = Math.min(3, Math.max(0.15, s * k)); k = ns / s; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s = ns; apply(animated); }
+  function zoomBy(k, cx, cy, animated) { var r = wrap_.getBoundingClientRect(), mx = cx == null ? r.width / 2 : cx, my = cy == null ? r.height / 2 : cy, ns = Math.min(3, Math.max(0.15, s * k)); k = ns / s; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s = ns; if (animated === 'frame') applyFrame(); else apply(animated); }
   // navigate to an element: when it is not comfortably inside the free canvas (below the floating bars, above the zoom group),
   // glide the view so it lands centered at a legible scale; an element already in view does not move
   function reveal(node) { if (!node || !node.getBoundingClientRect) return; commit(); var r = node.getBoundingClientRect(), wr = wrap_.getBoundingClientRect(), p = pad(), m = 24;
@@ -2438,11 +2442,11 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     tx = gx - (cx - tx) * k; ty = gy - (cy - ty) * k; s = ns; apply(true); }
   function centerBlock(i) { var p = blockPos[i]; if (!p) return; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, pd = pad(); s = Math.max(Math.min((vw * 0.92 - pd.x) / p.w, (vh - pd.top - pd.bottom) / (p.h + 24), 1.15), minS()); tx = p.w * s <= vw ? (vw - p.w * s) / 2 - p.x * s : pd.x / 2 - p.x * s; ty = pd.top + Math.max(0, (vh - pd.top - pd.bottom - (p.h + 24) * s) / 2) - (p.y - 24) * s; apply(true); }
   // wheel zooms at the pointer; shift or a sideways trackpad swipe pans; dragging pans
-  wrap_.addEventListener('wheel', function (e) { e.preventDefault(); var r = wrap_.getBoundingClientRect(); if (e.ctrlKey || (Math.abs(e.deltaY) >= Math.abs(e.deltaX) && !e.shiftKey)) { var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1); zoomBy(Math.min(1.25, Math.max(0.8, Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0022)))), e.clientX - r.left, e.clientY - r.top, false); } else { var k = e.deltaMode === 1 ? 16 : 1; tx -= (e.shiftKey ? e.deltaY : e.deltaX) * k; apply(false); } }, { passive: false });
+  wrap_.addEventListener('wheel', function (e) { e.preventDefault(); var r = wrap_.getBoundingClientRect(); if (e.ctrlKey || (Math.abs(e.deltaY) >= Math.abs(e.deltaX) && !e.shiftKey)) { var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1); zoomBy(Math.min(1.25, Math.max(0.8, Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0022)))), e.clientX - r.left, e.clientY - r.top, 'frame'); } else { var k = e.deltaMode === 1 ? 16 : 1; tx -= (e.shiftKey ? e.deltaY : e.deltaX) * k; applyFrame(); } }, { passive: false });
   var drag = null, pointers = {}, pinch = null;
   function dragMoved() { return !!(drag && drag.moved); }
   wrap_.addEventListener('pointerdown', function (e) { if (e.altKey || e.target.closest('.float, .status, .count, input, button, select, textarea, video, .vt-dec-slider')) return; pointers[e.pointerId] = { x: e.clientX, y: e.clientY }; var ids = Object.keys(pointers); if (ids.length === 2) { var a = pointers[ids[0]], b = pointers[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: s, tx: tx, ty: ty, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; drag = null; try { wrap_.setPointerCapture(e.pointerId); } catch (err) {} return; } if (e.button !== 0) return; drag = { x: e.clientX - tx, y: e.clientY - ty, sx: e.clientX, sy: e.clientY, id: e.pointerId, moved: false }; });
-  wrap_.addEventListener('pointermove', function (e) { if (pointers[e.pointerId]) pointers[e.pointerId] = { x: e.clientX, y: e.clientY }; if (pinch) { var ids = Object.keys(pointers); if (ids.length < 2) return; var a = pointers[ids[0]], b = pointers[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y), r = wrap_.getBoundingClientRect(), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top, k = Math.min(3, Math.max(0.15, pinch.s * d / pinch.d)) / pinch.s; tx = cx - ((pinch.cx - r.left) - pinch.tx) * k; ty = cy - ((pinch.cy - r.top) - pinch.ty) * k; s = pinch.s * k; apply(false); return; } if (!drag) return; if (!drag.moved) { if (Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 4) return; drag.moved = true; try { wrap_.setPointerCapture(drag.id); } catch (err) {} hideTip(); } tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(false); });
+  wrap_.addEventListener('pointermove', function (e) { if (pointers[e.pointerId]) pointers[e.pointerId] = { x: e.clientX, y: e.clientY }; if (pinch) { var ids = Object.keys(pointers); if (ids.length < 2) return; var a = pointers[ids[0]], b = pointers[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y), r = wrap_.getBoundingClientRect(), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top, k = Math.min(3, Math.max(0.15, pinch.s * d / pinch.d)) / pinch.s; tx = cx - ((pinch.cx - r.left) - pinch.tx) * k; ty = cy - ((pinch.cy - r.top) - pinch.ty) * k; s = pinch.s * k; applyFrame(); return; } if (!drag) return; if (!drag.moved) { if (Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 4) return; drag.moved = true; try { wrap_.setPointerCapture(drag.id); } catch (err) {} hideTip(); } tx = e.clientX - drag.x; ty = e.clientY - drag.y; applyFrame(); });
   var endDrag = function (e) { delete pointers[e.pointerId]; if (Object.keys(pointers).length < 2) pinch = null; var was = drag; setTimeout(function () { if (drag === was) drag = null; }, 0); }; wrap_.addEventListener('pointerup', endDrag); wrap_.addEventListener('pointercancel', endDrag);
   canvas.addEventListener('click', function (e) { if (dragMoved() || e.altKey) return; if (e.target === canvas || e.target === world) resetState(); });
   var wasNarrow = narrow(), wasBucket = Math.round(availW() / 120), rsT = null; new ResizeObserver(function () { if (!L || !wrap_.clientWidth) return; var bk = Math.round(availW() / 120); if (narrow() !== wasNarrow || bk !== wasBucket) { wasNarrow = narrow(); wasBucket = bk; clearTimeout(rsT); rsT = setTimeout(function () { render(true); }, 120); return; } if (!selectedNode) fit(false, fitMode); }).observe(wrap_);

@@ -69,7 +69,7 @@ def test_media_requires_src():
     blocks = base_blocks()
     del blocks[0]["elements"][0]["src"]
     res, _ = build(scene_with(blocks))
-    assert res.returncode != 0 and "sem src" in res.stderr + res.stdout
+    assert res.returncode != 0 and "has no src" in res.stderr + res.stdout
 
 
 def test_absolute_local_src_warns():
@@ -77,7 +77,7 @@ def test_absolute_local_src_warns():
     blocks[0]["elements"][0]["src"] = "/home/eu/fig.png"
     res, _ = build(scene_with(blocks))
     assert res.returncode == 0, res.stderr
-    assert "absoluto local" in res.stdout + res.stderr
+    assert "local absolute src" in res.stdout + res.stderr
 
 
 if __name__ == "__main__":

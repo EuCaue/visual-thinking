@@ -1,0 +1,251 @@
+{
+  "title": "Kafka wins at high volume; SQS leads if nobody runs a broker",
+  "lang": "en",
+  "subtitle": "Event bus · Decide example",
+  "basis": "decision",
+  "source": "Official docs (Kafka 3.7, RabbitMQ 3.13, SQS/SNS); AWS calculator us-east-1, Oct 2026",
+  "date": "2026-10-11",
+  "summary": "Kafka wins on current weights; operating cost is the criterion most likely to flip it.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Choose the event bus",
+      "summary": "Weighted matrix, sensitivity and trade-offs for the event bus choice.",
+      "blocks": [
+        {
+          "type": "decision",
+          "id": "dec_bus",
+          "title": "Kafka wins; SQS if only operations count",
+          "mode": "weighted",
+          "weightBasis": "Weights set with the team: throughput and operations dominate because peak is 40k msg/s and nobody has run a broker in production",
+          "options": [
+            {
+              "id": "kafka",
+              "label": "Kafka",
+              "sub": "self-managed on EKS",
+              "reversibility": "two-way"
+            },
+            {
+              "id": "rabbit",
+              "label": "RabbitMQ",
+              "sub": "managed (Amazon MQ)",
+              "reversibility": "two-way"
+            },
+            {
+              "id": "sqs",
+              "label": "SQS/SNS",
+              "sub": "serverless AWS",
+              "reversibility": "one-way"
+            }
+          ],
+          "criteria": [
+            {
+              "id": "tput",
+              "label": "Peak throughput",
+              "weight": 30,
+              "unit": "k msg/s",
+              "scores": {
+                "kafka": {
+                  "raw": "40+",
+                  "score": 10,
+                  "note": "Partitions scale linearly"
+                },
+                "rabbit": {
+                  "raw": "20",
+                  "score": 6,
+                  "note": "Quorum queues up to ~20k msg/s per cluster"
+                },
+                "sqs": {
+                  "raw": "unlimited",
+                  "score": 9,
+                  "note": "FIFO capped at 3k msg/s per group"
+                }
+              },
+              "vetoBelow": 5
+            },
+            {
+              "id": "ops",
+              "label": "Operating cost",
+              "weight": 25,
+              "scores": {
+                "kafka": {
+                  "score": 4,
+                  "note": "ZooKeeper/KRaft, rebalancing, on-call"
+                },
+                "rabbit": {
+                  "score": 7,
+                  "note": "Managed; automatic alarms and upgrades"
+                },
+                "sqs": {
+                  "score": 10,
+                  "note": "No broker to run"
+                }
+              }
+            },
+            {
+              "id": "cost",
+              "label": "Monthly cost",
+              "weight": 20,
+              "unit": "US$",
+              "scores": {
+                "kafka": {
+                  "raw": 1400,
+                  "score": 6,
+                  "note": "3× m7g + EBS"
+                },
+                "rabbit": {
+                  "raw": 900,
+                  "score": 7,
+                  "note": "mq.m5.large multi-AZ"
+                },
+                "sqs": {
+                  "raw": 2600,
+                  "score": 4,
+                  "note": "3.5B msg/month at list price"
+                }
+              }
+            },
+            {
+              "id": "order",
+              "label": "Ordering and replay",
+              "weight": 15,
+              "scores": {
+                "kafka": {
+                  "score": 10,
+                  "note": "Immutable log, replay by offset"
+                },
+                "rabbit": {
+                  "score": 5,
+                  "note": "Consumed messages are gone; replay means wiring a shovel"
+                },
+                "sqs": {
+                  "score": 4,
+                  "note": "No native replay"
+                }
+              }
+            },
+            {
+              "id": "lockin",
+              "label": "Portability",
+              "weight": 10,
+              "scores": {
+                "kafka": {
+                  "score": 9,
+                  "note": "Runs on any cloud"
+                },
+                "rabbit": {
+                  "score": 8,
+                  "note": "Open AMQP"
+                },
+                "sqs": {
+                  "score": 3,
+                  "note": "Proprietary AWS API"
+                }
+              }
+            }
+          ],
+          "recommendation": {
+            "optionId": "kafka",
+            "rationale": "Highest weighted total (7.5) and a cheap exit; SQS wins only if the operations weight exceeds 45."
+          },
+          "caption": "Drag the weights to simulate; the sensitivity band shows what flips the result."
+        },
+        {
+          "type": "chart",
+          "id": "sens",
+          "kind": "tornado",
+          "title": "Operating cost swings the result most",
+          "baseline": {
+            "label": "Base TCO",
+            "value": 100
+          },
+          "unit": "",
+          "series": [
+            {
+              "name": "Operating cost",
+              "low": 62,
+              "high": 148,
+              "lowLabel": "-38%",
+              "highLabel": "+48%"
+            },
+            {
+              "name": "Price per million msgs",
+              "low": 78,
+              "high": 132,
+              "lowLabel": "-22%",
+              "highLabel": "+32%"
+            },
+            {
+              "name": "Peak throughput",
+              "low": 88,
+              "high": 121,
+              "lowLabel": "-12%",
+              "highLabel": "+21%"
+            },
+            {
+              "name": "Portability",
+              "low": 94,
+              "high": 108,
+              "lowLabel": "-6%",
+              "highLabel": "+8%"
+            }
+          ],
+          "caption": "Relative TCO range as each factor moves from pessimistic to optimistic."
+        },
+        {
+          "type": "cards",
+          "id": "trades",
+          "title": "What each choice buys and costs",
+          "items": [
+            {
+              "title": "Kafka",
+              "meta": "recommended",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "Buys near-unlimited throughput and replay"
+                },
+                {
+                  "kind": "con",
+                  "text": "Costs running the broker and paying for on-call"
+                }
+              ]
+            },
+            {
+              "title": "RabbitMQ",
+              "meta": "middle ground",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "Buys flexible routing without running a broker"
+                },
+                {
+                  "kind": "con",
+                  "text": "Costs a throughput ceiling and makeshift replay"
+                }
+              ]
+            },
+            {
+              "title": "SQS/SNS",
+              "meta": "zero ops",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "Buys scale without a platform team"
+                },
+                {
+                  "kind": "con",
+                  "text": "Costs a big bill at volume and AWS lock-in"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "annotations": [
+        "Veto: throughput below 5 rules an option out; none was vetoed in this profile.",
+        "SQS takes the lead if the operations weight exceeds 45; drag the slider to check."
+      ]
+    }
+  ]
+}

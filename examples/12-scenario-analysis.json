@@ -1,0 +1,277 @@
+{
+  "lang": "en",
+  "title": "Strangler fig spreads the risk; big bang only pays off if optimistic",
+  "subtitle": "Monolith migration strategy · Decide example",
+  "basis": "decision",
+  "source": "Monolith inventory (210 endpoints, 14 modules); incident history 2025–2026",
+  "date": "2026-10-11",
+  "summary": "Big bang vs strangler fig in three scenarios, with 1st- to 3rd-order consequences of each path.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Migration scenarios",
+      "summary": "Migration consequences and numbers under Pessimistic, Base and Optimistic.",
+      "scenarios": {
+        "controls": [
+          {
+            "id": "cen",
+            "label": "Scenario",
+            "options": [
+              "Pessimistic",
+              "Base",
+              "Optimistic"
+            ],
+            "default": "Base"
+          }
+        ],
+        "overrides": {
+          "cen:Pessimistic": {
+            "blocks": [
+              {
+                "id": "nums",
+                "items": [
+                  {
+                    "label": "Duration",
+                    "value": "18 months"
+                  },
+                  {
+                    "label": "Rollback risk",
+                    "value": "high"
+                  },
+                  {
+                    "label": "Modules per quarter",
+                    "value": "2"
+                  }
+                ]
+              }
+            ]
+          },
+          "cen:Optimistic": {
+            "blocks": [
+              {
+                "id": "nums",
+                "items": [
+                  {
+                    "label": "Duration",
+                    "value": "8 months"
+                  },
+                  {
+                    "label": "Rollback risk",
+                    "value": "low"
+                  },
+                  {
+                    "label": "Modules per quarter",
+                    "value": "5"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "blocks": [
+        {
+          "type": "kpi",
+          "id": "nums",
+          "title": "The migration in numbers (Base scenario)",
+          "items": [
+            {
+              "label": "Duration",
+              "value": "12 months"
+            },
+            {
+              "label": "Rollback risk",
+              "value": "medium"
+            },
+            {
+              "label": "Modules per quarter",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "type": "graph",
+          "id": "paths",
+          "title": "Each strategy opens a path of consequences",
+          "nodes": [
+            {
+              "id": "d",
+              "label": "How to migrate?",
+              "sub": "210 endpoints, 14 modules",
+              "kind": "decision"
+            },
+            {
+              "id": "bb",
+              "label": "Big bang",
+              "sub": "switch everything in one weekend",
+              "kind": "component",
+              "reversibility": "one-way"
+            },
+            {
+              "id": "st",
+              "label": "Strangler fig",
+              "sub": "module by module behind a proxy",
+              "kind": "component",
+              "reversibility": "two-way"
+            },
+            {
+              "id": "bb1",
+              "label": "36h downtime window",
+              "sub": "store closed at peak",
+              "kind": "critical",
+              "consequence": {
+                "order": 1,
+                "polarity": "danger"
+              }
+            },
+            {
+              "id": "bb2",
+              "label": "Rollback nearly impossible",
+              "sub": "data already moved",
+              "kind": "critical",
+              "consequence": {
+                "order": 2,
+                "polarity": "danger"
+              }
+            },
+            {
+              "id": "bb3",
+              "label": "Team firefighting",
+              "sub": "weeks with no features",
+              "kind": "error",
+              "consequence": {
+                "order": 3,
+                "polarity": "danger"
+              }
+            },
+            {
+              "id": "st1",
+              "label": "Proxy routes per module",
+              "sub": "old and new coexist",
+              "kind": "component",
+              "consequence": {
+                "order": 1,
+                "polarity": "ok"
+              }
+            },
+            {
+              "id": "st2",
+              "label": "Each module ships tested",
+              "sub": "rollback = revert the proxy",
+              "kind": "component",
+              "consequence": {
+                "order": 2,
+                "polarity": "ok"
+              }
+            },
+            {
+              "id": "st3",
+              "label": "Monolith empties in 1 year",
+              "sub": "becomes a facade, then retires",
+              "kind": "component",
+              "consequence": {
+                "order": 3,
+                "polarity": "ok"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "d",
+              "to": "bb",
+              "label": "single switch",
+              "prob": 0.3
+            },
+            {
+              "from": "d",
+              "to": "st",
+              "label": "slice by slice",
+              "prob": 0.7
+            },
+            {
+              "from": "bb",
+              "to": "bb1",
+              "label": "needs downtime",
+              "prob": 0.9
+            },
+            {
+              "from": "bb1",
+              "to": "bb2",
+              "label": "no way back",
+              "prob": 0.8
+            },
+            {
+              "from": "bb2",
+              "to": "bb3",
+              "label": "drains the team",
+              "prob": 0.7
+            },
+            {
+              "from": "st",
+              "to": "st1",
+              "label": "proxy at the edge",
+              "prob": 0.9
+            },
+            {
+              "from": "st1",
+              "to": "st2",
+              "label": "isolated module",
+              "prob": 0.8
+            },
+            {
+              "from": "st2",
+              "to": "st3",
+              "label": "retire the rest",
+              "prob": 0.75
+            }
+          ]
+        },
+        {
+          "type": "quadrant",
+          "id": "risk",
+          "title": "Risk lives in the costly, likely quadrant",
+          "x": {
+            "label": "Probability",
+            "low": "rare",
+            "high": "near certain"
+          },
+          "y": {
+            "label": "Impact",
+            "low": "absorbable",
+            "high": "existential"
+          },
+          "quadrants": [
+            "Watch",
+            "Mitigate",
+            "Accept",
+            "Avoid"
+          ],
+          "items": [
+            {
+              "label": "Big bang rollback",
+              "x": 0.8,
+              "y": 0.9,
+              "text": "Likely and existential: avoid."
+            },
+            {
+              "label": "Inconsistent proxy",
+              "x": 0.4,
+              "y": 0.5,
+              "text": "Wrong routing between old and new: mitigate with a contract."
+            },
+            {
+              "label": "Orphan module",
+              "x": 0.3,
+              "y": 0.2,
+              "text": "Nobody migrates the last one: accept and schedule it."
+            }
+          ]
+        }
+      ],
+      "annotations": [
+        "Click Big bang or Strangler to isolate its path up to 3rd order.",
+        "Pessimistic doubles the duration; in Optimistic, big bang still carries high rollback risk."
+      ]
+    }
+  ]
+}

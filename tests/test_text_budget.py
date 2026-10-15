@@ -7,7 +7,7 @@ def lint(scene, *flags):
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
         json.dump(scene, f, ensure_ascii=False)
     r = subprocess.run(["python3", "scripts/build-scene.py", f.name, "--validate-only", *flags], capture_output=True, text=True)
-    return r.returncode, [l.split("nota: texto: ", 1)[1] for l in r.stdout.splitlines() if "nota: texto: " in l]
+    return r.returncode, [l.split("note: text: ", 1)[1] for l in r.stdout.splitlines() if "note: text: " in l]
 
 
 def scene(**kw):
@@ -41,17 +41,17 @@ def test_caps_and_meta():
     g["nodes"][0]["detail"] = "Recebe o pedido."
     _, w = lint(s)
     joined = "\n".join(w)
-    assert "scene title com" in joined, joined
-    assert "descreve a página" in joined, joined
-    assert "'API' sub com 9 palavras" in joined, joined
-    assert "repete o rótulo/sub" in joined, joined
+    assert "scene title has" in joined, joined
+    assert "describes the page" in joined, joined
+    assert "'API' sub has 9 words" in joined, joined
+    assert "repeats the label/sub" in joined, joined
 
 
 def test_subject_matter_is_not_meta():
     s = scene()
     s["views"][0]["blocks"][0]["nodes"][0]["label"] = "Usuário clica em entrar"
     _, w = lint(s)
-    assert not any("navegação" in x for x in w), w
+    assert not any("navigation" in x for x in w), w
 
 
 def test_summary_that_lists_the_drawing():
@@ -60,14 +60,14 @@ def test_summary_that_lists_the_drawing():
     s["views"][0]["blocks"][0]["nodes"].append({"id": "w", "label": "Worker", "sub": "envia"})
     s["views"][0]["summary"] = "Mostra API, Fila e Worker."
     _, w = lint(s)
-    assert any("repete 3 rótulos" in x for x in w), w
+    assert any("repeats 3 labels" in x for x in w), w
 
 
 def test_view_word_total():
     s = scene()
     s["views"][0]["blocks"].append({"type": "cards", "id": "c", "title": "Muito texto", "items": [{"title": f"C{i}", "text": "palavra " * 14} for i in range(20)]})
     _, w = lint(s)
-    assert any("a página virou texto" in x for x in w), w
+    assert any("turned into prose" in x for x in w), w
 
 
 def test_flag_turns_lint_off():

@@ -1,49 +1,11 @@
 # visual-thinking
 
-An agent skill that turns explanations, architectures, decisions and data into standalone, explorable HTML pages. The agent reads what you need to see, writes a JSON scene, and the template renders it as a page you can open, click through and share. No build step, no framework, no account.
+An agent skill that answers with a picture you can click. Ask your coding agent how something works, which option to pick or what the numbers say, and it builds one HTML page: a canvas to pan and zoom, where clicking any element explains it in a side panel.
 
-## Why
-
-Architecture, trade-offs and trends live badly in prose. You read three paragraphs to reconstruct one picture, and the writer has to keep every reader's mental image in sync. ASCII art in chat makes it worse: it doesn't survive a phone, and nobody can click it.
-
-This skill draws the picture instead, and draws it in a form that carries the load: labeled edges, units on axes, evidence tags on claims that came from reading, a right panel that answers "where did this number come from?" on click. When there is nothing worth drawing ("what's the difference between these two numbers?"), the skill answers in prose and skips the page.
-
-## How it works
-
-1. The agent classifies what the reader needs (compare, weigh a decision, follow a flow, see a trend) and picks a block for it.
-2. It writes a scene: a JSON file with a title, a summary, one or more views, and blocks. Nothing is styled by hand; colors, type and layout come from the design system.
-3. `scripts/build-scene.py` validates the scene (dangling ids, unlabeled edges, out-of-range values) and emits one standalone HTML file.
-
-The full contract the agent follows lives in [SKILL.md](SKILL.md).
-
-## What it can draw
-
-| The reader needs to | Block |
-|---|---|
-| compare options on shared attributes | `matrix` |
-| weigh options with weights, vetoes and sensitivity | `decision` |
-| see what flips a decision | `chart` kind `tornado` |
-| see consequences of a choice | `graph` with decision nodes and consequence paths |
-| test alternative futures | view-level `scenarios` controls |
-| see change over time | `chart` line or area |
-| follow an architecture, flow or dependency | `graph` |
-| follow steps or a protocol | `steps`, or `mermaid.html` for sequence and state |
-| see hierarchy or organize ideas | `tree`, or `tree` with `layout: "mindmap"` |
-| situate items on criteria | `quadrant`, `spectrum` |
-| see events, conversion, proportions, numbers | `timeline`, `funnel`, `donut` and other `chart` kinds, `kpi` |
-| show an image or video | `free` with `image`/`video` elements |
-| read a data model (tables, fields, keys) | `entity` |
-| follow amounts between stages, or parts that nest | `sankey`, `treemap` |
-| see a value per day or per pair of categories | `heatmap` |
-| plan tasks with dates and dependencies | `gantt` |
-| see what changed between two versions | `scripts/scene-diff.py`, marks on `graph` and `entity` |
-| see values on a map (countries, Brazilian states) | `map` |
-| read code or a formula | `code`, `math` |
-| anything else | `custom`: the agent's own SVG, HTML or d3 code, with any pinned library |
-
-Reference pages for each: `examples/`. `02-comparacao-tecnologias.json` compares three databases, `05-fluxo-autenticacao.json` draws OAuth PKCE with evidence tags, `11-decisao-arquitetural.json` picks a message broker with a weighted matrix and a tornado, `12-analise-cenarios.json` runs a migration under three scenarios, `13-modelo-de-dados.json` draws an HR data model, `14-cronograma.json` a migration plan, `15-fluxo-orcamento.json` a budget as sankey and treemap, `16-mapa-de-calor.json` support load by hour and by day.
-
-Every page reads on a phone: the canvas never shrinks text below a legible scale and blocks reflow to fit, phones open in a reading mode that lays the same scene out as text (also the screen-reader description), and `?mode=draw` or `?mode=read` picks one in a link. Selecting an element puts it in the address (`#v=…&b=…&k=…`), so a link opens on it. The right-click menu exports PNG or SVG and copies element links; `p` plays a sequence step by step; `file` fields open in the editor when the scene sets `root`; `"lang": "en"` switches the interface to English; `"style": "sketch"` draws it by hand. Optional libraries (rough.js, highlight.js, KaTeX, topojson, dagre) are added only to pages that use them.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-dark.png">
+  <img alt="An architecture page: a worker process drawn as a graph, the selected node's file, callers and callees in the side panel" src="docs/readme/hero-light.png">
+</picture>
 
 ## Install
 
@@ -51,51 +13,118 @@ Every page reads on a phone: the canvas never shrinks text below a legible scale
 npx skills add EuCaue/visual-thinking
 ```
 
-Or point the agent's skills directory at this folder:
+Or clone it into your agent's skills folder:
 
 ```bash
-ln -sfn "$PWD" ~/.agents/skills/visual-thinking
+git clone https://github.com/EuCaue/visual-thinking ~/.claude/skills/visual-thinking
 ```
 
-## Use
+That path is for Claude Code. For Codex and other agents that read skills, clone it into `~/.agents/skills/` instead. Building pages needs Python 3, with no packages to install.
 
-Write a scene JSON (start from an `examples/*.json` file), build it, open the page:
+## Use it
+
+Ask for what you want to see. The skill takes over when a drawing beats a few paragraphs of text, and the agent replies with the path to the page.
+
+| You ask | You get |
+|---|---|
+| "How does a paid order turn into a receipt email in this repo?" | The architecture as a graph, one view per process, file paths and callers on click ([example](examples/01-architecture.json)) |
+| "Postgres, MongoDB or DynamoDB for our catalog?" | A comparison table, the trade-offs per option, and where each one fits ([example](examples/02-tech-comparison.json)) |
+| "Kafka, RabbitMQ or SQS? Throughput matters most." | A weighted decision matrix with weights you can drag and see the winner change ([example](examples/11-architecture-decision.json)) |
+| "Did the catalog cache fix our p95?" + a CSV | Line charts with the SLO, the deploy marked, and the reason it moved ([example](examples/03-time-series.json)) |
+| "Plan the database migration" | A Gantt chart with dependencies and the critical path ([example](examples/14-schedule.json)) |
+
+<table>
+  <tr>
+    <td><img alt="Weighted decision between Kafka, RabbitMQ and SQS" src="docs/readme/decision.png"></td>
+    <td><img alt="p95 latency per endpoint with the SLO line and annotated deploys" src="docs/readme/trend.png"></td>
+  </tr>
+</table>
+
+Short questions still get short answers. The agent skips the page when one sentence would do.
+
+## What you can do on a page
+
+- **Click anything** to read its details, source file and connections in the side panel. Press `Esc` to clear.
+- **Switch the detail level** on diagrams: names only, responsibilities, or files.
+- **Search** with `/`. Matches stay lit, everything else fades.
+- **Read it as text** with the text-mode button. Phones open in this mode, and screen readers get it too.
+- **Share a link** to a single element. Selecting something puts it in the URL.
+- **Export** PNG or SVG from the right-click menu.
+
+Pages work offline, follow the system's light or dark theme, and fit a phone screen. Hold `Alt` (`Option`) and drag to select text on the canvas.
+
+## Build a page yourself
+
+The agent writes a scene, a small JSON file that describes what to draw, and runs the builder. You can do the same to tweak a page by hand or to render one in CI. This is [`examples/00-hello.json`](examples/00-hello.json):
+
+```json
+{
+  "title": "A paid order reaches the database in two hops",
+  "summary": "The browser talks only to the API; the API charges the card and stores the order.",
+  "lang": "en",
+  "views": [{
+    "id": "main",
+    "title": "Checkout",
+    "blocks": [{
+      "type": "graph",
+      "id": "flow",
+      "title": "From click to stored order",
+      "nodes": [
+        { "id": "web", "label": "Browser",  "sub": "checkout page",        "kind": "entry" },
+        { "id": "api", "label": "API",      "sub": "validates and charges", "kind": "component" },
+        { "id": "pay", "label": "Payments", "sub": "card processor",       "kind": "external" },
+        { "id": "db",  "label": "Postgres", "sub": "orders table",         "kind": "store" }
+      ],
+      "edges": [
+        { "from": "web", "to": "api", "label": "POST /orders", "main": true },
+        { "from": "api", "to": "pay", "label": "charge" },
+        { "from": "api", "to": "db",  "label": "insert order", "kind": "data", "main": true }
+      ]
+    }]
+  }]
+}
+```
 
 ```bash
-python3 scripts/build-scene.py my-scene.json my-page.html          # offline: libraries inlined
-python3 scripts/build-scene.py my-scene.json my-page.html --cdn    # lighter file, loads libraries from CDNs
+python3 scripts/build-scene.py examples/00-hello.json --open
 ```
 
-On success the first output line is the absolute path of the page. `--validate-only` checks without writing; `--fragment` skips the document tags for publish tools that add their own skeleton. The build also warns when the scene carries more text than the drawing needs (`texto:` lines; `--no-text-lint` silences them).
+This writes `examples/00-hello.html` next to the scene and opens it in your browser:
 
-Two helpers write scenes for you:
+<img alt="The built page: browser, API, payments and Postgres as a graph, with the legend in the side panel" src="docs/readme/hello.png">
 
-```bash
-python3 scripts/extract-deps.py ~/code/my-repo draft.json        # graph draft from real imports (Python, JS/TS, Go)
-python3 scripts/scene-diff.py before.json after.json diff.json   # one scene with added, changed and removed marked
+A mistake stops the build and names what is wrong. Here an edge points at a node that doesn't exist:
+
+```text
+scene.json: view 'main' · block 'flow': edge has no valid 'to': {"from": "api", "to": "cache", "label": "charge"}
+scene.json: 1 problem(s); scene not built. Fix or remove what does not make sense.
 ```
 
-## Project layout
+Useful flags: `--validate-only` checks without writing a page. `--cdn` makes a lighter file that loads its libraries from the internet. The interface language comes from the scene's `lang`, or from the reader's browser when the scene has none.
 
-- `SKILL.md`, `strategy.md`: when to draw, the intent-to-block lookup, the deep strategies and anti-choices.
-- `formats.md`: scene schema, every block's fields and what it shows at each information level, delivery per tool.
-- `design.md`: the design system the templates enforce.
-- `templates/canvas.html`, `svg.html`, `mermaid.html`: the three renderers. `canvas.html` is the default.
-- `scripts/`: build, import extractor, scene diff, token sync, contrast check.
-- `examples/`: twenty-one scenes (`18-catalogo` has one of every block, `19` the sketch style in English, `20` a diff, `21` custom drawings), rebuilt by `sh scripts/build-examples.sh`.
-- `tests/`: regression tests for the validator and every canvas feature; the `test_responsive` and `test_runtime_features` files measure pages in headless Chrome (prefers Playwright's `chrome-headless-shell`, since full Chrome's headless mode will not go below 500px wide; `VT_CHROME` overrides).
+## Examples
 
-## Limits
+Every example is a scene in [`examples/`](examples) with its built page beside it. Clone the repo and open any `.html` file. These copies load their libraries from a CDN to keep the repo small.
 
-- Pages work offline by default: the build inlines d3 and only the other libraries the scene uses (ELK only for graphs, trees and models; sankey, rough.js, highlight.js, KaTeX, topojson, dagre only when used) and embeds map geometry. A text-only page is about 300 KB; one with a graph about 2 MB. The first build needs the network once to fill `.vt-libs/`; `--cdn` skips inlining.
-- A graph view stays under 12 nodes plus groups; more than that belongs in an overview view plus one view per part.
-- The agent never invents data: with no real numbers in reach, it draws the underlying structure and marks values unknown, or asks for them.
-- The repo is private for now; the skill itself has no telemetry and no network calls once built (CDNs only with `--cdn`).
+- [`18-catalog`](examples/18-catalog.json): one of every block, from graphs and tables to maps and code.
+- [`01-architecture`](examples/01-architecture.json): an overview plus one view per process.
+- [`12-scenario-analysis`](examples/12-scenario-analysis.json): the same migration under pessimistic, base and optimistic scenarios.
+- [`13-data-model`](examples/13-data-model.json): tables, keys and relations.
+- [`15-budget-flow`](examples/15-budget-flow.json): where the money goes, as a Sankey and a treemap.
+- [`19-sketch`](examples/19-sketch.json): the hand-drawn style for early ideas.
+- [`21-custom-drawing`](examples/21-custom-drawing.json): what the agent draws when no built-in block fits.
 
-## Contributing
+## Good to know
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: every scene change ships with a build, a test run and a contrast check.
+- The agent doesn't make up numbers. With no real data in reach, it draws the structure and marks values as unknown, or asks you for them.
+- The first build downloads the libraries once into `.vt-libs/`, so it needs a connection. After that, building and viewing work offline.
+- Two helpers write scenes for you. `scripts/extract-deps.py <repo>` drafts a graph from real imports in Python, JS/TS or Go. `scripts/scene-diff.py before.json after.json out.json` marks what changed between two versions.
 
-## Docs
+## Learn more
 
-[SKILL.md](SKILL.md) · [strategy.md](strategy.md) · [formats.md](formats.md) · [design.md](design.md) · [examples.md](examples.md)
+- [SKILL.md](SKILL.md): how the agent decides when and what to draw.
+- [formats.md](formats.md): every block and its fields.
+- [design.md](design.md): the visual rules the pages follow.
+- [CONTRIBUTING.md](CONTRIBUTING.md): building, testing and adding blocks.
+
+MIT licensed.

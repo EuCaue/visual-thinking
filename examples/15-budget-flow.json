@@ -1,0 +1,222 @@
+{
+  "lang": "en",
+  "title": "Infra takes half the budget; the database is the top item",
+  "subtitle": "Monthly IT budget · example · R$ thousands",
+  "basis": "docs",
+  "summary": "Of the R$ 400k budget, R$ 205k goes to infrastructure.",
+  "views": [
+    {
+      "id": "fluxo",
+      "title": "Where it goes",
+      "blocks": [
+        {
+          "type": "sankey",
+          "id": "sk",
+          "title": "From budget to each vendor",
+          "unit": "k",
+          "nodes": [
+            {
+              "id": "orc",
+              "label": "Budget"
+            },
+            {
+              "id": "infra",
+              "label": "Infra"
+            },
+            {
+              "id": "pessoas",
+              "label": "Tools"
+            },
+            {
+              "id": "dados",
+              "label": "Data"
+            },
+            {
+              "id": "aws",
+              "label": "AWS"
+            },
+            {
+              "id": "rds",
+              "label": "RDS"
+            },
+            {
+              "id": "cdn",
+              "label": "CDN"
+            },
+            {
+              "id": "saas",
+              "label": "SaaS dev"
+            },
+            {
+              "id": "bi",
+              "label": "BI"
+            },
+            {
+              "id": "dw",
+              "label": "Warehouse"
+            }
+          ],
+          "links": [
+            {
+              "from": "orc",
+              "to": "infra",
+              "value": 205
+            },
+            {
+              "from": "orc",
+              "to": "pessoas",
+              "value": 95
+            },
+            {
+              "from": "orc",
+              "to": "dados",
+              "value": 100
+            },
+            {
+              "from": "infra",
+              "to": "aws",
+              "value": 80
+            },
+            {
+              "from": "infra",
+              "to": "rds",
+              "value": 95
+            },
+            {
+              "from": "infra",
+              "to": "cdn",
+              "value": 30
+            },
+            {
+              "from": "pessoas",
+              "to": "saas",
+              "value": 95
+            },
+            {
+              "from": "dados",
+              "to": "bi",
+              "value": 35
+            },
+            {
+              "from": "dados",
+              "to": "dw",
+              "value": 65
+            }
+          ]
+        }
+      ],
+      "summary": "Infra gets R$ 205k; RDS alone takes R$ 95k."
+    },
+    {
+      "id": "partes",
+      "title": "Breakdown",
+      "layout": {
+        "type": "row"
+      },
+      "blocks": [
+        {
+          "type": "treemap",
+          "id": "tm",
+          "title": "Area per item",
+          "unit": "k",
+          "root": {
+            "label": "IT",
+            "children": [
+              {
+                "label": "Infra",
+                "children": [
+                  {
+                    "label": "RDS",
+                    "value": 95
+                  },
+                  {
+                    "label": "AWS",
+                    "value": 80
+                  },
+                  {
+                    "label": "CDN",
+                    "value": 30
+                  }
+                ]
+              },
+              {
+                "label": "Data",
+                "children": [
+                  {
+                    "label": "Warehouse",
+                    "value": 65
+                  },
+                  {
+                    "label": "BI",
+                    "value": 35
+                  }
+                ]
+              },
+              {
+                "label": "Tools",
+                "children": [
+                  {
+                    "label": "SaaS dev",
+                    "value": 95
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "treemap",
+          "id": "sun",
+          "layout": "sunburst",
+          "title": "Same total, as rings",
+          "unit": "k",
+          "root": {
+            "label": "IT",
+            "children": [
+              {
+                "label": "Infra",
+                "children": [
+                  {
+                    "label": "RDS",
+                    "value": 95
+                  },
+                  {
+                    "label": "AWS",
+                    "value": 80
+                  },
+                  {
+                    "label": "CDN",
+                    "value": 30
+                  }
+                ]
+              },
+              {
+                "label": "Data",
+                "children": [
+                  {
+                    "label": "Warehouse",
+                    "value": 65
+                  },
+                  {
+                    "label": "BI",
+                    "value": 35
+                  }
+                ]
+              },
+              {
+                "label": "Tools",
+                "children": [
+                  {
+                    "label": "SaaS dev",
+                    "value": 95
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "summary": "Two items tie at the top, R$ 95k each."
+    }
+  ]
+}

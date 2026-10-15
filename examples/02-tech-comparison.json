@@ -1,0 +1,209 @@
+{
+  "title": "Postgres covers the case; Dynamo only pays off at predictable scale",
+  "subtitle": "2-million-item catalog with read spikes · example",
+  "basis": "docs",
+  "source": "Each product's official docs and public 2025 benchmarks",
+  "summary": "Three databases evaluated for the same service. Postgres and MongoDB handle rich queries; DynamoDB trades flexibility for steady latency and pay-per-use cost.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Compare",
+      "layout": {
+        "type": "stack",
+        "gap": 44
+      },
+      "blocks": [
+        {
+          "type": "matrix",
+          "id": "m",
+          "title": "On the service's six criteria",
+          "columns": [
+            {
+              "label": "PostgreSQL",
+              "sub": "16, managed"
+            },
+            {
+              "label": "MongoDB",
+              "sub": "7, Atlas"
+            },
+            {
+              "label": "DynamoDB",
+              "sub": "on demand"
+            }
+          ],
+          "rows": [
+            {
+              "label": "Data model",
+              "cells": [
+                "Relational, JSONB",
+                "Document",
+                {
+                  "value": "Key-value, item",
+                  "note": "Queries only by key or secondary index; aggregations need another service."
+                }
+              ]
+            },
+            {
+              "label": "Ad hoc queries",
+              "cells": [
+                true,
+                true,
+                false
+              ]
+            },
+            {
+              "label": "p99 read latency (ms)",
+              "cells": [
+                12,
+                9,
+                4
+              ],
+              "best": "min",
+              "unit": " ms"
+            },
+            {
+              "label": "Writes per second (k)",
+              "cells": [
+                25,
+                40,
+                400
+              ],
+              "best": "max"
+            },
+            {
+              "label": "Estimated monthly cost (US$)",
+              "cells": [
+                480,
+                620,
+                {
+                  "value": 910,
+                  "note": "With read spikes at 10× normal; drops to ~300 with steady traffic."
+                }
+              ],
+              "best": "min",
+              "unit": ""
+            },
+            {
+              "label": "Multi-item transactions",
+              "cells": [
+                true,
+                true,
+                {
+                  "value": true,
+                  "note": "Up to 100 items per transaction."
+                }
+              ]
+            }
+          ],
+          "caption": "Latency and cost measured with the catalog's load profile; illustrative numbers."
+        },
+        {
+          "type": "cards",
+          "id": "c",
+          "title": "What each choice buys and costs",
+          "cardWidth": 230,
+          "items": [
+            {
+              "title": "PostgreSQL",
+              "meta": "the default",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "Rich queries and joins, no second system"
+                },
+                {
+                  "kind": "pro",
+                  "text": "Team already runs it"
+                },
+                {
+                  "kind": "con",
+                  "text": "Write scaling needs manual sharding"
+                },
+                {
+                  "kind": "neutral",
+                  "text": "JSONB covers the catalog's flexible fields"
+                }
+              ]
+            },
+            {
+              "title": "MongoDB",
+              "meta": "document",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "Flexible schema per item"
+                },
+                {
+                  "kind": "pro",
+                  "text": "Native sharding"
+                },
+                {
+                  "kind": "con",
+                  "text": "New system to run, new license cost"
+                },
+                {
+                  "kind": "con",
+                  "text": "Limited joins ($lookup)"
+                }
+              ]
+            },
+            {
+              "title": "DynamoDB",
+              "meta": "key-value",
+              "points": [
+                {
+                  "kind": "pro",
+                  "text": "Steady latency at any scale"
+                },
+                {
+                  "kind": "pro",
+                  "text": "Zero ops"
+                },
+                {
+                  "kind": "con",
+                  "text": "Modeled by access pattern; a new query means a migration"
+                },
+                {
+                  "kind": "con",
+                  "text": "Cost grows with read spikes"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spectrum",
+          "id": "s",
+          "title": "Where each one fits",
+          "min": "varied queries",
+          "max": "key access, predictable scale",
+          "items": [
+            {
+              "label": "PostgreSQL",
+              "value": 0.18
+            },
+            {
+              "label": "MongoDB",
+              "value": 0.45
+            },
+            {
+              "label": "DynamoDB",
+              "value": 0.86
+            }
+          ]
+        },
+        {
+          "type": "callout",
+          "id": "k",
+          "kind": "note",
+          "text": "The structural difference is row 1: DynamoDB needs every query known before modeling. The other rows follow from that."
+        }
+      ],
+      "annotations": [
+        "Dynamo's cost assumes spikes at 10× normal; with steady traffic it's cheaper than the other two.",
+        "MongoDB was evaluated on Atlas; self-hosting changes cost and ops."
+      ]
+    }
+  ],
+  "lang": "en"
+}

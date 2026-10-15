@@ -115,7 +115,7 @@ Whatever you draw keeps the contract: both themes, labels and units, nothing ess
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 
-Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, twenty-one prompts, twenty-one different pictures (`18-catalogo` holds one of every block) (`sh scripts/build-examples.sh`).
+Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, twenty-two prompts, twenty-two pictures (`00-hello` is the smallest, `18-catalog` holds one of every block) (`sh scripts/build-examples.sh`).
 
 ## Build the page
 
@@ -130,7 +130,7 @@ The chat never carries a diagram as a code fence. Never render a static image un
 
 ## Text budget
 
-The drawing carries the meaning; text only labels it. Every string must add a fact the shapes do not already show. The build warns (`texto:` lines) on every overrun; treat each warning as a cut to make, not a note to ignore.
+The drawing carries the meaning; text only labels it. Every string must add a fact the shapes do not already show. The build warns (`text:` lines) on every overrun; treat each warning as a cut to make, not a note to ignore.
 
 | Field | Max | Holds |
 |---|---|---|
@@ -201,7 +201,7 @@ For any Decide page, before delivering: can the reader trace the recommendation 
 | Unlabeled edges, nodes without responsibility, axes without unit | Label what moves; give every node a `sub`; give `y.unit` or a label |
 | Whole system in one drawing | Overview view plus one view per part |
 | Prose after the drawing repeats it | Annotations add only what the drawing cannot show |
-| `detail` on every node, summaries that tour the page | Text budget: cut every string without a new fact; rebuild until no `texto:` warning is left |
+| `detail` on every node, summaries that tour the page | Text budget: cut every string without a new fact; rebuild until no `text:` warning is left |
 | Data invented to fill a chart | The numbers must be real; with none in reach, draw the underlying structure with values marked `unknown` or ask for the numbers |
 | Asking before trying | Draw with a stated assumption unless two readings differ materially |
 | Drawing for a one-line answer | Answer in prose |

@@ -1,0 +1,186 @@
+{
+  "title": "The monorepo has three layers and dependencies only point down",
+  "lang": "en",
+  "subtitle": "Package layout and dependency rule · example",
+  "basis": "code",
+  "source": "pnpm-workspace.yaml and each package's package.json",
+  "summary": "Apps depend on libs, libs on core; nothing points up. Nineteen packages in three layers; ui is the most imported.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Structure",
+      "layout": {
+        "type": "stack",
+        "gap": 48
+      },
+      "blocks": [
+        {
+          "type": "tree",
+          "id": "t",
+          "title": "Packages by layer",
+          "direction": "RIGHT",
+          "root": {
+            "label": "monorepo",
+            "text": "pnpm workspaces, 19 packages",
+            "children": [
+              {
+                "label": "apps",
+                "text": "what runs",
+                "children": [
+                  {
+                    "label": "web",
+                    "text": "Next.js, site and dashboard",
+                    "kind": "entry"
+                  },
+                  {
+                    "label": "api",
+                    "text": "Fastify",
+                    "kind": "entry"
+                  },
+                  {
+                    "label": "worker",
+                    "text": "queues and cron",
+                    "kind": "entry"
+                  },
+                  {
+                    "label": "cli",
+                    "text": "internal tool"
+                  }
+                ]
+              },
+              {
+                "label": "libs",
+                "text": "shared across apps",
+                "children": [
+                  {
+                    "label": "ui",
+                    "text": "React components, 41 exported"
+                  },
+                  {
+                    "label": "auth",
+                    "text": "session, JWT, permissions"
+                  },
+                  {
+                    "label": "db",
+                    "text": "schema and migrations"
+                  },
+                  {
+                    "label": "email",
+                    "text": "templates and sending"
+                  },
+                  {
+                    "label": "analytics",
+                    "text": "product events"
+                  }
+                ]
+              },
+              {
+                "label": "core",
+                "text": "no internal dependencies",
+                "children": [
+                  {
+                    "label": "types",
+                    "text": "shared contracts"
+                  },
+                  {
+                    "label": "config",
+                    "text": "env reading and defaults"
+                  },
+                  {
+                    "label": "logger",
+                    "text": "pino with context"
+                  },
+                  {
+                    "label": "errors",
+                    "text": "error classes and codes"
+                  }
+                ]
+              },
+              {
+                "label": "tooling",
+                "text": "ships no product code",
+                "children": [
+                  {
+                    "label": "eslint-config"
+                  },
+                  {
+                    "label": "tsconfig"
+                  },
+                  {
+                    "label": "scripts",
+                    "text": "release and type generation"
+                  }
+                ]
+              }
+            ]
+          },
+          "caption": "Layers top to bottom; dependency arrows only point right."
+        },
+        {
+          "type": "tree",
+          "id": "org",
+          "title": "Who owns each layer",
+          "direction": "DOWN",
+          "root": {
+            "label": "Platform",
+            "text": "12 people",
+            "children": [
+              {
+                "label": "Web product",
+                "text": "4 people",
+                "children": [
+                  {
+                    "label": "apps/web"
+                  },
+                  {
+                    "label": "libs/ui"
+                  }
+                ]
+              },
+              {
+                "label": "Backend",
+                "text": "5 people",
+                "children": [
+                  {
+                    "label": "apps/api"
+                  },
+                  {
+                    "label": "apps/worker"
+                  },
+                  {
+                    "label": "libs/auth"
+                  },
+                  {
+                    "label": "libs/db"
+                  }
+                ]
+              },
+              {
+                "label": "Infra",
+                "text": "3 people",
+                "children": [
+                  {
+                    "label": "core/*"
+                  },
+                  {
+                    "label": "tooling/*"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "callout",
+          "id": "c",
+          "kind": "warn",
+          "text": "libs/email imports apps/api to reuse a type. It's the only rule violation; the type should move down to core/types."
+        }
+      ],
+      "annotations": [
+        "A lint rule (eslint-plugin-boundaries) in tooling/eslint-config enforces the layering.",
+        "libs/ui is imported by 7 packages; the count comes from the package.json files."
+      ]
+    }
+  ]
+}

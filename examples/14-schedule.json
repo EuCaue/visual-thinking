@@ -1,0 +1,30 @@
+{
+  "lang": "en",
+  "title": "Migration ends in December if the load test passes",
+  "subtitle": "Database migration plan · example",
+  "basis": "proposal",
+  "summary": "The load test is the one milestone gating the next three tracks.",
+  "views": [
+    {
+      "id": "main",
+      "title": "Schedule",
+      "blocks": [
+        {
+          "type": "gantt",
+          "id": "g",
+          "title": "Three tracks, one milestone between",
+          "today": "2026-10-14",
+          "tasks": [
+            { "id": "esq", "label": "New schema", "group": "Database", "start": "2026-10-01", "end": "2026-10-17", "progress": 0.7 },
+            { "id": "dual", "label": "Dual writes", "group": "Database", "start": "2026-10-20", "end": "2026-11-07", "deps": ["esq"] },
+            { "id": "back", "label": "Backfill", "group": "Database", "start": "2026-11-03", "end": "2026-11-21", "deps": ["esq"], "kind": "critical", "text": "Six million rows in 10k batches." },
+            { "id": "carga", "label": "Load test", "group": "Validation", "start": "2026-11-24", "kind": "milestone", "deps": ["back", "dual"] },
+            { "id": "api", "label": "API reads new DB", "group": "Cutover", "start": "2026-11-25", "end": "2026-12-05", "deps": ["carga"] },
+            { "id": "rel", "label": "Reports", "group": "Cutover", "start": "2026-11-25", "end": "2026-12-12", "deps": ["carga"] },
+            { "id": "off", "label": "Turn off old DB", "group": "Cutover", "start": "2026-12-15", "kind": "milestone", "deps": ["api", "rel"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

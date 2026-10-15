@@ -255,7 +255,7 @@ def main():
     if out:
         out.write_text(text + "\n")
         print(out.resolve())
-        print(f"{len(known)} arquivos, {len(views)} vistas, {sum(len(v['blocks'][0]['nodes']) for v in views)} nós; troque o title e escreva os summaries")
+        print(f"{len(known)} files, {len(views)} views, {sum(len(v['blocks'][0]['nodes']) for v in views)} nodes; replace the title and write the summaries")
     else:
         print(text)
 
