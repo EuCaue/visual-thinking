@@ -133,10 +133,17 @@ code, .mono { font-family: var(--font-data); font-size: var(--fs-sm); font-varia
 
 /* ---------- shell: header, canvas, floating chrome, inspector */
 body { display: flex; flex-direction: column; }
-.top { display: flex; align-items: center; gap: var(--sp-4); padding: 16px var(--sp-6) 10px; }
-.title-block { min-width: 0; flex: 1 1 auto; }
-.top h1 { font-size: 22px; font-weight: 600; line-height: var(--lh-tight); letter-spacing: -0.02em; }
-.top .sub { margin: 3px 0 0; color: var(--fg-muted); font-size: var(--fs-sm); }
+/* header: title + theme on row 1, view tabs on their own row so any count of views and any title length fits */
+.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: var(--sp-4); row-gap: 10px; padding: 16px var(--sp-6) 10px; }
+.title-block { min-width: 0; grid-column: 1; grid-row: 1; }
+.top h1 { font-size: clamp(17px, 0.9vw + 11px, 22px); font-weight: 600; line-height: var(--lh-tight); letter-spacing: -0.02em; max-width: 80ch; }
+.top .sub { margin: 3px 0 0; color: var(--fg-muted); font-size: var(--fs-sm); max-width: 120ch; }
+.top-actions { grid-column: 2; grid-row: 1; display: flex; gap: 2px; }
+.btn[aria-pressed="false"] { color: var(--fg-faint); }
+/* tabs scroll sideways; edge fades (toggled from JS) show there is more */
+.top > .seg { grid-column: 1 / -1; grid-row: 2; justify-self: start; position: relative; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; --fl: 0px; --fr: 0px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent); mask-image: linear-gradient(90deg, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent); }
+.top > .seg::-webkit-scrollbar { display: none; }
+.top > .seg.fade-l { --fl: 40px; } .top > .seg.fade-r { --fr: 40px; }
 .seg { display: inline-flex; padding: 2px; background: var(--bg-inset); border-radius: var(--r-control); gap: 2px; flex: 0 0 auto; }
 .seg button { background: transparent; border: 0; border-radius: calc(var(--r-control) - 2px); padding: 5px 12px; font-size: var(--fs-sm); color: var(--fg-muted); cursor: pointer; white-space: nowrap; transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast); }
 .seg button:hover { color: var(--fg); }
@@ -149,7 +156,8 @@ body { display: flex; flex-direction: column; }
 .btn svg, .icon svg { width: 16px; height: 16px; fill: currentColor; flex: 0 0 16px; }
 .icon { padding: 6px; }
 
-main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 336px; min-height: 0; }
+main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 336px; min-height: 0; overflow: hidden; transition: grid-template-columns var(--t-slow); }
+@media (min-width: 821px) { main.panel-off { grid-template-columns: minmax(0, 1fr) 0px; } main.panel-off aside { visibility: hidden; border-left-color: transparent; } }
 .canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; cursor: grab; touch-action: none; }
 .canvas-wrap:active { cursor: grabbing; }
 #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -224,12 +232,10 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
 .s1 { --c: var(--s1); } .s2 { --c: var(--s2); } .s3 { --c: var(--s3); } .s4 { --c: var(--s4); } .s5 { --c: var(--s5); } .s6 { --c: var(--s6); }
 .e-data { --c: var(--e-data); } .e-control { --c: var(--e-control); } .e-event { --c: var(--e-event); } .e-error { --c: var(--e-error); } .e-plain { --c: var(--line-strong); }
 
-@media (max-width: 1100px) {
-  .top { flex-wrap: wrap; } .top .seg { order: 3; flex: 1 1 100%; overflow-x: auto; scrollbar-width: none; } .top .seg::-webkit-scrollbar { display: none; }
-}
 @media (max-width: 820px) {
   main { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto; }
-  .top { padding: 14px var(--sp-4) 8px; } .top h1 { font-size: 19px; } .title-block { flex: 1 1 0; } #btnTheme span { display: none; }
+  .top { padding: 12px var(--sp-4) 8px; column-gap: var(--sp-2); row-gap: 8px; } #btnTheme span { display: none; } #btnPanel { display: none; }
+  .title-block:not(.full) h1, .title-block:not(.full) .sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } .title-block:not(.full) .sub { -webkit-line-clamp: 1; } .title-block { cursor: pointer; }
   .float.tl { left: var(--sp-3); top: var(--sp-3); right: var(--sp-3); flex-wrap: wrap; } .searchbox.open .search { width: 150px; }
   .float.br { right: var(--sp-3); bottom: var(--sp-3); }
   aside { border-left: 0; border-top: 1px solid var(--line); padding: 0 var(--sp-4) var(--sp-5); gap: var(--sp-5); max-height: 56vh; transition: max-height var(--t-slow); }
@@ -365,6 +371,7 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   <symbol id="i-sun" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol>
   <symbol id="i-moon" viewBox="0 0 256 256"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol>
   <symbol id="i-auto" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,0,1,0-176Z"/><path d="M128,40a88,88,0,0,1,0,176Z" opacity=".35"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 256 256"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H152V200H40Zm176,144H168V56h48V200Z"/></symbol>
   <symbol id="i-minus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"/></symbol>
   <symbol id="i-plus" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></symbol>
   <symbol id="i-fit" viewBox="0 0 256 256"><path d="M216,48V88a8,8,0,0,1-16,0V56H168a8,8,0,0,1,0-16h40A8,8,0,0,1,216,48ZM88,200H56V168a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H88a8,8,0,0,0,0-16Zm120-40a8,8,0,0,0-8,8v32H168a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V168A8,8,0,0,0,208,160ZM88,40H48a8,8,0,0,0-8,8V88a8,8,0,0,0,16,0V56H88a8,8,0,0,0,0-16Z"/></symbol>
@@ -373,7 +380,10 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
 <header class="top">
   <div class="title-block"><h1 id="title"></h1><p class="sub" id="subtitle"></p></div>
   <nav class="seg" id="views" aria-label="Vistas" hidden></nav>
-  <button type="button" class="btn" id="btnTheme" aria-live="polite"><svg><use href="#i-auto"/></svg><span>Auto</span></button>
+  <div class="top-actions">
+    <button type="button" class="btn" id="btnTheme" aria-live="polite"><svg><use href="#i-auto"/></svg><span>Auto</span></button>
+    <button type="button" class="btn icon" id="btnPanel" aria-controls="aside" aria-pressed="true" title="Esconder painel de detalhes" aria-label="Painel de detalhes"><svg><use href="#i-panel"/></svg></button>
+  </div>
 </header>
 <main>
   <section class="canvas-wrap" id="wrap">
@@ -507,6 +517,10 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
   var world = $('world'), wrap_ = $('wrap'), canvas = $('canvas'), tip = $('tip'), statusEl = $('status'), detail = $('detail'), aside = $('aside');
   $('title').textContent = SC.title || ''; $('subtitle').textContent = SC.subtitle || ''; document.title = document.title || SC.title || 'Canvas';
   var viewsEl = $('views');
+  function navFade() { var e = viewsEl; e.classList.toggle('fade-l', e.scrollLeft > 2); e.classList.toggle('fade-r', e.scrollLeft + e.clientWidth < e.scrollWidth - 2); }
+  viewsEl.addEventListener('scroll', navFade, { passive: true }); window.addEventListener('resize', navFade);
+  viewsEl.addEventListener('wheel', function (ev) { if (Math.abs(ev.deltaY) > Math.abs(ev.deltaX) && viewsEl.scrollWidth > viewsEl.clientWidth) { viewsEl.scrollLeft += ev.deltaY; ev.preventDefault(); } }, { passive: false });
+  $('title').parentNode.addEventListener('click', function () { this.classList.toggle('full'); });
   if (views.length > 1) { viewsEl.hidden = false; views.forEach(function (v) { var b = document.createElement('button'); b.type = 'button'; b.textContent = v.title || v.id; b.setAttribute('role', 'tab'); b.dataset.view = v.id; b.onclick = function () { loadView(v.id); }; viewsEl.appendChild(b); }); }
 
   // ---------- inspector: one renderer, every block describes itself through an info object
@@ -531,7 +545,10 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
     return h;
   }
   function setDetail(html) { detail.classList.remove('swap'); void detail.offsetWidth; detail.innerHTML = html; detail.querySelectorAll('[data-act]').forEach(function (b) { b.onclick = function (ev) { ev.stopPropagation(); ACT[+b.dataset.act](); }; }); detail.classList.add('swap'); }
-  function showInfo(info) { ACT = []; if (info.back !== false) info.actions = (info.actions || []).concat([{ label: 'Visão geral', icon: '#i-back', onclick: function () { clearSel(); showSummary(); } }]); setDetail(infoHtml(info)); if (window.innerWidth <= 820) aside.classList.remove('collapsed'); }
+  function showInfo(info) { ACT = []; if (info.back !== false) info.actions = (info.actions || []).concat([{ label: 'Visão geral', icon: '#i-back', onclick: function () { clearSel(); showSummary(); } }]); setDetail(infoHtml(info)); if (window.innerWidth <= 820) aside.classList.remove('collapsed'); else setPanel(true); }
+  function setPanel(on, save) { var b = $('btnPanel'); aside.parentNode.classList.toggle('panel-off', !on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.title = on ? 'Esconder painel de detalhes' : 'Mostrar painel de detalhes'; if (save) store.set('vt-panel', on ? 'on' : 'off'); }
+  $('btnPanel').onclick = function () { setPanel(aside.parentNode.classList.contains('panel-off'), true); };
+  if (store.get('vt-panel') === 'off') setPanel(false);
   function clearSel() { world.querySelectorAll('.sel').forEach(function (x) { x.classList.remove('sel'); }); selectedNode = null; }
   function bindSelect(node, infoFn) { node.addEventListener('click', function (ev) { ev.stopPropagation(); if (dragMoved()) return; clearSel(); node.classList.add('sel'); selectedNode = node; showInfo(typeof infoFn === 'function' ? infoFn() : infoFn); }); node.setAttribute('tabindex', '0'); node.setAttribute('role', 'button'); node.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); node.dispatchEvent(new MouseEvent('click', { bubbles: true })); } }); }
   function summaryInfo() {
@@ -1589,6 +1606,9 @@ ul { margin: 0; padding-left: 18px; } li { margin: var(--sp-1) 0; font-size: var
     var v = views.filter(function (x) { return x.id === id; })[0] || views[0]; current = v; hidden = {}; hiddenKinds = {}; clearSel(); closeMenu(); (v.blocks || []).forEach(function (b) { b._focus = null; b._dir = null; });
     v._scenarioSel = null; applyScenarios(v, false); renderScenarios();
     Array.prototype.forEach.call(viewsEl.children, function (bt) { bt.setAttribute('aria-selected', bt.dataset.view === v.id ? 'true' : 'false'); });
+    var onTab = viewsEl.querySelector('[aria-selected="true"]');
+    if (onTab && viewsEl.scrollWidth > viewsEl.clientWidth) { var lo = onTab.offsetLeft - 40, hi = onTab.offsetLeft + onTab.offsetWidth + 40 - viewsEl.clientWidth; viewsEl.scrollTo({ left: Math.min(Math.max(viewsEl.scrollLeft, hi), lo), behavior: 'smooth' }); }
+    navFade();
     viewHasGraph = (v.blocks || []).some(function (b) { return b.type === 'graph'; }); $('levels').hidden = !viewHasGraph;
     showSummary();
     var ann = $('annotations'), list = $('annList'); list.innerHTML = ''; var A = v.annotations || (v === views[0] ? SC.annotations : null);
