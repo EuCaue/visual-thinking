@@ -540,7 +540,7 @@ def check_custom(b, p, w, c, lib_names):
         p(c + f"custom {kinds[0]} precisa de width e height")
     if COLOR_RE.search(b[kinds[0]]):
         w(c + "custom com cor literal; use var(--s1)... para dados, var(--fg) e var(--fg-muted) para texto, para valer nos dois temas")
-    used = set(re.findall(r"var\(--([a-z0-9-]+)", b[kinds[0]]))
+    used = set(re.findall(r"var\(--([a-z0-9-]+)\s*[,)]", b[kinds[0]]))  # names built in code (var(--s' + i + ')) are not checked
     for name in sorted(used - TOKENS):
         near = difflib.get_close_matches(name, sorted(TOKENS), n=2)
         w(c + f"custom usa var(--{name}), que não existe" + (f"; quis dizer {' ou '.join('--' + x for x in near)}?" if near else "; veja os tokens em formats.md"))
