@@ -1,11 +1,33 @@
-# visual-thinking
+<p align="center">
+  <img src="docs/readme/logo.svg" width="72" height="72" alt="">
+</p>
 
-An agent skill that answers with a picture you can click. Ask your coding agent how something works, which option to pick or what the numbers say, and it builds one HTML page: a canvas to pan and zoom, where clicking any element explains it in a side panel.
+<h1 align="center">visual-thinking</h1>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/hero-dark.png">
-  <img alt="An architecture page: a worker process drawn as a graph, the selected node's file, callers and callees in the side panel" src="docs/readme/hero-light.png">
-</picture>
+<p align="center">
+  An agent skill that answers with a picture you can click.
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-0071E3?style=flat-square"></a>
+  <img alt="Agent skill for Claude Code, Codex and others" src="https://img.shields.io/badge/agent%20skill-Claude%20Code%20%C2%B7%20Codex-1D1D1F?style=flat-square">
+  <img alt="One HTML file, works offline" src="https://img.shields.io/badge/output-one%20HTML%20file%2C%20offline-34C759?style=flat-square">
+  <img alt="Python 3, no packages" src="https://img.shields.io/badge/needs-Python%203%2C%20no%20packages-8E8E93?style=flat-square">
+</p>
+
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="#use-it">Use it</a> ·
+  <a href="#what-it-draws">What it draws</a> ·
+  <a href="#build-a-page-yourself">Build a page</a> ·
+  <a href="#examples">Examples</a>
+</p>
+
+Ask your coding agent how something works, which option to pick or what the numbers say. It builds one HTML page: a canvas to pan and zoom, where clicking any element explains it in a side panel.
+
+<p align="center">
+  <img src="docs/readme/demo.webp" alt="Clicking a node opens its file and connections, switching views, dark mode, text mode, and a weighted decision">
+</p>
 
 ## Install
 
@@ -33,14 +55,26 @@ Ask for what you want to see. The skill takes over when a drawing beats a few pa
 | "Did the catalog cache fix our p95?" + a CSV | Line charts with the SLO, the deploy marked, and the reason it moved ([example](examples/03-time-series.json)) |
 | "Plan the database migration" | A Gantt chart with dependencies and the critical path ([example](examples/14-schedule.json)) |
 
+Short questions still get short answers. The agent skips the page when one sentence would do.
+
+## What it draws
+
+The agent picks the shape that fits the question. A few of the 28 blocks:
+
 <table>
   <tr>
-    <td><img alt="Weighted decision between Kafka, RabbitMQ and SQS" src="docs/readme/decision.png"></td>
-    <td><img alt="p95 latency per endpoint with the SLO line and annotated deploys" src="docs/readme/trend.png"></td>
+    <td width="33%"><img alt="Sankey diagram of a budget" src="docs/readme/g-sankey.png"><br><b>Flows</b><br><sub>where money, traffic or users go</sub></td>
+    <td width="33%"><img alt="Gantt chart with dependencies" src="docs/readme/g-gantt.png"><br><b>Plans</b><br><sub>tasks, dependencies, today's date</sub></td>
+    <td width="33%"><img alt="Heatmap of tickets by hour and day" src="docs/readme/g-heat.png"><br><b>Heatmaps</b><br><sub>a value per hour, day or pair</sub></td>
+  </tr>
+  <tr>
+    <td width="33%"><img alt="Map of shipping cost by state" src="docs/readme/g-map.png"><br><b>Maps</b><br><sub>values per country or state</sub></td>
+    <td width="33%"><img alt="Data model with tables and keys" src="docs/readme/g-entity.png"><br><b>Data models</b><br><sub>tables, keys and relations</sub></td>
+    <td width="33%"><img alt="Mind map in dark mode" src="docs/readme/g-mindmap.png"><br><b>Mind maps</b><br><sub>ideas around one center</sub></td>
   </tr>
 </table>
 
-Short questions still get short answers. The agent skips the page when one sentence would do.
+Plus architecture graphs, comparison tables, weighted decisions, charts, timelines, steps, code and formulas. When nothing fits, the agent draws its own SVG.
 
 ## What you can do on a page
 
@@ -55,7 +89,10 @@ Pages work offline, follow the system's light or dark theme, and fit a phone scr
 
 ## Build a page yourself
 
-The agent writes a scene, a small JSON file that describes what to draw, and runs the builder. You can do the same to tweak a page by hand or to render one in CI. This is [`examples/00-hello.json`](examples/00-hello.json):
+The agent writes a scene, a small JSON file that describes what to draw, and runs the builder. You can do the same to tweak a page by hand or to render one in CI.
+
+<details>
+<summary>The scene behind the page below: <code>examples/00-hello.json</code></summary>
 
 ```json
 {
@@ -84,6 +121,8 @@ The agent writes a scene, a small JSON file that describes what to draw, and run
   }]
 }
 ```
+
+</details>
 
 ```bash
 python3 scripts/build-scene.py examples/00-hello.json --open

@@ -3687,7 +3687,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       var data = (b.data || []).map(function (d) { return { d: parseDate(d[0]), v: d[1], k: d[0] }; }).filter(function (x) { return x.d; }).sort(function (a, c) { return a.d - c.d; });
       if (!data.length) { txt(g, 0, 14, T('Sem dados.'), 'small muted'); return { w: 200, h: 20 }; }
       var sc = heatScale(data.map(function (x) { return x.v; }), b), cs = 13, gap = 2, t0 = new Date(data[0].d), wk = function (d) { return Math.floor((d - t0 + t0.getDay() * 864e5) / (7 * 864e5)); }, x0 = 28, y0 = 18;
-      ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'].forEach(function (n, i) { if (i % 2) txt(g, x0 - 6, y0 + i * (cs + gap) + 10, n, 'tick', 'end'); });
+      (LANG === 'en' ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] : ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb']).forEach(function (n, i) { if (i % 2) txt(g, x0 - 6, y0 + i * (cs + gap) + 10, n, 'tick', 'end'); });
       var lastM = -1; data.forEach(function (x) { var c = wk(x.d), r = x.d.getDay(), st = sc(x.v), px = x0 + c * (cs + gap), py = y0 + r * (cs + gap);
         if (x.d.getMonth() !== lastM) { lastM = x.d.getMonth(); txt(g, px, y0 - 6, TLOC ? TLOC.format('%b')(x.d) : String(lastM + 1), 'tick'); }
         var cell = el('rect', { 'class': 'hm-cell', x: px, y: py, width: cs, height: cs, rx: 2, style: '--c: var(--' + st.cls + '); fill-opacity:' + st.op.toFixed(2) }, g);
