@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>visual-thinking: cinco identidades</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --bg: #fafafa; --fg: #16181d; --muted: #5b6270; --line: #e3e5ea; --accent: #2450e0; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root { --bg: #111317; --fg: #e9ebef; --muted: #a2a9b6; --line: #262a32; --accent: #7d9bff; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 "Hanken Grotesk", system-ui, sans-serif; }
+::selection { background: var(--accent); color: var(--bg); }
+main { max-width: 1240px; margin: 0 auto; padding: 48px 24px 80px; }
+h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.1; letter-spacing: -0.025em; margin: 0 0 12px; max-width: 18ch; }
+.lead { color: var(--muted); max-width: 60ch; margin: 0 0 40px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr)); gap: 40px 32px; }
+figure { margin: 0; }
+.frame { position: relative; aspect-ratio: 16 / 10; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg); }
+.frame iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; }
+figcaption { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-top: 14px; }
+figcaption h2 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+figcaption p { margin: 4px 0 0; color: var(--muted); font-size: 15px; max-width: 46ch; }
+a.open { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
+a.open:hover { text-decoration: underline; text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+table { width: 100%; border-collapse: collapse; margin-top: 56px; font-size: 15px; }
+th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Cinco identidades para a skill</h1>
+  <p class="lead">Mesmo conteúdo nas cinco páginas: o canvas, os componentes, um gráfico, uma matriz, paleta e tipografia. Clique para abrir e testar claro e escuro.</p>
+  <div class="grid">
+    <figure><div class="frame"><iframe src="precisao.html" title="Precisão" loading="lazy" tabindex="-1"></iframe></div>
+      <figcaption><div><h2>Precisão</h2><p>Linear e Vercel. Cinza neutro, linhas finas, um cobalto. Geist.</p></div><a class="open" href="precisao.html">Abrir</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="quadro.html" title="Quadro" loading="lazy" tabindex="-1"></iframe></div>
+      <figcaption><div><h2>Quadro</h2><p>Excalidraw e tldraw. Traço de marcador sobre pastel. Kalam e Figtree.</p></div><a class="open" href="quadro.html">Abrir</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="planta.html?theme=dark" title="Planta" loading="lazy" tabindex="-1"></iframe></div>
+      <figcaption><div><h2>Planta</h2><p>Blueprint técnico com carimbo de folha. IBM Plex Condensed e Mono.</p></div><a class="open" href="planta.html">Abrir</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="metro.html" title="Metrô" loading="lazy" tabindex="-1"></iframe></div>
+      <figcaption><div><h2>Metrô</h2><p>Mapa de Vignelli. Fluxos viram linhas coloridas a 45 e 90 graus. Archivo.</p></div><a class="open" href="metro.html">Abrir</a></figcaption></figure>
+    <figure><div class="frame"><iframe src="riso.html" title="Riso" loading="lazy" tabindex="-1"></iframe></div>
+      <figcaption><div><h2>Riso</h2><p>Risografia em duas tintas que se sobrepõem. Bricolage Grotesque.</p></div><a class="open" href="riso.html">Abrir</a></figcaption></figure>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Estilo</th><th>Onde brilha</th><th>Custo</th></tr></thead>
+    <tbody>
+      <tr><td>Precisão</td><td>Documentação séria, leitura longa, qualquer tema</td><td>Bonito, mas parecido com muita ferramenta dev</td></tr>
+      <tr><td>Quadro</td><td>Ideias cedo, brainstorm, modo Sketch</td><td>Não serve para números que alguém vai citar</td></tr>
+      <tr><td>Planta</td><td>Arquitetura e infraestrutura; o carimbo vira assinatura</td><td>Grade e tipo condensado cansam em páginas longas</td></tr>
+      <tr><td>Metrô</td><td>Fluxos e arquitetura; reconhecível de longe</td><td>Matrizes e gráficos herdam pouco do conceito</td></tr>
+      <tr><td>Riso</td><td>Explicar para quem não é técnico; o mais memorável</td><td>Duas tintas limitam a semântica de status</td></tr>
+    </tbody>
+  </table>
+  </div>
+</main>
+<script>
+  // scale each 1440x900 preview to its frame
+  function fitFrames() { document.querySelectorAll('.frame').forEach(function (f) { var i = f.querySelector('iframe'); i.style.transform = 'scale(' + (f.clientWidth / 1440) + ')'; }); }
+  window.addEventListener('resize', fitFrames); fitFrames();
+</script>
+</body>
+</html>

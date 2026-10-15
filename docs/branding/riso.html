@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>visual-thinking Riso</title>
+<script>
+/* theme before paint: ?theme= wins, then localStorage, else auto */
+(function(){
+  var q = new URLSearchParams(location.search).get('theme'), t = null;
+  try { t = localStorage.getItem('vt-riso-theme'); } catch(e) {}
+  if (q === 'light' || q === 'dark' || q === 'auto') t = q;
+  if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  window.__vtTheme = t || 'auto';
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=DM+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+/* Riso: two spot inks (Fluorescent Pink, Blue) that overprint by multiply on white paper,
+   and by screen on black paper where the inks glow. Text is the overprint of both inks. */
+:root {
+  --paper: #FCFBF8;
+  --paper-2: #F2F0EC;
+  --pink: #FF48B0;          /* Riso Fluorescent Pink */
+  --blue: #0078BF;          /* Riso Blue */
+  --over: #002284;          /* pink x blue, multiplied: the darkest overprint */
+  --text: #002284;
+  --text-2: #3A4C8F;
+  --on-blue: #FCFBF8;
+  --on-pink: #002284;
+  --on-over: #FCFBF8;
+  --rule: #C9CDE0;
+  --blend: multiply;
+  --mis-x: 1.6px; --mis-y: 1px;
+  --f-display: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  --f-ui: "Hanken Grotesk", system-ui, sans-serif;
+  --f-data: "DM Mono", ui-monospace, monospace;
+  --r: 8px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141217; --paper-2: #1E1B23;
+    --pink: #FF6EC2; --blue: #49B2F2; --over: #FFD3FC;
+    --text: #F6E6F7; --text-2: #C9B8D8;
+    --on-blue: #141217; --on-pink: #141217; --on-over: #141217;
+    --rule: #3A3444; --blend: screen; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #141217; --paper-2: #1E1B23;
+  --pink: #FF6EC2; --blue: #49B2F2; --over: #FFD3FC;
+  --text: #F6E6F7; --text-2: #C9B8D8;
+  --on-blue: #141217; --on-pink: #141217; --on-over: #141217;
+  --rule: #3A3444; --blend: screen; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--text);
+  font: 400 15px/1.55 var(--f-ui); overflow-x: hidden;
+}
+::selection { background: var(--pink); color: var(--on-pink); }
+* { scrollbar-color: var(--blue) var(--paper-2); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--paper-2); }
+::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 10px; border: 2px solid var(--paper-2); }
+:focus-visible { outline: 2.5px solid var(--pink); outline-offset: 2px; }
+a { color: var(--blue); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+@media (max-width: 600px) { .wrap { padding: 0 16px; } }
+
+/* plates: each ink is its own layer, blended onto the paper */
+.plate { mix-blend-mode: var(--blend); }
+.plate-pink { transform: translate(var(--mis-x), var(--mis-y)); }
+.f-pink { fill: var(--pink); } .s-pink { stroke: var(--pink); }
+.f-blue { fill: var(--blue); } .s-blue { stroke: var(--blue); }
+@media (prefers-reduced-motion: no-preference) {
+  .register .plate-pink { animation: reg-pink 1100ms cubic-bezier(.16,1,.3,1) 200ms both; }
+  .register .plate-blue { animation: reg-blue 1100ms cubic-bezier(.16,1,.3,1) 200ms both; }
+}
+@keyframes reg-pink { from { transform: translate(-11px, 7px); } to { transform: translate(var(--mis-x), var(--mis-y)); } }
+@keyframes reg-blue { from { transform: translate(9px, -6px); } to { transform: translate(0, 0); } }
+
+/* brand bar */
+.brandbar { padding: 22px 0 18px; }
+.brandbar .wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.mark { width: 46px; height: 46px; flex: none; }
+.wordmark { font: 800 26px/1 var(--f-display); font-stretch: 85%; letter-spacing: -0.03em; margin: 0; }
+.stylename { font: 500 12.5px/1 var(--f-data); color: var(--text-2); margin-top: 6px; }
+.tagline { font: 500 15px/1.3 var(--f-ui); color: var(--text-2); margin: 0 auto 0 12px; }
+@media (max-width: 760px) { .tagline { order: 3; flex-basis: 100%; margin: 0; } }
+
+.seg { display: inline-flex; border: 1.5px solid var(--blue); border-radius: 999px; padding: 2px; background: var(--paper); }
+.seg button { border: 0; background: none; padding: 6px 13px; border-radius: 999px; cursor: pointer; font: 600 13px/1 var(--f-ui); color: var(--text); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--blue); color: var(--on-blue); }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--paper-2); }
+
+/* sections */
+section { padding: 44px 0 24px; }
+h2 { font: 800 clamp(30px, 4.4vw, 46px)/1.02 var(--f-display); font-stretch: 82%; letter-spacing: -0.03em; margin: 0 0 8px; }
+.lede { margin: 0 0 26px; color: var(--text-2); max-width: 62ch; }
+h3 { font: 700 17px/1.2 var(--f-display); letter-spacing: -0.01em; margin: 0 0 12px; }
+
+/* canvas */
+.doc-head h1 { font: 800 clamp(28px, 4vw, 44px)/1.04 var(--f-display); font-stretch: 80%; letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+.doc-head p { margin: 6px 0 16px; font: 400 13px/1.4 var(--f-data); color: var(--text-2); }
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--rule); margin-bottom: 0; overflow-x: auto; }
+.tabs button { border: 0; background: none; padding: 10px 14px 9px; font: 600 14px/1 var(--f-ui); color: var(--text-2); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--pink); }
+.tabs button:hover { color: var(--text); }
+
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 312px; height: 620px; border: 2px solid var(--text); border-top: 0; border-radius: 0 0 12px 12px; overflow: hidden; background: var(--paper); }
+.canvas { position: relative; min-width: 0; }
+.canvas-scroll { position: absolute; inset: 0; overflow: auto; }
+.canvas svg.graph { display: block; width: 100%; height: 100%; min-width: 760px; min-height: 520px; isolation: isolate; }
+.toolbar { position: absolute; top: 14px; right: 14px; display: flex; gap: 8px; z-index: 2; }
+.toolbar .seg { box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--over) 45%, transparent); }
+.iconbtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 999px; border: 1.5px solid var(--blue); background: var(--paper); cursor: pointer; color: var(--text); font-size: 17px; }
+.iconbtn:hover { background: var(--paper-2); }
+.search { display: none; position: absolute; top: 58px; right: 14px; z-index: 2; }
+.search.open { display: block; }
+.search input { width: 220px; font: 500 14px var(--f-ui); color: var(--text); background: var(--paper); border: 1.5px solid var(--blue); border-radius: 999px; padding: 8px 14px; }
+.search input::placeholder { color: var(--text-2); }
+.zoom { position: absolute; right: 14px; bottom: 14px; z-index: 2; display: flex; border: 1.5px solid var(--blue); border-radius: 999px; background: var(--paper); padding: 2px; }
+.zoom button { border: 0; background: none; height: 32px; min-width: 34px; padding: 0 10px; border-radius: 999px; cursor: pointer; font: 600 13px var(--f-ui); color: var(--text); }
+.zoom button:hover { background: var(--paper-2); }
+
+/* svg text */
+.g-label { font: 700 15px var(--f-ui); }
+.g-sub { font: 500 11.5px var(--f-ui); }
+.g-file { font: 400 10.5px var(--f-data); fill: var(--text-2); }
+.g-group { font: 700 12.5px var(--f-display); fill: var(--text); letter-spacing: .01em; }
+.g-pill { font: 500 11px var(--f-data); fill: var(--text); }
+.knock { paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+.dimmable { transition: opacity .18s ease-out; }
+.dim { opacity: .14; }
+.hit { fill: transparent; cursor: pointer; outline: none; }
+.hit:focus-visible { stroke: var(--pink); stroke-width: 2.5; stroke-dasharray: 4 3; }
+.sel-ring { fill: none; stroke: var(--text); stroke-width: 2; }
+.mode-mapa .g-sub, .mode-mapa .pill { display: none; }
+.g-file { display: none; }
+.mode-detalhes .g-file { display: inline; }
+
+/* inspector */
+.inspector { border-left: 2px solid var(--text); overflow-y: auto; padding: 18px 18px 22px; background: var(--paper); }
+.crumb { font: 500 12px var(--f-data); color: var(--text-2); margin: 0 0 10px; }
+.insp-name { font: 800 28px/1 var(--f-display); font-stretch: 85%; letter-spacing: -0.02em; margin: 0; }
+.insp-sub { margin: 4px 0 8px; color: var(--text-2); }
+.filelink { font: 400 12.5px var(--f-data); word-break: break-all; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 4px; }
+.tag { display: inline-flex; align-items: center; gap: 5px; font: 600 12px/1 var(--f-ui); padding: 5px 9px; border-radius: 999px; }
+.tag-kind { background: var(--blue); color: var(--on-blue); }
+.tag-ok { background: var(--blue); color: var(--on-blue); }
+.tag-inf { border: 1.5px dashed var(--blue); color: var(--text); background: radial-gradient(circle, color-mix(in srgb, var(--blue) 40%, transparent) 0.8px, transparent 1.2px) 0 0 / 5px 5px; }
+.tag-unk { border: 1.5px dotted var(--text-2); color: var(--text-2); }
+.tag-crit { background: var(--pink); color: var(--on-pink); }
+.insp h4, .inspector h4 { font: 700 13.5px/1 var(--f-display); margin: 20px 0 8px; }
+.rel { display: flex; flex-direction: column; gap: 4px; }
+.rel button { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; text-align: left; width: 100%; border: 0; border-radius: 6px; background: var(--paper-2); padding: 8px 10px; cursor: pointer; }
+.rel button:hover { background: color-mix(in srgb, var(--blue) 16%, var(--paper)); }
+.rel b { font: 600 13.5px var(--f-ui); }
+.rel span { font: 400 11.5px var(--f-data); color: var(--text-2); }
+.legend { display: grid; grid-template-columns: 26px 1fr auto; gap: 6px 8px; align-items: center; font-size: 13px; }
+.legend svg { width: 26px; height: 16px; overflow: visible; isolation: isolate; }
+.legend .n { font: 500 12px var(--f-data); color: var(--text-2); }
+.notes { margin: 0; padding: 0; list-style: none; }
+.notes li { padding: 9px 10px; border-radius: 6px; background: color-mix(in srgb, var(--pink) 14%, var(--paper)); font-size: 13.5px; }
+.empty { text-align: left; padding: 8px 0; }
+.empty svg { width: 64px; height: 40px; isolation: isolate; }
+.empty p { margin: 8px 0 0; color: var(--text-2); font-size: 13.5px; max-width: 30ch; }
+.empty strong { display: block; font: 700 16px var(--f-display); color: var(--text); margin-top: 6px; }
+
+@media (max-width: 820px) {
+  .stage { grid-template-columns: 1fr; height: auto; }
+  .canvas { height: 460px; }
+  .inspector { border-left: 0; border-top: 2px solid var(--text); border-radius: 16px 16px 0 0; max-height: none; position: relative; padding-top: 26px; }
+  .inspector::before { content: ""; position: absolute; top: 9px; left: 50%; width: 44px; height: 4px; margin-left: -22px; border-radius: 4px; background: var(--rule); }
+  .toolbar { left: 10px; right: 10px; top: 10px; justify-content: space-between; }
+  .search { right: 10px; left: 10px; top: 54px; }
+  .search input { width: 100%; }
+  .zoom { right: 10px; bottom: 10px; }
+}
+
+/* components sheet */
+.sheet { display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 34px 28px; }
+.sheet > div { min-width: 0; }
+.c-6 { grid-column: span 6; } .c-4 { grid-column: span 4; } .c-8 { grid-column: span 8; } .c-12 { grid-column: span 12; }
+@media (max-width: 860px) { .c-6, .c-4, .c-8 { grid-column: span 12; } }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.btn { border-radius: 999px; padding: 10px 18px; font: 700 14px/1 var(--f-ui); cursor: pointer; border: 2px solid var(--blue); display: inline-flex; gap: 7px; align-items: center; transition: transform .12s ease-out, background .12s; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--blue); color: var(--on-blue); }
+.btn-primary:hover { background: color-mix(in srgb, var(--blue) 82%, var(--over)); }
+.btn-secondary { background: var(--paper); color: var(--text); }
+.btn-secondary:hover { background: var(--paper-2); }
+.btn-quiet { border-color: transparent; background: none; color: var(--text); text-decoration: underline; text-decoration-color: var(--pink); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.edgepill { font: 500 12px var(--f-data); padding: 4px 10px; border-radius: 999px; border: 1.5px solid var(--blue); background: var(--paper); }
+.edgepill.err { border-color: var(--pink); }
+.kinds { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 18px 14px; }
+.kinds figure { margin: 0; }
+@media (max-width: 1000px) { .kinds { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+@media (max-width: 600px) { .kinds { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.kinds svg { width: 100%; height: auto; display: block; isolation: isolate; overflow: visible; }
+.kinds figcaption { font: 600 13px var(--f-ui); margin-top: 6px; }
+.kinds figcaption span { display: block; font-weight: 400; color: var(--text-2); font-size: 12.5px; }
+.tip-demo { position: relative; padding-top: 58px; }
+.tooltip { position: absolute; top: 0; left: 0; background: var(--over); color: var(--on-over); border-radius: 8px; padding: 8px 11px; font-size: 13px; line-height: 1.35; max-width: 250px; }
+.tooltip::after { content: ""; position: absolute; left: 28px; bottom: -6px; width: 12px; height: 12px; background: var(--over); transform: rotate(45deg); }
+.tooltip b { font-weight: 700; }
+.callout { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px 16px; border-radius: 10px; position: relative; isolation: isolate; }
+.callout::before { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--pink) 30%, var(--paper)) 0 2px, var(--paper) 2px 7px); border: 2px solid var(--pink); }
+.callout i { font-size: 22px; color: var(--text); margin-top: 1px; }
+.callout b { display: block; font: 700 16px/1.25 var(--f-display); }
+.callout p { margin: 2px 0 0; font-size: 13.5px; background: var(--paper); display: inline; box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 3px; }
+.empty-card { border: 2px dashed var(--rule); border-radius: 12px; padding: 18px; }
+
+/* data */
+.data-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 34px; }
+@media (max-width: 900px) { .data-grid { grid-template-columns: 1fr; } }
+table.matrix { border-collapse: collapse; width: 100%; font-size: 14px; }
+.matrix th, .matrix td { padding: 11px 8px; text-align: left; }
+.matrix thead th { font: 700 14px var(--f-display); border-bottom: 2px solid var(--text); }
+.matrix tbody th { font-weight: 500; color: var(--text-2); font-size: 13px; }
+.matrix tbody tr + tr th, .matrix tbody tr + tr td { border-top: 1px solid var(--rule); }
+.matrix td { font: 400 14px var(--f-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.best { background: var(--blue); color: var(--on-blue); padding: 3px 8px; border-radius: 999px; }
+.yes { color: var(--text); } .no { color: var(--text-2); text-decoration: line-through; text-decoration-color: var(--pink); text-decoration-thickness: 2px; }
+.chart svg { width: 100%; height: auto; display: block; isolation: isolate; overflow: visible; }
+.c-axis { font: 400 11px var(--f-data); fill: var(--text-2); }
+.c-lab { font: 600 12.5px var(--f-ui); fill: var(--text); }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0; margin-top: 30px; border-top: 2px solid var(--text); }
+.kpi { padding: 16px 18px 6px 0; }
+.kpi + .kpi { padding-left: 18px; border-left: 1px solid var(--rule); }
+.kpi dt { font-weight: 600; font-size: 13.5px; color: var(--text-2); }
+.kpi dd { margin: 4px 0 0; font: 800 clamp(26px, 3.4vw, 38px)/1 var(--f-display); font-stretch: 85%; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.delta { display: inline-block; margin-top: 8px; font: 500 12.5px var(--f-data); padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--blue) 16%, var(--paper)); color: var(--text); }
+.delta.bad { background: var(--pink); color: var(--on-pink); }
+@media (max-width: 600px) { .kpis { grid-template-columns: 1fr; } .kpi + .kpi { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); } }
+
+/* tokens */
+.swatches { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; }
+@media (max-width: 760px) { .swatches { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+.sw { display: grid; grid-template-columns: 1fr 1fr; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--rule); }
+.sw .chip { height: 70px; }
+.sw .meta { grid-column: 1 / -1; padding: 10px 12px; font-size: 13px; }
+.sw .meta b { display: block; font: 700 15px var(--f-display); }
+.sw .meta code { font: 400 12px var(--f-data); color: var(--text-2); }
+.specimen { display: grid; gap: 22px; margin-top: 30px; }
+.spec { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: baseline; border-top: 1px solid var(--rule); padding-top: 14px; }
+.spec .who { font: 500 12.5px var(--f-data); color: var(--text-2); }
+.spec .s-display { font: 800 clamp(36px, 6vw, 68px)/.95 var(--f-display); font-stretch: 78%; letter-spacing: -0.035em; }
+.spec .s-body { font: 400 17px/1.55 var(--f-ui); max-width: 60ch; }
+.spec .s-data { font: 400 15px/1.5 var(--f-data); }
+@media (max-width: 600px) { .spec { grid-template-columns: 1fr; gap: 6px; } }
+
+.why { padding-bottom: 72px; }
+.why ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 70ch; }
+.why li { display: grid; grid-template-columns: 120px 1fr; gap: 14px; border-top: 1px solid var(--rule); padding-top: 10px; }
+.why li b { font: 700 15px var(--f-display); }
+@media (max-width: 600px) { .why li { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="p-dots-pink" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.25" class="f-pink"/></pattern>
+    <pattern id="p-dots-blue" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="0.95" class="f-blue"/></pattern>
+    <pattern id="p-dots-blue-dense" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.35" class="f-blue"/></pattern>
+    <pattern id="p-lines-blue" width="6" height="6" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="6" height="1.4" class="f-blue"/></pattern>
+    <pattern id="p-diag-pink" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect x="0" y="0" width="1.8" height="7" class="f-pink"/></pattern>
+    <marker id="m-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-blue"/></marker>
+    <marker id="m-pink" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="f-pink"/></marker>
+  </defs>
+</svg>
+
+<header class="brandbar register">
+  <div class="wrap">
+    <svg class="mark" viewBox="0 0 48 48" role="img" aria-label="Marca visual-thinking: dois nós de tinta ligados por uma aresta">
+      <g class="plate plate-pink">
+        <circle cx="15" cy="31" r="12" class="f-pink"/>
+      </g>
+      <g class="plate plate-blue">
+        <circle cx="34" cy="14" r="10" class="f-blue"/>
+        <line x1="15" y1="31" x2="34" y2="14" stroke-width="5" stroke-linecap="round" class="s-blue"/>
+      </g>
+    </svg>
+    <div>
+      <p class="wordmark">visual-thinking</p>
+      <div class="stylename">estilo Riso</div>
+    </div>
+    <p class="tagline">Desenhos que explicam sistemas.</p>
+    <div class="seg" role="group" aria-label="Tema" id="theme">
+      <button type="button" data-t="light">Claro</button>
+      <button type="button" data-t="dark">Escuro</button>
+      <button type="button" data-t="auto">Auto</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section aria-labelledby="doc-title" style="padding-top:18px">
+  <div class="wrap">
+    <div class="doc-head">
+      <h1 id="doc-title">Pedido pago vira email por uma fila</h1>
+      <p>shop-api · lido no código em 14/10/2026</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Vistas">
+      <button role="tab" aria-selected="true" data-scope="all">Visão geral</button>
+      <button role="tab" aria-selected="false" data-scope="api">Processo API</button>
+      <button role="tab" aria-selected="false" data-scope="worker">Processo worker</button>
+    </div>
+    <div class="stage">
+      <div class="canvas">
+        <div class="canvas-scroll">
+          <svg class="graph register mode-contexto" id="graph" viewBox="8 34 866 512" role="group" aria-label="Diagrama: pedido pago vira email por uma fila">
+            <g id="zoomwrap">
+              <g class="plate plate-pink" id="L-pink"></g>
+              <g class="plate plate-blue" id="L-blue"></g>
+              <g id="L-type"></g>
+              <g id="L-hit"></g>
+            </g>
+          </svg>
+        </div>
+        <div class="toolbar">
+          <div class="seg" role="group" aria-label="Nível de detalhe" id="detail">
+            <button type="button" data-m="mapa" aria-pressed="false">Mapa</button>
+            <button type="button" data-m="contexto" aria-pressed="true">Contexto</button>
+            <button type="button" data-m="detalhes" aria-pressed="false">Detalhes</button>
+          </div>
+          <button class="iconbtn" type="button" id="searchbtn" aria-label="Buscar no desenho" aria-expanded="false"><i class="ph ph-magnifying-glass" aria-hidden="true"></i></button>
+        </div>
+        <div class="search" id="search"><input type="search" placeholder="Buscar nó, ex.: fila" aria-label="Buscar nó"></div>
+        <div class="zoom" role="group" aria-label="Zoom">
+          <button type="button" data-z="-1" aria-label="Diminuir zoom"><i class="ph ph-minus" aria-hidden="true"></i></button>
+          <button type="button" data-z="0">ajustar</button>
+          <button type="button" data-z="1" aria-label="Aumentar zoom"><i class="ph ph-plus" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <aside class="inspector" id="inspector" aria-live="polite" aria-label="Inspetor"></aside>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-comp">
+  <div class="wrap">
+    <h2 id="h-comp">Componentes</h2>
+    <p class="lede">Duas tintas e o papel: azul é o nosso sistema, rosa é o que pede atenção, a sobreposição marca onde algo começa ou decide.</p>
+    <div class="sheet">
+      <div class="c-6">
+        <h3>Botões</h3>
+        <div class="row">
+          <button class="btn btn-primary" type="button"><i class="ph ph-share-network" aria-hidden="true"></i>Gerar desenho</button>
+          <button class="btn btn-secondary" type="button">Exportar SVG</button>
+          <button class="btn btn-quiet" type="button">Ver código</button>
+          <button class="btn btn-secondary" type="button" disabled>Publicar</button>
+        </div>
+      </div>
+      <div class="c-6">
+        <h3>Controle segmentado</h3>
+        <div class="seg demo-seg" role="group" aria-label="Exemplo de nível de detalhe">
+          <button type="button" aria-pressed="false">Mapa</button>
+          <button type="button" aria-pressed="true">Contexto</button>
+          <button type="button" aria-pressed="false">Detalhes</button>
+        </div>
+      </div>
+      <div class="c-6">
+        <h3>Status</h3>
+        <div class="row">
+          <span class="tag tag-ok"><i class="ph-bold ph-check" aria-hidden="true"></i>Verificado</span>
+          <span class="tag tag-inf">Inferido</span>
+          <span class="tag tag-unk">Desconhecido</span>
+          <span class="tag tag-crit"><i class="ph-bold ph-warning" aria-hidden="true"></i>assinatura</span>
+        </div>
+      </div>
+      <div class="c-6">
+        <h3>Rótulo de aresta</h3>
+        <div class="row">
+          <span class="edgepill">POST /orders</span>
+          <span class="edgepill">consome</span>
+          <span class="edgepill err">retenta 5×</span>
+        </div>
+      </div>
+      <div class="c-12">
+        <h3>Tipos de nó</h3>
+        <div class="kinds" id="kinds"></div>
+      </div>
+      <div class="c-4">
+        <h3>Dica</h3>
+        <div class="tip-demo">
+          <div class="tooltip" role="tooltip"><b>emailWorker</b> recebe da Fila Redis e grava no Postgres</div>
+          <span class="edgepill">emailWorker</span>
+        </div>
+      </div>
+      <div class="c-4">
+        <h3>Aviso</h3>
+        <div class="callout" role="note">
+          <i class="ph-bold ph-warning-octagon" aria-hidden="true"></i>
+          <div><b>O worker parado não gera alerta</b><p>Jobs acumulam na fila sem ninguém ver.</p></div>
+        </div>
+      </div>
+      <div class="c-4">
+        <h3>Inspetor vazio</h3>
+        <div class="empty-card" id="empty-demo"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="h-data">
+  <div class="wrap">
+    <h2 id="h-data">Dados</h2>
+    <p class="lede">O melhor valor de cada linha ganha tinta cheia; o resto fica no papel.</p>
+    <div class="data-grid">
+      <div>
+        <h3>Banco para pedidos</h3>
+        <table class="matrix">
+          <thead><tr><th scope="col"><span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Critério</span></th><th scope="col">PostgreSQL</th><th scope="col">MongoDB</th><th scope="col">DynamoDB</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Consultas ad hoc</th><td class="yes">sim</td><td class="yes">sim</td><td class="no">não</td></tr>
+            <tr><th scope="row">p99 leitura</th><td>12 ms</td><td>9 ms</td><td><span class="best">4 ms</span></td></tr>
+            <tr><th scope="row">Custo mensal</th><td><span class="best">480 US$</span></td><td>620 US$</td><td>910 US$</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="chart">
+        <h3>p95 por mês, em ms</h3>
+        <svg viewBox="0 0 600 290" id="chart" class="register" role="img" aria-label="Linha p95 por mês de janeiro a junho. Catálogo cai de 480 para 190 ms depois do cache em abril. Checkout estável perto de 180 ms. SLO em 300 ms."></svg>
+      </div>
+    </div>
+    <dl class="kpis">
+      <div class="kpi"><dt>Receita</dt><dd>R$ 184.300</dd><span class="delta">+6,1%</span></div>
+      <div class="kpi"><dt>Contas</dt><dd>2.140</dd><span class="delta">+92</span></div>
+      <div class="kpi"><dt>Churn</dt><dd>2,8%</dd><span class="delta bad">+0,5 pp</span></div>
+    </dl>
+  </div>
+</section>
+
+<section aria-labelledby="h-tok">
+  <div class="wrap">
+    <h2 id="h-tok">Tokens</h2>
+    <p class="lede">Cada swatch mostra papel claro à esquerda e papel preto à direita.</p>
+    <div class="swatches" id="swatches"></div>
+    <div class="specimen">
+      <div class="spec"><div class="who">Display<br>Bricolage Grotesque 800</div><div class="s-display">Fila Redis</div></div>
+      <div class="spec"><div class="who">Texto e interface<br>Hanken Grotesk</div><div class="s-body">A API responde 200 antes do email sair. Se o worker parar, os jobs ficam na fila até alguém notar.</div></div>
+      <div class="spec"><div class="who">Dados<br>DM Mono</div><div class="s-data">src/workers/emailWorker.js · p99 12 ms · 480 US$</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="why" aria-labelledby="h-why">
+  <div class="wrap">
+    <h2 id="h-why">Por que este estilo</h2>
+    <ul>
+      <li><b>Empresta</b><span>Zines em risografia: duas tintas chapadas, sobreposição que cria a terceira cor, registro um pouco fora.</span></li>
+      <li><b>Brilha</b><span>Arestas cruzando nós imprimem a terceira cor sozinhas, então o desenho mostra onde as coisas se tocam.</span></li>
+      <li><b>Custo</b><span>Só duas tintas limitam os tipos de nó; o resto depende de padrão e traço, que exige legenda.</span></li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+const NS = 'http://www.w3.org/2000/svg';
+const $ = s => document.querySelector(s);
+
+/* theme toggle */
+const themeSeg = $('#theme');
+function setTheme(t, persist){
+  if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+  themeSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === t)));
+  if (persist) { try { localStorage.setItem('vt-riso-theme', t); } catch(e) {} }
+}
+setTheme(window.__vtTheme, false);
+themeSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setTheme(b.dataset.t, true); });
+
+/* data */
+const KIND = { entry:'Entrada', component:'Componente', store:'Dados guardados', queue:'Fila', external:'Externo', critical:'Crítico', decision:'Decisão' };
+const EDGE = { request:'Chamada', event:'Evento', data:'Dados', error:'Erro' };
+const nodes = {
+  cliente: { label:'Cliente', sub:'SPA, envia JWT', kind:'entry', x:24, y:250, w:140, h:64, file:'web/src/api/orders.ts', status:'ok' },
+  stripe:  { label:'Stripe', sub:'cobra o cartão', kind:'external', inferred:true, x:240, y:60, w:150, h:64, file:'src/routes/webhooks.js', status:'inf' },
+  api:     { label:'API', sub:'valida e enfileira', kind:'component', crit:'assinatura', x:240, y:232, w:150, h:64, group:'api', file:'src/routes/orders.js', status:'ok' },
+  fila:    { label:'Fila Redis', sub:'jobs de email', kind:'queue', x:420, y:318, w:150, h:64, group:'api', file:'src/queue/email.js', status:'ok' },
+  worker:  { label:'emailWorker', sub:'envia o recibo', kind:'component', x:660, y:250, w:170, h:64, group:'worker', file:'src/workers/emailWorker.js', status:'ok' },
+  pg:      { label:'Postgres', sub:'pedidos e usuários', kind:'store', x:430, y:462, w:150, h:72, file:'src/db/schema.sql', status:'ok' }
+};
+const groups = {
+  api:    { label:'Processo API', x:216, y:196, w:376, h:212 },
+  worker: { label:'Processo worker', x:636, y:196, w:220, h:212 }
+};
+const edges = [
+  { f:'cliente', t:'api',    kind:'request', label:'POST /orders', d:'M164,282 C200,282 205,264 238,264' },
+  { f:'stripe',  t:'api',    kind:'event',   label:'webhook pago', d:'M315,124 L315,230' },
+  { f:'api',     t:'fila',   kind:'event',   label:'enfileira',    d:'M340,296 C340,340 370,350 418,350' },
+  { f:'fila',    t:'worker', kind:'data',    label:'consome',      d:'M570,340 C615,340 615,282 658,282' },
+  { f:'worker',  t:'fila',   kind:'error',   label:'retenta 5×',   d:'M712,314 C712,392 640,388 572,370' },
+  { f:'api',     t:'pg',     kind:'data',    label:'grava',        d:'M270,296 C270,470 350,498 428,498' },
+  { f:'worker',  t:'pg',     kind:'data',    label:'lê pedido',    d:'M800,314 C800,480 690,498 582,498' }
+];
+const notes = ['A API responde 200 antes do email sair.'];
+
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+/* draw one node into the three layers; returns nothing */
+function drawNode(id, n, P, B, T, opts){
+  opts = opts || {};
+  const tag = { 'data-n': id, class: 'dimmable' };
+  const x = n.x, y = n.y, w = n.w, h = n.h;
+  let labelFill = 'var(--text)', knock = true;
+  const gp = el('g', tag, P), gb = el('g', tag, B), gt = el('g', tag, T);
+  if (n.kind === 'entry') {
+    el('rect', { x, y, width:w, height:h, rx:h/2, class:'f-blue' }, gb);
+    el('rect', { x, y, width:w, height:h, rx:h/2, class:'f-pink' }, gp);
+    labelFill = 'var(--on-over)'; knock = false;
+  } else if (n.kind === 'component') {
+    el('rect', { x, y, width:w, height:h, rx:8, class:'f-blue' }, gb);
+    labelFill = 'var(--on-blue)'; knock = false;
+  } else if (n.kind === 'critical') {
+    el('rect', { x, y, width:w, height:h, rx:8, class:'f-pink' }, gp);
+    labelFill = 'var(--on-pink)'; knock = false;
+  } else if (n.kind === 'queue') {
+    el('rect', { x, y, width:w, height:h, rx:8, fill:'url(#p-lines-blue)' }, gb);
+    el('rect', { x:x+1, y:y+1, width:w-2, height:h-2, rx:7, fill:'none', 'stroke-width':2, class:'s-blue' }, gb);
+    for (let i = 0; i < 3; i++) el('rect', { x:x+w-34+i*9, y:y+12, width:5, height:h-24, rx:1.5, class:'f-blue' }, gb);
+  } else if (n.kind === 'store') {
+    const ry = 9;
+    const d = `M${x},${y+ry} A${w/2},${ry} 0 0 1 ${x+w},${y+ry} L${x+w},${y+h-ry} A${w/2},${ry} 0 0 1 ${x},${y+h-ry} Z`;
+    el('path', { d, fill:'url(#p-dots-blue)' }, gb);
+    el('path', { d, fill:'none', 'stroke-width':2, class:'s-blue' }, gb);
+    el('path', { d:`M${x},${y+ry} A${w/2},${ry} 0 0 0 ${x+w},${y+ry}`, fill:'none', 'stroke-width':2, class:'s-blue' }, gb);
+  } else if (n.kind === 'external') {
+    el('rect', { x, y, width:w, height:h, rx:8, fill:'url(#p-diag-pink)', opacity:.55 }, gp);
+    el('rect', { x:x+1, y:y+1, width:w-2, height:h-2, rx:7, fill:'none', 'stroke-width':2, class:'s-pink', 'stroke-dasharray': n.inferred ? '7 5' : null }, gp);
+  } else if (n.kind === 'decision') {
+    const cx = x+w/2, cy = y+h/2;
+    const d = `M${cx},${y} L${x+w},${cy} L${cx},${y+h} L${x},${cy} Z`;
+    el('path', { d, class:'f-blue' }, gb); el('path', { d, class:'f-pink' }, gp);
+    labelFill = 'var(--on-over)'; knock = false;
+  }
+  if (n.inferred && n.kind !== 'external') {
+    el('rect', { x:x+1, y:y+1, width:w-2, height:h-2, rx:7, fill:'none', 'stroke-width':2, class:'s-blue', 'stroke-dasharray':'7 5' }, gb);
+  }
+  const center = n.kind === 'decision';
+  const lx = center ? x+w/2 : x+14, anchor = center ? 'middle' : 'start';
+  const ly = n.kind === 'store' ? y+h/2+2 : (center ? y+h/2+5 : y+28);
+  const t1 = el('text', { x:lx, y:ly, 'text-anchor':anchor, class:'g-label' + (knock ? ' knock' : ''), fill:labelFill }, gt);
+  t1.textContent = n.label;
+  if (n.sub && !center) {
+    const t2 = el('text', { x:lx, y:ly+17, class:'g-sub' + (knock ? ' knock' : ''), fill:labelFill }, gt);
+    t2.textContent = n.sub;
+  }
+  if (n.file && !opts.mini) {
+    const t3 = el('text', { x:x, y:y+h+15, class:'g-file' }, gt); t3.textContent = n.file;
+  }
+  if (n.crit) {
+    const bw = 92, bx = x+w-bw+30, by = y-21;
+    el('rect', { x:bx, y:by, width:bw, height:24, rx:12, class:'f-pink' }, gp);
+    const tb = el('text', { x:bx+bw/2, y:by+16, 'text-anchor':'middle', class:'g-pill', style:'fill:var(--on-pink);font-weight:600' }, gt);
+    tb.textContent = n.crit;
+  }
+}
+
+/* graph */
+const svg = $('#graph'), P = $('#L-pink'), B = $('#L-blue'), T = $('#L-type'), H = $('#L-hit');
+for (const gid in groups) {
+  const g = groups[gid];
+  const a = { 'data-g': gid, class: 'dimmable' };
+  const gp = el('g', a, P);
+  el('rect', { x:g.x, y:g.y, width:g.w, height:g.h, rx:14, fill:'url(#p-dots-pink)', opacity:.5 }, gp);
+  el('rect', { x:g.x, y:g.y, width:g.w, height:g.h, rx:14, fill:'none', 'stroke-width':1.5, class:'s-pink' }, gp);
+  const t = el('text', { x:g.x+14, y:g.y+22, class:'g-group knock', 'data-g': gid }, T); t.textContent = g.label;
+}
+const edgeStyle = {
+  request: { plates:['blue','pink'], w:2.4, dash:null },
+  event:   { plates:['blue'], w:2.2, dash:'7 5' },
+  data:    { plates:['blue'], w:2.8, dash:null },
+  error:   { plates:['pink'], w:2.8, dash:'0.1 6' }
+};
+edges.forEach((e, i) => {
+  const s = edgeStyle[e.kind];
+  s.plates.forEach(p => {
+    el('path', { d:e.d, fill:'none', 'stroke-width':s.w, 'stroke-linecap':'round', class:'s-' + p + ' dimmable', 'stroke-dasharray': s.dash, 'marker-end':`url(#m-${p})`, 'data-e': i }, p === 'pink' ? P : B);
+  });
+});
+for (const id in nodes) drawNode(id, nodes[id], P, B, T);
+/* edge label pills go above nodes in the type layer */
+const pillLayer = el('g', {}, T);
+edges.forEach((e, i) => {
+  const probe = el('path', { d:e.d, fill:'none' }, H);
+  const L = probe.getTotalLength(), pt = probe.getPointAtLength(L * (e.kind === 'event' && e.f === 'stripe' ? .52 : .5));
+  probe.remove();
+  const g = el('g', { class:'pill dimmable', 'data-e': i }, pillLayer);
+  const r = el('rect', { rx:9, height:19, fill:'var(--paper)', 'stroke-width':1.4, stroke: e.kind === 'error' ? 'var(--pink)' : 'var(--blue)' }, g);
+  const t = el('text', { x:pt.x, y:pt.y+3.8, 'text-anchor':'middle', class:'g-pill' }, g);
+  t.textContent = e.label;
+  const tw = t.getComputedTextLength() || e.label.length * 6.6;
+  r.setAttribute('x', pt.x - tw/2 - 8); r.setAttribute('y', pt.y - 9.5); r.setAttribute('width', tw + 16);
+});
+/* hit targets + selection ring */
+const ring = el('rect', { class:'sel-ring', rx:12, visibility:'hidden' }, H);
+for (const id in nodes) {
+  const n = nodes[id];
+  const h = el('rect', { x:n.x-4, y:n.y-4, width:n.w+8, height:n.h+8, rx:12, class:'hit', tabindex:0, role:'button', 'aria-label': `${n.label}, ${KIND[n.kind]}: ${n.sub}`, 'data-id': id }, H);
+  h.addEventListener('mouseenter', () => light([id]));
+  h.addEventListener('mouseleave', () => light(null));
+  h.addEventListener('focus', () => light([id]));
+  h.addEventListener('blur', () => light(null));
+  h.addEventListener('click', () => select(id));
+  h.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(id); } });
+}
+
+let scope = 'all';
+function neighbours(id){
+  const s = new Set([id]);
+  edges.forEach(e => { if (e.f === id) s.add(e.t); if (e.t === id) s.add(e.f); });
+  return s;
+}
+function light(ids){
+  let litN = null, litE = null, litG = null;
+  if (ids) {
+    litN = new Set(); ids.forEach(id => neighbours(id).forEach(x => litN.add(x)));
+    litE = new Set(); edges.forEach((e, i) => { if (ids.includes(e.f) || ids.includes(e.t)) litE.add(String(i)); });
+  } else if (scope !== 'all') {
+    litN = new Set(Object.keys(nodes).filter(k => nodes[k].group === scope));
+    litE = new Set(); edges.forEach((e, i) => { if (litN.has(e.f) && litN.has(e.t)) litE.add(String(i)); });
+    litG = scope;
+  }
+  svg.querySelectorAll('[data-n]').forEach(x => x.classList.toggle('dim', !!litN && !litN.has(x.dataset.n)));
+  svg.querySelectorAll('[data-e]').forEach(x => x.classList.toggle('dim', !!litE && !litE.has(x.dataset.e)));
+  svg.querySelectorAll('[data-g]').forEach(x => x.classList.toggle('dim', !!litG && x.dataset.g !== litG));
+}
+
+/* inspector */
+const insp = $('#inspector');
+const swatchFor = {
+  entry:     '<g class="plate plate-blue"><rect x="1" y="2" width="24" height="12" rx="6" class="f-blue"/></g><g class="plate plate-pink"><rect x="1" y="2" width="24" height="12" rx="6" class="f-pink"/></g>',
+  component: '<g class="plate"><rect x="1" y="2" width="24" height="12" rx="3" class="f-blue"/></g>',
+  queue:     '<g class="plate"><rect x="1.5" y="2.5" width="23" height="11" rx="3" fill="url(#p-lines-blue)" stroke-width="1.5" class="s-blue"/></g>',
+  store:     '<g class="plate"><rect x="1.5" y="2.5" width="23" height="11" rx="5" fill="url(#p-dots-blue-dense)" stroke-width="1.5" class="s-blue"/></g>',
+  external:  '<g class="plate"><rect x="1.5" y="2.5" width="23" height="11" rx="3" fill="url(#p-diag-pink)" stroke-width="1.5" stroke-dasharray="4 3" class="s-pink"/></g>',
+  request:   '<g class="plate"><line x1="1" y1="8" x2="25" y2="8" stroke-width="2.4" class="s-blue"/></g><g class="plate plate-pink"><line x1="1" y1="8" x2="25" y2="8" stroke-width="2.4" class="s-pink"/></g>',
+  event:     '<g class="plate"><line x1="1" y1="8" x2="25" y2="8" stroke-width="2.2" stroke-dasharray="6 4" class="s-blue"/></g>',
+  data:      '<g class="plate"><line x1="1" y1="8" x2="25" y2="8" stroke-width="2.8" class="s-blue"/></g>',
+  error:     '<g class="plate"><line x1="2" y1="8" x2="25" y2="8" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="0.1 6" class="s-pink"/></g>'
+};
+function legendHTML(){
+  const nk = {}, ek = {};
+  Object.values(nodes).forEach(n => nk[n.kind] = (nk[n.kind] || 0) + 1);
+  edges.forEach(e => ek[e.kind] = (ek[e.kind] || 0) + 1);
+  let h = '';
+  for (const k in nk) h += `<svg viewBox="0 0 26 16" aria-hidden="true">${swatchFor[k]}</svg><span>${KIND[k]}</span><span class="n">${nk[k]}</span>`;
+  for (const k in ek) h += `<svg viewBox="0 0 26 16" aria-hidden="true">${swatchFor[k]}</svg><span>${EDGE[k]}</span><span class="n">${ek[k]}</span>`;
+  h += `<svg viewBox="0 0 26 16" aria-hidden="true"><g class="plate plate-pink"><rect x="1" y="2" width="24" height="12" rx="6" class="f-pink"/></g></svg><span>Crítico</span><span class="n">1</span>`;
+  return `<div class="legend">${h}</div>`;
+}
+function relRows(list){
+  if (!list.length) return '<p class="insp-sub" style="margin:0">Nada.</p>';
+  return '<div class="rel">' + list.map(r => `<button type="button" data-go="${r.id}"><b>${nodes[r.id].label}</b><span>${r.label}</span></button>`).join('') + '</div>';
+}
+function emptyHTML(){
+  return `<div class="empty"><svg viewBox="0 0 64 40" aria-hidden="true"><g class="plate plate-pink"><circle cx="16" cy="24" r="10" fill="none" stroke-width="2" stroke-dasharray="4 3" class="s-pink"/></g><g class="plate plate-blue"><circle cx="46" cy="14" r="8" fill="none" stroke-width="2" stroke-dasharray="4 3" class="s-blue"/><line x1="25" y1="20" x2="38" y2="16" stroke-width="2" class="s-blue"/></g></svg>
+  <strong>Nenhum nó selecionado</strong><p>Clique em um nó do desenho para ver de onde ele recebe e para onde envia.</p></div>`;
+}
+function select(id){
+  const n = nodes[id];
+  const inn = edges.filter(e => e.t === id).map(e => ({ id:e.f, label:e.label }));
+  const out = edges.filter(e => e.f === id).map(e => ({ id:e.t, label:e.label }));
+  const grp = n.group ? groups[n.group].label : 'fora dos processos';
+  const st = n.status === 'inf' ? '<span class="tag tag-inf">Inferido</span>' : '<span class="tag tag-ok"><i class="ph-bold ph-check" aria-hidden="true"></i>Verificado</span>';
+  const crit = n.crit ? `<span class="tag tag-crit"><i class="ph-bold ph-warning" aria-hidden="true"></i>${n.crit}</span>` : '';
+  insp.innerHTML = `<p class="crumb">Visão geral / ${grp}</p>
+    <h3 class="insp-name">${n.label}</h3>
+    <p class="insp-sub">${n.sub}</p>
+    <a class="filelink" href="#" onclick="return false">${n.file}</a>
+    <div class="tags"><span class="tag tag-kind">${KIND[n.kind]}</span>${st}${crit}</div>
+    <h4>Recebe de</h4>${relRows(inn)}
+    <h4>Sai para</h4>${relRows(out)}
+    <h4>Legenda deste desenho</h4>${legendHTML()}
+    <h4>Anotações</h4><ul class="notes">${notes.map(x => `<li>${x}</li>`).join('')}</ul>`;
+  insp.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+    select(b.dataset.go);
+    const t = H.querySelector(`[data-id="${b.dataset.go}"]`); if (t) t.focus({ preventScroll:true });
+  }));
+  ring.setAttribute('x', n.x-7); ring.setAttribute('y', n.y-7); ring.setAttribute('width', n.w+14); ring.setAttribute('height', n.h+14);
+  ring.setAttribute('visibility', 'visible');
+}
+select('worker');
+$('#empty-demo').innerHTML = emptyHTML();
+
+/* tabs scope */
+document.querySelectorAll('.tabs [role=tab]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs [role=tab]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  scope = b.dataset.scope; light(null);
+}));
+/* detail level */
+$('#detail').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  $('#detail').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  svg.classList.remove('mode-mapa', 'mode-contexto', 'mode-detalhes'); svg.classList.add('mode-' + b.dataset.m);
+});
+document.querySelectorAll('.demo-seg').forEach(sg => sg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  sg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+}));
+/* search */
+const sb = $('#searchbtn'), sbox = $('#search'), sin = sbox.querySelector('input');
+sb.addEventListener('click', () => {
+  const open = !sbox.classList.contains('open');
+  sbox.classList.toggle('open', open); sb.setAttribute('aria-expanded', String(open));
+  if (open) sin.focus(); else { sin.value = ''; light(null); }
+});
+sin.addEventListener('input', () => {
+  const q = sin.value.trim().toLowerCase();
+  if (!q) return light(null);
+  const hits = Object.keys(nodes).filter(k => (nodes[k].label + ' ' + nodes[k].sub).toLowerCase().includes(q));
+  if (!hits.length) return light(null);
+  svg.querySelectorAll('[data-n]').forEach(x => x.classList.toggle('dim', !hits.includes(x.dataset.n)));
+  svg.querySelectorAll('[data-e],[data-g]').forEach(x => x.classList.add('dim'));
+});
+/* zoom */
+let z = 1; const zw = $('#zoomwrap');
+document.querySelector('.zoom').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = +b.dataset.z; z = d === 0 ? 1 : Math.min(1.8, Math.max(.6, z + d * .2));
+  zw.setAttribute('transform', `translate(${441 * (1 - z)} ${290 * (1 - z)}) scale(${z})`);
+});
+
+/* node kinds sheet */
+const kindsEl = $('#kinds');
+const demo = [
+  ['entry', 'Entrada', 'onde o fluxo começa'],
+  ['component', 'Componente', 'código nosso'],
+  ['store', 'Dados guardados', 'banco, arquivo'],
+  ['queue', 'Fila', 'mensagens em espera'],
+  ['external', 'Externo', 'fora do nosso controle'],
+  ['critical', 'Crítico', 'falha aqui custa caro'],
+  ['decision', 'Decisão', 'o fluxo se divide']
+];
+demo.forEach(([k, name, desc]) => {
+  const f = document.createElement('figure');
+  const s = el('svg', { viewBox:'0 0 160 84', role:'img', 'aria-label': name, class:'register' }, f);
+  const p = el('g', { class:'plate plate-pink' }, s), bl = el('g', { class:'plate plate-blue' }, s), t = el('g', {}, s);
+  const n = { label: k === 'decision' ? 'pago?' : name, sub: k === 'decision' ? '' : '', kind:k, x:6, y:10, w:148, h:64 };
+  if (k === 'decision') { n.x = 40; n.w = 80; n.h = 70; n.y = 7; }
+  drawNode('k-' + k, n, p, bl, t, { mini:true });
+  const cap = document.createElement('figcaption'); cap.innerHTML = `${name}<span>${desc}</span>`; f.appendChild(cap);
+  kindsEl.appendChild(f);
+});
+
+/* chart */
+(function(){
+  const c = $('#chart');
+  const xs = i => 70 + i * 100, ys = v => 250 - v / 500 * 228;
+  const months = ['jan','fev','mar','abr','mai','jun'];
+  const cat = [480,470,460,210,200,190], chk = [180,185,182,178,181,179];
+  const gt = el('g', {}, c);
+  [0,100,200,300,400,500].forEach(v => {
+    el('line', { x1:60, x2:580, y1:ys(v), y2:ys(v), stroke:'var(--rule)', 'stroke-width':1 }, gt);
+    const t = el('text', { x:50, y:ys(v)+4, 'text-anchor':'end', class:'c-axis' }, gt); t.textContent = v;
+  });
+  months.forEach((m, i) => { const t = el('text', { x:xs(i), y:272, 'text-anchor':'middle', class:'c-axis' }, gt); t.textContent = m; });
+  const pk = el('g', { class:'plate plate-pink' }, c), bl = el('g', { class:'plate plate-blue' }, c), tx = el('g', {}, c);
+  const line = arr => arr.map((v, i) => (i ? 'L' : 'M') + xs(i) + ',' + ys(v)).join(' ');
+  el('path', { d: line(cat) + ` L${xs(5)},250 L${xs(0)},250 Z`, fill:'url(#p-dots-blue)', opacity:.7 }, bl);
+  el('path', { d: line(cat), fill:'none', 'stroke-width':3, 'stroke-linejoin':'round', class:'s-blue' }, bl);
+  el('path', { d: line(chk), fill:'none', 'stroke-width':3, 'stroke-linejoin':'round', class:'s-blue' }, bl);
+  el('path', { d: line(chk), fill:'none', 'stroke-width':3, 'stroke-linejoin':'round', class:'s-pink' }, pk);
+  el('line', { x1:60, x2:580, y1:ys(300), y2:ys(300), 'stroke-width':2, 'stroke-dasharray':'8 5', class:'s-pink' }, pk);
+  cat.forEach((v, i) => el('circle', { cx:xs(i), cy:ys(v), r:4, class:'f-blue' }, bl));
+  const lab = (x, y, s, a) => { const t = el('text', { x, y, 'text-anchor': a || 'start', class:'c-lab knock' }, tx); t.textContent = s; return t; };
+  lab(xs(0) - 4, ys(480) - 12, 'Catálogo');
+  lab(xs(0) - 4, ys(180) - 12, 'Checkout');
+  lab(578, ys(300) - 8, 'SLO 300 ms', 'end');
+  el('line', { x1:xs(3), x2:xs(3), y1:ys(210) - 10, y2:ys(420), stroke:'var(--text)', 'stroke-width':1.3 }, tx);
+  lab(xs(3) + 6, ys(420) + 4, 'cache');
+})();
+
+/* swatches */
+const sw = [
+  ['Rosa fluorescente', '#FF48B0', '#FF6EC2', 'atenção, crítico, erro, externo'],
+  ['Azul', '#0078BF', '#49B2F2', 'nosso sistema, seleção'],
+  ['Sobreimpressão', '#002284', '#FFD3FC', 'as duas tintas juntas; texto'],
+  ['Papel', '#FCFBF8', '#141217', 'fundo'],
+  ['Papel 2', '#F2F0EC', '#1E1B23', 'poços, linhas de lista'],
+  ['Texto 2', '#3A4C8F', '#C9B8D8', 'texto secundário']
+];
+$('#swatches').innerHTML = sw.map(([n, l, d, u]) => `<div class="sw"><div class="chip" style="background:${l}"></div><div class="chip" style="background:${d}"></div><div class="meta"><b>${n}</b><code>${l} / ${d}</code><br>${u}</div></div>`).join('');
+})();
+</script>
+</body>
+</html>
