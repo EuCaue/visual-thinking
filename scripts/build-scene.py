@@ -45,6 +45,9 @@ TYPES = {
     "gantt",
     "sankey",
     "treemap",
+    "code",
+    "math",
+    "map",
 }
 DIFFS = {"added", "removed", "changed"}
 GRAPH_KINDS = {
@@ -207,6 +210,8 @@ def check_graph(b, p, w, c):
                 c
                 + f"edge {e.get('from')}→{e.get('to')} prob deve ser número entre 0 e 1: {e['prob']!r}"
             )
+    if b.get("engine") and b["engine"] not in ("elk", "dagre"):
+        p(c + f"engine desconhecido: {b['engine']!r} (elk ou dagre)")
     if len(nodes) + len(groups) > 12:
         w(
             c
@@ -483,6 +488,40 @@ def check_treemap(b, p, c):
     walk(root, [])
 
 
+def check_code(b, p, w, c):
+    code = b.get("code")
+    if not isinstance(code, str) or not code.strip():
+        p(c + "code sem code")
+        return
+    n = code.count("\n") + 1
+    if n > 60:
+        w(c + f"code com {n} linhas; mostre só o trecho que importa (até 60)")
+    start = b.get("start", 1)
+    for h in b.get("highlight") or []:
+        ln = h if isinstance(h, int) else h.get("line") if isinstance(h, dict) else None
+        if not isinstance(ln, int) or not (start <= ln < start + n):
+            p(c + f"highlight fora do trecho: {h!r} (linhas {start} a {start + n - 1})")
+
+
+def check_map(b, p, w, c):
+    geo = b.get("geo", "world")
+    if geo not in ("world", "br") and not str(geo).startswith(("http://", "https://")):
+        p(c + f"map geo desconhecido: {geo!r} (world, br ou URL de GeoJSON/TopoJSON)")
+    vals = b.get("values") or {}
+    items = vals.items() if isinstance(vals, dict) else [((v or {}).get("key") or (v or {}).get("id") or (v or {}).get("name"), (v or {}).get("value")) for v in vals]
+    for k, v in items:
+        if not k:
+            p(c + "map: valor sem key")
+        if not isinstance(v, (int, float)):
+            p(c + f"map: valor de {k!r} não numérico: {v!r}")
+    for pt in b.get("points") or []:
+        lat, lon = pt.get("lat"), pt.get("lon")
+        if not (isinstance(lat, (int, float)) and -90 <= lat <= 90 and isinstance(lon, (int, float)) and -180 <= lon <= 180):
+            p(c + f"map: ponto '{pt.get('label', '?')}' sem lat/lon válidos")
+    if not vals and not b.get("points"):
+        p(c + "map sem values nem points")
+
+
 def check_block(b, p, w, c):
     t = b.get("type")
     if t not in TYPES:
@@ -510,6 +549,13 @@ def check_block(b, p, w, c):
         check_sankey(b, p, c)
     elif t == "treemap":
         check_treemap(b, p, c)
+    elif t == "code":
+        check_code(b, p, w, c)
+    elif t == "math":
+        if not (b.get("tex") or "").strip():
+            p(c + "math sem tex")
+    elif t == "map":
+        check_map(b, p, w, c)
     elif t in ("matrix",):
         if not (b.get("columns") or b.get("rows")):
             p(c + "matrix sem columns/rows")
@@ -683,6 +729,10 @@ def _walk_text(o, c, w, labels, top=False):
 def check_scene(scene, p, w):
     if not scene.get("title"):
         p("scene sem title")
+    if scene.get("style") not in (None, "clean", "sketch"):
+        p(f"scene style desconhecido: {scene['style']!r} (clean ou sketch)")
+    if scene.get("lang") not in (None, "pt", "en"):
+        p(f"scene lang desconhecido: {scene['lang']!r} (pt ou en)")
     if not (scene.get("summary") or "").strip():
         w("scene sem summary")
     views = scene.get("views")
@@ -704,6 +754,90 @@ def check_scene(scene, p, w):
         for b in v.get("blocks") or []:
             b["_view_ids"] = view_ids
             check_block(b, p, w, f"vista '{vid}' · block '{b.get('id')}': ")
+
+
+def needs(scene):
+    """Optional libraries and map geometry this scene uses."""
+    blocks = [b for v in scene.get("views", []) for b in (v.get("blocks") or [])]
+    libs, geos = [], []
+    if scene.get("style") == "sketch":
+        libs.append("rough")
+    if any(b.get("type") == "code" for b in blocks):
+        libs.append("hljs")
+    if scene.get("math") or any(b.get("type") == "math" for b in blocks):
+        libs.append("katex")
+    if any(b.get("type") == "graph" and b.get("engine") == "dagre" for b in blocks):
+        libs.append("dagre")
+    for b in blocks:
+        if b.get("type") == "map":
+            g = b.get("geo", "world")
+            if g in ("world", "br") and g not in geos:
+                geos.append(g)
+            if g == "world" or "topo" in str(g).lower():
+                libs.append("topojson")
+    return list(dict.fromkeys(libs)), geos
+
+
+def simplify(coords, tol):
+    """Douglas-Peucker on one ring, then 3-decimal rounding (about 100 m)."""
+    pts = [c[:2] for c in coords]
+    if len(pts) < 5:
+        return [[round(x, 3), round(y, 3)] for x, y in pts]
+    keep = [False] * len(pts)
+    keep[0] = keep[-1] = True
+
+    def dist(i, a, z):
+        (x1, y1), (x2, y2), (x, y) = pts[a], pts[z], pts[i]
+        dx, dy = x2 - x1, y2 - y1
+        n = (dx * dx + dy * dy) ** 0.5
+        if n < 1e-12:  # closed ring: the chord is a point
+            return ((x - x1) ** 2 + (y - y1) ** 2) ** 0.5
+        return abs(dy * x - dx * y + x2 * y1 - y2 * x1) / n
+
+    stack = [(0, len(pts) - 1)]
+    while stack:
+        a, z = stack.pop()
+        best, bi = 0.0, -1
+        for i in range(a + 1, z):
+            d = dist(i, a, z)
+            if d > best:
+                best, bi = d, i
+        if bi > 0 and (best > tol or (a == 0 and z == len(pts) - 1)):
+            keep[bi] = True
+            stack += [(a, bi), (bi, z)]
+    out = [[round(x, 3), round(y, 3)] for (x, y), k in zip(pts, keep) if k]
+    return out if len(out) >= 4 else [[round(x, 3), round(y, 3)] for x, y in pts]
+
+
+def geo_data(key, w):
+    """World TopoJSON as published; Brazilian states simplified once and cached."""
+    import urllib.request
+
+    root = pathlib.Path(__file__).resolve().parent.parent
+    tpl = (root / "templates" / "canvas.html").read_text()
+    libs = json.loads(re.search(r'<script id="vt-libs" type="application/json">(.*?)</script>', tpl, re.S).group(1))
+    cache = root / ".vt-libs"
+    f = cache / ("geo-" + key + ".json")
+    if f.exists():
+        return f.read_text()
+    url = libs["worldAtlas" if key == "world" else "brStates"]["url"]
+    try:
+        with urllib.request.urlopen(url, timeout=60) as r:
+            data = json.loads(r.read())
+    except Exception as e:
+        w(f"mapa '{key}' sem rede ({e}); a página baixa a geometria ao abrir")
+        return None
+    if key == "br":
+        for ft in data["features"]:
+            g = ft["geometry"]
+            polys = g["coordinates"] if g["type"] == "MultiPolygon" else [g["coordinates"]]
+            polys = [[simplify(ring, 0.01) for ring in poly] for poly in polys]
+            g["coordinates"] = polys if g["type"] == "MultiPolygon" else polys[0]
+            ft["properties"] = {k: ft["properties"][k] for k in ("name", "sigla", "codigo_ibg") if k in ft["properties"]}
+    text = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
+    cache.mkdir(exist_ok=True)
+    f.write_text(text)
+    return text
 
 
 def inline_libs(page, w):
@@ -786,6 +920,14 @@ def main():
         page,
         count=1,
     )
+    libs, geos = needs(scene)
+    lib_urls = json.loads(re.search(r'<script id="vt-libs" type="application/json">(.*?)</script>', tpl, re.S).group(1))
+    tags = "".join(f'<script src="{lib_urls[n]["url"]}"></script>\n' for n in libs)
+    for g in geos:
+        data = geo_data(g, lambda q: print(f"{src}: nota: {q}"))
+        if data:
+            tags += f'<script id="vt-geo-{g}" type="application/json">{data}</script>\n'
+    page = page.replace("<!-- VT:LIBS -->", tags.rstrip("\n") or "<!-- VT:LIBS -->", 1)
     if "--self-contained" in sys.argv:
         page = inline_libs(page, p)
 

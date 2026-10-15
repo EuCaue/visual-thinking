@@ -71,3 +71,11 @@ Headless checks (`_headless.py` builds `--self-contained`, opens the page in Chr
 - `test_text_budget.py`, `test_new_blocks.py`, `test_pipeline.py`: lint warnings and its false positives, validation of the new blocks, import extraction on a mixed Python/TS fixture, diff marks.
 
 Lesson: full Chrome's new headless mode clamps the window to 500 px wide, so a "375 px" run silently measured 500 px. `chrome-headless-shell` (Playwright's cache) honours the size; the helper prefers it and the test prints a warning when the width differs. Also: `localStorage` set from a `file://` page does not survive into the run, so tests pick the mode through `?mode=` instead.
+
+## Results, 2026-10-15, optional libraries
+
+Added from the library survey: rough.js (`style: "sketch"`), highlight.js (`code` block), KaTeX (`math` block, inline `$...$` with `math: true`, MathML output), topojson-client plus world-atlas and Brazilian states (`map` block), dagre (`engine: "dagre"` on graphs). The template lists them pinned in `<script id="vt-libs">`; the build adds a script only for what the scene uses and embeds the map geometry, so a plain scene loads nothing new and `--self-contained` pages stay offline. Brazilian states come from `click_that_hood` at a pinned commit (3.3 MB) and are simplified once at build time (Douglas-Peucker, 0.01°) to 250 KB, cached in `.vt-libs/`.
+
+`test_libs.py`: a plain scene gets no optional script; a scene with all five gets exactly those plus both geometries; offline, the page draws colored code tokens, a MathML formula, 27 states with 3 filled, the world, a dagre graph with its group, and hand-drawn shapes; the validator names a bad style, a highlight outside the snippet, a formula without TeX, an unknown geo, a point off the globe and an unknown engine.
+
+Lesson: Douglas-Peucker on a closed ring starts from a zero-length chord (first point equals last), so every distance came out zero and each state collapsed to a triangle. The first split now measures distance to the start point.

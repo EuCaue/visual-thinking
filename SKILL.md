@@ -48,6 +48,9 @@ Fast lookup, then draw. The default template is `canvas.html`.
 | see parts of a whole that nest | `treemap` (`layout: "sunburst"` for a ring) |
 | see a value across two categories, or per day | `heatmap` (`calendar: true` for days) |
 | see tasks with durations and dependencies | `gantt` |
+| see values by state or country, or places on a map | `map` (`geo: "br"` for Brazilian states) |
+| read the lines of code that matter | `code` with `highlight` notes |
+| see a formula | `math` (`math: true` for inline `$...$`) |
 | see what changed between two versions of a system | `scripts/scene-diff.py` over two scenes: graph or entity with `diff` marks |
 | see hierarchy or containment | `tree` |
 | organize loose ideas | `tree` with `layout: "mindmap"` |
@@ -69,7 +72,7 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 
 | Mode | Trigger | What changes |
 |---|---|---|
-| Sketch | casual, quick ask: "faz um esquema", "desenha aí", an idea to lay out | The whole flow shrinks: SKILL.md alone, the fast lookup, strategy.md only if the choice is borderline. One view, 1–2 blocks, the first one answers. Assumptions go in the subtitle, nothing asked back. One build; the browser pass is a single look if a tool exists. Chat: title, absolute path, one line. |
+| Sketch | casual, quick ask: "faz um esquema", "desenha aí", an idea to lay out | Set `style: "sketch"` so the page looks as provisional as it is. The whole flow shrinks: SKILL.md alone, the fast lookup, strategy.md only if the choice is borderline. One view, 1–2 blocks, the first one answers. Assumptions go in the subtitle, nothing asked back. One build; the browser pass is a single look if a tool exists. Chat: title, absolute path, one line. |
 | Explain | "não entendi X", a concept, protocol or algorithm, no repo | Draw the mechanism from documentation or knowledge. `basis: "docs"`. Tag what you are not sure of as `inferred`; name the spec or doc in `source`. |
 | Document | "arquitetura atual", "como funciona aqui", a file or feature | Investigate first. `basis: "code"`, `source` names the directories read, `date` the day. |
 | Plan | "planeje", "proponha", "como você faria" | One question when goal, scale or constraints are missing; otherwise state assumptions. `basis: "proposal"`: decided `verified`, suggestions `inferred`, open questions `unknown`. Trade-offs in annotations. Reuse real components where they exist. |
@@ -92,7 +95,7 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 
-Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, sixteen prompts, sixteen different pictures (`sh scripts/build-examples.sh`).
+Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, seventeen prompts, seventeen different pictures (`sh scripts/build-examples.sh`).
 
 ## Build the page
 

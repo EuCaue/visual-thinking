@@ -84,6 +84,9 @@ What the data actually is, independent of the chart you have in mind:
 | Flow of quantity + stages | Sankey: band width is the amount, the total stays visible at each stage | `sankey` |
 | Values on a grid | Heatmap: one hue, intensity is the value, numbers in the cells when they fit; diverging hues only around a meaningful middle | `heatmap` |
 | Rhythm over days | Calendar heatmap, weeks as columns | `heatmap` with `calendar: true` |
+| Values by place | Choropleth of the regions, one hue; points for sites | `map` |
+| Explain code | The few lines that matter, highlighted, each with its note | `code` |
+| Explain a formula | The formula once, its symbols named in the text | `math` |
 | Distribution + samples | Histogram; dot plot when under ~40 values and the individual values matter | `chart` kind `histogram` or `dot` |
 | Relationship + pairs of measures | Scatter, labels when under ~40 points, annotation on outliers | `chart` kind `scatter` |
 | Relationship + nodes and edges | Graph with boundaries, typed edges, labels placed by the layout engine; views per process when more than one | `graph`, one view per process |
@@ -128,6 +131,9 @@ Compose when one strategy is not enough: a comparison matrix plus a callout; a t
 - No heatmap with diverging colors unless the middle (`mid`) means something (zero, target, average).
 - No gantt without dates; an order without dates is `steps`.
 - No `entity` for runtime components; tables and keys only. Services and queues are a `graph`.
+- No map when place does not change the answer; a sorted bar chart reads faster.
+- No sketch style on numbers someone will quote or on a final document.
+- No code block longer than the point; 60 lines is already a file, link it instead.
 
 ## 5. When to ask
 
