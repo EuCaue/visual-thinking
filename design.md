@@ -38,7 +38,7 @@ One 16px icon set drawn in the runtime (`KICON`), one 1.4 stroke, geometry only,
 
 ## Selection
 
-A click keeps the selected element's neighborhood lit until something else is picked: the node gets one 2px accent ring 4px outside its card (the card keeps its own outline; never both), its edges thicken, everything else drops to 30% opacity. Keyboard focus reuses that ring at 60% instead of adding an outline. Hover shows the same neighborhood for a glance without committing.
+A click keeps the selected element's neighborhood lit until something else is picked: the element's own outline turns 2px accent (a card's border, a circle's stroke), never a second ring around it; an element with no outline of its own (open card, gantt row, funnel stage, timeline event) gets a 1.5px rounded outline with no fill, so its label stays visible. Its edges thicken, everything else drops to 30% opacity. Keyboard focus lights the same outline at 1.5px instead of adding a browser outline. Hover shows the same neighborhood for a glance without committing.
 
 Esc, a click on empty canvas, "Visão geral" in the inspector and "Limpar seleção" in the context menu all return to rest: no selection, no lit neighborhood, no isolated subgraph, the view summary in the inspector. The menu item appears only when there is something to clear.
 
