@@ -97,6 +97,10 @@ At rest the inspector shows the view summary, the basis (`Lido no código`, `Bas
 
 A line never runs under text it does not own. Each edge may touch only its two end nodes and its own label; group titles move along the top band to a free stretch; tree levels share a left edge so links never pass behind a wider sibling; the gantt's today label gets its own row above the dates. `tests/audit_layout.py` checks every view of every example for arrow → text, arrow → card, arrow → arrow, label → card and text → text, and a new drawing type is not done until it passes.
 
+## Code
+
+Code blocks use Xcode's Default Light and Default Dark themes: pink bold keywords, red strings, blue numbers (yellow in dark), gray comments, teal functions, navy types (cyan in dark). The colors live in `--hl-*` on `.vt-code`, so no other mark borrows them.
+
 ## Tables
 
 A `matrix` is a table built for the canvas, not an HTML table pasted in. Column widths follow content (text columns up to 280px, number columns hold a bar and the value, booleans a mark); header alignment follows the cells (text left, numbers right, marks centered); rows grow to three lines, long codes break after `_ / . -`, and a cut cell shows its full value on hover. Rows with a `group` fold under a heading with a chevron and a count. A click opens the row as a record in the inspector. Zoomed far out, rows turn into bars so the shape of the data stays readable. Wider than the screen even after text columns shrink to 120px, the table stacks.
