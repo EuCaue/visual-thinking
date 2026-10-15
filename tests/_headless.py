@@ -2,7 +2,7 @@
 
 No test dependency beyond Chrome itself: the probe is a script appended to the page that
 waits for the render, measures, and writes JSON into <pre id="vt-probe">; Chrome's
---dump-dom hands the DOM back. Pages are built --self-contained so no network is needed
+--dump-dom hands the DOM back. Pages are built offline (the default) so no network is needed
 after the first build fills .vt-libs/.
 """
 
@@ -40,7 +40,7 @@ def build(scene, tmp, name="page", pre="", act=""):
     src = pathlib.Path(tmp) / (name + ".json")
     out = pathlib.Path(tmp) / (name + ".html")
     src.write_text(json.dumps(scene, ensure_ascii=False))
-    r = subprocess.run(["python3", str(ROOT / "scripts/build-scene.py"), str(src), str(out), "--self-contained", "--no-text-lint"], capture_output=True, text=True, cwd=ROOT)
+    r = subprocess.run(["python3", str(ROOT / "scripts/build-scene.py"), str(src), str(out), "--no-text-lint"], capture_output=True, text=True, cwd=ROOT)
     assert r.returncode == 0, r.stdout + r.stderr
     page = out.read_text()
     probe = PROBE + ("<script>window.__probeAct = function () { " + act + " };</script>" if act else "")

@@ -1,7 +1,7 @@
 """Optional libraries: code (highlight.js), math (KaTeX), map (topojson + embedded geometry), dagre engine, sketch style (rough.js).
 
 The build must add only the libraries a scene uses; the page must render each block with no error,
-offline (--self-contained), and the validator must name broken fields.
+offline (the default build), and the validator must name broken fields.
 """
 
 import json, pathlib, subprocess, sys, tempfile
@@ -42,11 +42,11 @@ def test_build_adds_only_what_is_used():
     with tempfile.TemporaryDirectory() as t:
         src, out = pathlib.Path(t) / "s.json", pathlib.Path(t) / "s.html"
         plain = {"title": "T", "basis": "docs", "views": [{"id": "m", "title": "V", "blocks": [{"type": "text", "id": "t", "text": "x"}]}]}
-        src.write_text(json.dumps(plain)); r = sh("scripts/build-scene.py", str(src), str(out), "--no-text-lint")
+        src.write_text(json.dumps(plain)); r = sh("scripts/build-scene.py", str(src), str(out), "--no-text-lint", "--cdn")
         page = out.read_text()
         assert r.returncode == 0 and not any(tag(page, k) for k in urls), "cena simples não carrega libs opcionais"
         assert 'id="vt-geo-' not in page, "nem geometria"
-        src.write_text(json.dumps(SCENE)); r = sh("scripts/build-scene.py", str(src), str(out), "--no-text-lint")
+        src.write_text(json.dumps(SCENE)); r = sh("scripts/build-scene.py", str(src), str(out), "--no-text-lint", "--cdn")
         page = out.read_text()
         for k in ("rough", "hljs", "katex", "topojson", "dagre"):
             assert tag(page, k), k

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Inject a scene JSON into templates/canvas.html.
 
-Usage: build-scene.py scene.json out.html [title] [--fragment] [--validate-only]
+Usage: build-scene.py scene.json out.html [title] [--cdn] [--fragment] [--validate-only] [--no-text-lint]
+
+The page works offline by default: the libraries it uses are inlined (fetched once
+into .vt-libs/). --cdn keeps <script src> tags instead, for a lighter file that needs
+the network. Layout libraries a scene does not use (ELK, d3-sankey) are left out.
 
 The scene is validated first; an invalid scene is not built. Exit 0 prints the
 output path; exit 1 prints the problems, one per line, prefixed by the scene file.
@@ -48,7 +52,10 @@ TYPES = {
     "code",
     "math",
     "map",
+    "custom",
 }
+LIB_HOSTS = ("https://cdn.jsdelivr.net/npm/", "https://cdn.jsdelivr.net/gh/", "https://cdnjs.cloudflare.com/ajax/libs/", "https://unpkg.com/")
+COLOR_RE = re.compile(r"#[0-9a-fA-F]{3,8}\b|\brgba?\(")
 DIFFS = {"added", "removed", "changed"}
 GRAPH_KINDS = {
     "entry",
@@ -522,6 +529,22 @@ def check_map(b, p, w, c):
         p(c + "map sem values nem points")
 
 
+def check_custom(b, p, w, c, lib_names):
+    kinds = [k for k in ("svg", "html", "draw") if b.get(k)]
+    if len(kinds) != 1:
+        p(c + "custom precisa de exatamente um entre svg, html e draw")
+        return
+    if not (b.get("alt") or "").strip():
+        w(c + "custom sem alt: uma frase com o que o desenho mostra (modo leitura e leitor de tela)")
+    if kinds[0] in ("svg", "html") and not (isinstance(b.get("width"), (int, float)) and isinstance(b.get("height"), (int, float))):
+        p(c + f"custom {kinds[0]} precisa de width e height")
+    if COLOR_RE.search(b[kinds[0]]):
+        w(c + "custom com cor literal; use var(--accent), var(--fg), var(--s1)... para valer nos dois temas")
+    for n in b.get("libs") or []:
+        if n not in lib_names:
+            p(c + f"custom usa lib desconhecida {n!r}; declare em scene.libs ou use uma das embutidas")
+
+
 def check_block(b, p, w, c):
     t = b.get("type")
     if t not in TYPES:
@@ -556,6 +579,8 @@ def check_block(b, p, w, c):
             p(c + "math sem tex")
     elif t == "map":
         check_map(b, p, w, c)
+    elif t == "custom":
+        check_custom(b, p, w, c, b.get("_lib_names") or ())
     elif t in ("matrix",):
         if not (b.get("columns") or b.get("rows")):
             p(c + "matrix sem columns/rows")
@@ -735,6 +760,14 @@ def check_scene(scene, p, w):
         p(f"scene lang desconhecido: {scene['lang']!r} (pt ou en)")
     if not (scene.get("summary") or "").strip():
         w("scene sem summary")
+    lib_names = {"rough", "hljs", "katex", "topojson", "dagre"}
+    for l in scene.get("libs") or []:
+        if not (isinstance(l, dict) and l.get("name") and l.get("url")):
+            p(f"scene libs: cada item é {{name, url, global}}: {l!r}")
+            continue
+        if not str(l["url"]).startswith(LIB_HOSTS) or "@" not in str(l["url"]):
+            p(f"scene lib '{l['name']}': URL precisa vir de jsDelivr, cdnjs ou unpkg com versão fixa (nome@1.2.3)")
+        lib_names.add(l["name"])
     views = scene.get("views")
     if not views or not isinstance(views, list):
         p("scene sem views")
@@ -753,6 +786,7 @@ def check_scene(scene, p, w):
             check_scenarios(v["scenarios"], p, f"vista '{vid}': ")
         for b in v.get("blocks") or []:
             b["_view_ids"] = view_ids
+            b["_lib_names"] = lib_names
             check_block(b, p, w, f"vista '{vid}' · block '{b.get('id')}': ")
 
 
@@ -768,6 +802,9 @@ def needs(scene):
         libs.append("katex")
     if any(b.get("type") == "graph" and b.get("engine") == "dagre" for b in blocks):
         libs.append("dagre")
+    for b in blocks:
+        if b.get("type") == "custom":
+            libs += list(b.get("libs") or [])
     for b in blocks:
         if b.get("type") == "map":
             g = b.get("geo", "world")
@@ -853,6 +890,8 @@ def inline_libs(page, w):
     cache = root / ".vt-libs"
     for url in re.findall(r'<script src="(https://[^"]+)"></script>', page):
         name = url.rsplit("/", 1)[-1].split("?")[0]
+        if name.startswith("index"):  # generic file names would collide in the cache
+            name = re.sub(r"[^A-Za-z0-9.@-]+", "_", url.split("://", 1)[-1])
         lib = cache / name
         if not lib.exists():
             cache.mkdir(exist_ok=True)
@@ -864,7 +903,7 @@ def inline_libs(page, w):
                 continue
         page = page.replace(
             f'<script src="{url}"></script>',
-            "<script>\n" + lib.read_text() + "\n</script>",
+            "<script>\n" + lib.read_text().replace("</script", "<\\/script") + "\n</script>",
         )
     return page
 
@@ -890,6 +929,7 @@ def main():
         problems.append(f"validação interrompida: {e}")
     for b in [b for v in scene.get("views", []) for b in (v.get("blocks") or [])]:
         b.pop("_view_ids", None)
+        b.pop("_lib_names", None)
     for q in warns:
         print(f"{src}: nota: {q}")
     for q in problems:
@@ -922,13 +962,20 @@ def main():
     )
     libs, geos = needs(scene)
     lib_urls = json.loads(re.search(r'<script id="vt-libs" type="application/json">(.*?)</script>', tpl, re.S).group(1))
+    lib_urls.update({l["name"]: {"url": l["url"], "global": l.get("global", l["name"])} for l in scene.get("libs") or []})
     tags = "".join(f'<script src="{lib_urls[n]["url"]}"></script>\n' for n in libs)
     for g in geos:
         data = geo_data(g, lambda q: print(f"{src}: nota: {q}"))
         if data:
             tags += f'<script id="vt-geo-{g}" type="application/json">{data}</script>\n'
     page = page.replace("<!-- VT:LIBS -->", tags.rstrip("\n") or "<!-- VT:LIBS -->", 1)
-    if "--self-contained" in sys.argv:
+    # drop the always-on layout libraries this scene never calls (ELK alone is 1.6 MB)
+    blocks = [b for v in scene.get("views", []) for b in (v.get("blocks") or [])]
+    if not any(b.get("type") in ("graph", "tree", "mindmap", "entity") for b in blocks):
+        page = re.sub(r'<script src="https://[^"]*elkjs[^"]*"></script>\n?', "", page)
+    if not any(b.get("type") == "sankey" for b in blocks):
+        page = re.sub(r'<script src="https://[^"]*d3-sankey[^"]*"></script>\n?', "", page)
+    if "--cdn" not in sys.argv:
         page = inline_libs(page, p)
 
     out = pathlib.Path(args[1]).resolve()

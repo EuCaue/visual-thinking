@@ -62,7 +62,7 @@ Fast lookup, then draw. The default template is `canvas.html`.
 | see conversion through stages | `funnel` |
 | see the numbers at a glance | `kpi` |
 | show a photo, screenshot, diagram image or video | `free` with `image`/`video` elements (`src` a link or page-relative path) |
-| none of them fit | `free` |
+| none of them fit | `free`, then `custom` (your own SVG, HTML or d3 code); see "When no block fits" |
 
 Borderline choices, compositions of several blocks, the anti-choices and the "when to ask" list: [strategy.md](strategy.md). Different prompts with different intents must produce different pictures; boxes and arrows for a comparison or a matrix for a trend means the lookup was skipped.
 
@@ -80,6 +80,18 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 | Summarize | a pasted text plus "preguiça de ler", "resume visualmente" | Draw only what the text says. Nothing added, nothing inferred beyond the text. |
 | Decide | "qual escolher", "vale a pena", trade-off, buy vs build, risk, scenarios | `basis: "decision"`. `decision` block with weights and a stated `weightBasis` (never equal weights by default), `tornado` for what flips the answer, `graph` with consequence paths, `scenarios` for alternative futures. The title names the recommendation; the reader must trace it to criteria. |
 
+## When no block fits
+
+The blocks are a floor, not a ceiling. Never bend the information to fit a block: when the picture the reader needs is not in the lookup, draw it yourself. Climb only as far as needed:
+
+1. Compose existing blocks (a matrix beside a chart, a graph above a callout).
+2. `free`: shapes, text and arrows placed on an 8px grid.
+3. `custom`: your own drawing inside the page. `svg` (markup), `html` (markup in the canvas) or `draw` (a JavaScript body that receives `g` and `api` with d3, measuring, wrapping, tooltips, inspector and legend hooks). Any element with `data-title` becomes clickable, with `data-sub`, `data-detail` and `data-file` in the inspector. Write `alt`, one sentence of what it shows: it is the text in reading mode and for screen readers.
+4. A library the runtime lacks: declare it in the scene's `libs` (`{name, url, global}`, pinned version from jsDelivr, cdnjs or unpkg) and list its name in the block's `libs`. The build inlines it, so the page stays offline.
+5. A page the canvas cannot host at all (a long-form explainer, a simulation): write your own HTML from `templates/svg.html`, keeping `templates/_tokens.css`.
+
+Whatever you draw keeps the contract: colors only as `var(--token)` (the build warns on literal colors), both themes, labels and units, nothing essential hidden behind a click, the text budget.
+
 ## Investigate before drawing the real thing
 
 1. Start at the entry points: the main file, router, CLI, scheduler, package manifest. For a module map of a Python, JS/TS or Go repo, `python3 scripts/extract-deps.py <repo> draft.json` drafts the graph from the real imports (overview plus one view per large module, top external packages); it reads only, runs nothing. Treat it as the skeleton: rewrite the title and summaries, give each node its real responsibility in `sub`, then read the files the user asked about.
@@ -95,14 +107,14 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 
-Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, twenty prompts, twenty different pictures (`18-catalogo` holds one of every block) (`sh scripts/build-examples.sh`).
+Schemas, slots and what each block shows at each level: [formats.md](formats.md). Design rules the templates enforce: [design.md](design.md). Reference pages: `examples/*.json`, twenty-one prompts, twenty-one different pictures (`18-catalogo` holds one of every block) (`sh scripts/build-examples.sh`).
 
 ## Build the page
 
 1. Write the scene JSON. Fill only the schema: `title` (the finding), `subtitle`, `basis`, `source`, `date`, `summary`, views, blocks. Do not restyle: tokens, type, theme, controls and inspector are the design system.
 2. Fill the levels within the text budget (below). Level 1 is the drawing: every block has a `title` that says what the reader learns, axes carry a label or `unit`, edges carry a label of at most 4 words, nodes carry `sub`. Level 2 and 3 are the fields the inspector reads: `note`, `detail`, `evidence`, `notes`, `text`, `source`. They are optional: fill one only with a fact the shape does not show. A `summary` states the finding of the page or the view in one sentence; it never describes the page, its tabs or its audience. Groups hold at least one node. In sketch mode this shrinks to the minimum: page `title`, block titles and content; `summary`, `source`, `date` and level-3 fields stay out.
 3. Keep nothing essential behind a click: the default view answers the question. Interaction adds depth, never the core. When the scene names files, set `root` (the absolute repo path) so every `file` opens in the editor.
-4. Build: `python3 scripts/build-scene.py scene.json out.html "Title"` (standalone document). The build validates the scene first: dangling ids, unlabeled edges, unknown kinds, empty groups, out-of-range values; exit 1 lists each problem with the block it belongs to, and nothing is built until they are fixed. On success the first output line is the absolute path of the page. `--self-contained` inlines the two libraries so the page works fully offline (build fetches them once; without network it keeps the CDN tags and warns). Without Python, copy the template and replace the JSON in `<script id="scene">` and the `<title>`.
+4. Build: `python3 scripts/build-scene.py scene.json out.html "Title"` (standalone document). The build validates the scene first: dangling ids, unlabeled edges, unknown kinds, empty groups, out-of-range values; exit 1 lists each problem with the block it belongs to, and nothing is built until they are fixed. On success the first output line is the absolute path of the page. The page works offline by default: the build inlines the libraries the scene uses (fetched once into `.vt-libs/`; without network it keeps the CDN tags and warns). `--cdn` keeps the tags for a lighter file. Without Python, copy the template and replace the JSON in `<script id="scene">` and the `<title>`.
 5. Verify when a browser tool exists: open the page, look once at light and dark and once at phone width (375px; it opens in reading mode, `?mode=draw` shows the canvas), click one element and read the inspector, check the legend names every color and line style on screen, and that no console error appears. Then two readings: the reader test (would someone who never saw the prompt understand what is compared, measured or connected, and in what unit?) and the sense test — walk the scene element by element and fix or delete anything you cannot state the reason for: an element nobody asked about, a series without a source, an edge whose meaning you cannot name. A drawing with dead elements is as broken as one that does not render.
 6. Deliver with whatever the harness offers, in this order: a publish tool (use `--fragment` when the tool wraps pages in its own document; give the link); a file-send tool with inline rendering; otherwise `docs/diagrams/<slug>.html` in the project. Always give the **full absolute path** (`/home/.../docs/diagrams/<slug>.html`), never a relative or shortened one; the build already prints it. To point at one element, give the deep link (`...html#v=<view>&b=<block>&k=<id>`). If the user says they will show, send, present or document the result, also write it to `docs/diagrams/`.
 

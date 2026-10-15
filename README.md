@@ -39,6 +39,7 @@ The full contract the agent follows lives in [SKILL.md](SKILL.md).
 | see what changed between two versions | `scripts/scene-diff.py`, marks on `graph` and `entity` |
 | see values on a map (countries, Brazilian states) | `map` |
 | read code or a formula | `code`, `math` |
+| anything else | `custom`: the agent's own SVG, HTML or d3 code, with any pinned library |
 
 Reference pages for each: `examples/`. `02-comparacao-tecnologias.json` compares three databases, `05-fluxo-autenticacao.json` draws OAuth PKCE with evidence tags, `11-decisao-arquitetural.json` picks a message broker with a weighted matrix and a tornado, `12-analise-cenarios.json` runs a migration under three scenarios, `13-modelo-de-dados.json` draws an HR data model, `14-cronograma.json` a migration plan, `15-fluxo-orcamento.json` a budget as sankey and treemap, `16-mapa-de-calor.json` support load by hour and by day.
 
@@ -61,8 +62,8 @@ ln -sfn "$PWD" ~/.agents/skills/visual-thinking
 Write a scene JSON (start from an `examples/*.json` file), build it, open the page:
 
 ```bash
-python3 scripts/build-scene.py my-scene.json my-page.html
-python3 scripts/build-scene.py my-scene.json my-page.html --self-contained   # inlina d3 e elkjs: a página funciona offline
+python3 scripts/build-scene.py my-scene.json my-page.html          # offline: libraries inlined
+python3 scripts/build-scene.py my-scene.json my-page.html --cdn    # lighter file, loads libraries from CDNs
 ```
 
 On success the first output line is the absolute path of the page. `--validate-only` checks without writing; `--fragment` skips the document tags for publish tools that add their own skeleton. The build also warns when the scene carries more text than the drawing needs (`texto:` lines; `--no-text-lint` silences them).
@@ -81,15 +82,15 @@ python3 scripts/scene-diff.py before.json after.json diff.json   # one scene wit
 - `design.md`: the design system the templates enforce.
 - `templates/canvas.html`, `svg.html`, `mermaid.html`: the three renderers. `canvas.html` is the default.
 - `scripts/`: build, import extractor, scene diff, token sync, contrast check.
-- `examples/`: twenty scenes (`18-catalogo` has one of every block, `19` the sketch style in English, `20` a diff), rebuilt by `sh scripts/build-examples.sh`.
+- `examples/`: twenty-one scenes (`18-catalogo` has one of every block, `19` the sketch style in English, `20` a diff, `21` custom drawings), rebuilt by `sh scripts/build-examples.sh`.
 - `tests/`: regression tests for the validator and every canvas feature; the `test_responsive` and `test_runtime_features` files measure pages in headless Chrome (prefers Playwright's `chrome-headless-shell`, since full Chrome's headless mode will not go below 500px wide; `VT_CHROME` overrides).
 
 ## Limits
 
-- Charts, trees, graphs and flows load d3, elkjs and d3-sankey from CDNs, plus the optional libraries a page uses; offline they show a one-line message instead. Everything else renders offline. A build with `--self-contained` inlines the libraries into the file, so it works fully offline.
+- Pages work offline by default: the build inlines d3 and only the other libraries the scene uses (ELK only for graphs, trees and models; sankey, rough.js, highlight.js, KaTeX, topojson, dagre only when used) and embeds map geometry. A text-only page is about 300 KB; one with a graph about 2 MB. The first build needs the network once to fill `.vt-libs/`; `--cdn` skips inlining.
 - A graph view stays under 12 nodes plus groups; more than that belongs in an overview view plus one view per part.
 - The agent never invents data: with no real numbers in reach, it draws the underlying structure and marks values unknown, or asks for them.
-- The repo is private for now; the skill itself has no telemetry and no network calls beyond the CDNs (none with `--self-contained`).
+- The repo is private for now; the skill itself has no telemetry and no network calls once built (CDNs only with `--cdn`).
 
 ## Contributing
 
