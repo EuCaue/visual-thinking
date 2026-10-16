@@ -6,8 +6,10 @@ description: >-
   timeline, a process, ideas to organize, a pasted text). Also when an
   explanation of how parts connect, how values compare or what happens over
   time would take more than three paragraphs of prose.
+license: MIT
 metadata:
   opencode/slash: "true"
+  version: "1.0.0"
 ---
 
 # Visual thinking

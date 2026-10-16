@@ -29,3 +29,7 @@ Every claim in the README, SKILL.md, strategy.md, formats.md and design.md has t
 ## Reporting a problem
 
 Open an issue with the bug template: the smallest scene JSON that shows it, what you expected, and the theme and window width. A scene is worth a thousand descriptions.
+
+## Releasing
+
+Bump `metadata.version` in `SKILL.md`, then run `sh scripts/package-skill.sh`. It writes `dist/visual-thinking-<version>.zip` (one `visual-thinking/` folder with the instructions, templates, scripts and example scenes) and prints its SHA-256 for the release notes. Tag the commit `v<version>` and attach the zip to the GitHub release.

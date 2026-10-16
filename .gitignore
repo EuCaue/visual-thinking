@@ -5,3 +5,4 @@ PROGRESS.md
 .worktrees/
 .vt-libs/
 __pycache__/
+dist/

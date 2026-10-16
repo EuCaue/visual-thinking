@@ -41,6 +41,8 @@ Or clone it into your agent's skills folder:
 git clone https://github.com/EuCaue/visual-thinking ~/.claude/skills/visual-thinking
 ```
 
+Or download the zip from [Releases](https://github.com/EuCaue/visual-thinking/releases) and unzip it there.
+
 That path is for Claude Code. For Codex and other agents that read skills, clone it into `~/.agents/skills/` instead. Building pages needs Python 3, with no packages to install.
 
 ## Use it
