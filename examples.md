@@ -163,3 +163,24 @@ The build flags it: summary with 59 words that "descreve a página ou a navegaç
 ```
 
 Navigation is the interface's job; the audience is the reader's to know; the summary is the finding.
+
+## 6. A deck with pages versus a deck that argues
+
+**Request:** "Build a presentation about the email worker migration."
+
+**Bad:** twelve slides, five bullets each, every title a topic ("Context", "Architecture", "Results"), and no sentence the audience can repeat.
+
+**Good:** six slides, one claim each: the cover; the problem; the synchronous path; the p95 before and after; the decision with weights; the close. The graph is the same `graph` block from the canvas, not a screenshot of it. The notes carry the detail; the slide carries the sentence.
+
+```json
+{
+  "deck": true,
+  "views": [
+    { "id": "cover", "cover": true, "summary": "An architecture decision in six slides", "notes": "Start with the problem." },
+    { "id": "problem", "section": true, "title": "The problem", "summary": "The response waited for SMTP." },
+    { "id": "flow", "title": "Synchronous sending couples three failures", "summary": "The retry starts on the other side.", "notes": "Follow the error edge." }
+  ]
+}
+```
+
+The build warns when a deck has no cover, no notes, a slide over 100 words or a slide with more than four blocks. Those warnings are the deck's editing pass.

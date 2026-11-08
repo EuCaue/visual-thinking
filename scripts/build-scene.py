@@ -5,6 +5,7 @@ Usage: build-scene.py scene.json [out.html] [title] [--open] [--cdn] [--fragment
 
 Without out.html the page is written next to the scene (my-scene.json -> my-scene.html).
 --open opens the built page in the default browser.
+A scene with "deck": true renders as a 16:9 presentation: one view per slide.
 
 The page works offline by default: the libraries it uses are inlined (fetched once
 into .vt-libs/). --cdn keeps <script src> tags instead, for a lighter file that needs
@@ -705,6 +706,8 @@ def check_text(scene, w):
             w(f"text: view '{vid}' summary has {words(v['summary'])} words; max 25")
         if META_RE.search(v.get("summary") or ""):
             w(f"text: view '{vid}' summary describes navigation; state the view's finding")
+        if scene.get("deck") and words(v.get("title") or "") > 10:
+            w(f"text: slide '{vid}' title has {words(v['title'])} words; keep it to one line or two")
         for a in v.get("annotations") or []:
             total += words(a)
             if words(a) > 25:
@@ -731,7 +734,9 @@ def check_text(scene, w):
         hits = sorted({l for l in labels if len(l) > 2 and l.lower() in s.lower()})
         if len(hits) >= 3:
             w(f"text: view '{vid}' summary repeats {len(hits)} labels from the drawing ({', '.join(hits[:4])}); say what they mean together")
-        if total > CAP_VIEW_WORDS:
+        if scene.get("deck") and total > 100:
+            w(f"text: slide '{vid}' has {total} words; above 100 words a slide is a document, split it")
+        elif total > CAP_VIEW_WORDS:
             w(f"text: view '{vid}' has {total} words; above {CAP_VIEW_WORDS} the page has turned into prose, cut detail/text with no new fact")
 
 
@@ -774,6 +779,9 @@ def check_scene(scene, p, w):
         p(f"unknown scene style: {scene['style']!r} (clean or sketch)")
     if scene.get("lang") not in (None, "pt", "en"):
         p(f"unknown scene lang: {scene['lang']!r} (pt or en)")
+    if "deck" in scene and not isinstance(scene["deck"], bool):
+        p(f"scene deck must be true or false: {scene['deck']!r}")
+    deck = scene.get("deck") is True
     if not (scene.get("summary") or "").strip():
         w("scene has no summary")
     lib_names = {"rough", "hljs", "katex", "topojson", "dagre"}
@@ -789,6 +797,10 @@ def check_scene(scene, p, w):
         p("scene has no views")
         return
     view_ids = {v.get("id") for v in views if v.get("id")}
+    view_id_list = [v.get("id") for v in views if v.get("id")]
+    dup_views = {i for i in view_id_list if view_id_list.count(i) > 1}
+    if dup_views:
+        p(f"duplicate view ids: {sorted(dup_views)}")
     for v in views:
         vid = v.get("id")
         if not vid:
@@ -798,12 +810,50 @@ def check_scene(scene, p, w):
             w(f"view '{vid}' has no title")
         if len(views) > 1 and not (v.get("summary") or "").strip():
             w(f"view '{vid}' has no summary (one sentence with the view's finding)")
+        for field in ("cover", "section"):
+            if field in v and not isinstance(v[field], bool):
+                p(f"view '{vid}' {field} must be true or false: {v[field]!r}")
+        if v.get("cover") and v.get("section"):
+            p(f"view '{vid}' is both cover and section; pick one")
+        if (v.get("cover") or v.get("section")) and v.get("blocks"):
+            w(f"view '{vid}' is a cover or section slide; its blocks are ignored")
+        if not deck and (v.get("cover") or v.get("section")):
+            w(f"view '{vid}' uses cover/section without scene deck: true; they render as normal views")
+        notes = v.get("notes")
+        if notes is not None:
+            ns = notes if isinstance(notes, list) else [notes] if isinstance(notes, str) else None
+            if ns is None or any(not isinstance(n, str) for n in ns):
+                p(f"view '{vid}' notes must be a string or a list of strings")
+            else:
+                for n in ns:
+                    if words(n) > 120:
+                        w(f"view '{vid}' note has {words(n)} words; speaker notes stay under 120")
+            if not deck:
+                w(f"view '{vid}' has notes, but notes only render in deck mode")
         if "scenarios" in v and v["scenarios"] is not None:
             check_scenarios(v["scenarios"], p, f"view '{vid}': ")
         for b in v.get("blocks") or []:
             b["_view_ids"] = view_ids
             b["_lib_names"] = lib_names
             check_block(b, p, w, f"view '{vid}' · block '{b.get('id')}': ")
+    if deck:
+        covers = [v for v in views if v.get("cover")]
+        if len(covers) > 1:
+            w(f"deck has {len(covers)} cover slides; one is enough")
+        if len(views) > 12:
+            w(f"deck has {len(views)} slides; a deck over 12 needs a reason")
+        if len(views) > 2 and not covers:
+            w("deck has no cover slide; the first view usually sets cover: true")
+        if covers and views[0] is not covers[0]:
+            w("cover slide is not first; the deck opens on a content slide")
+        if not any(v.get("notes") for v in views):
+            w("deck has no speaker notes; notes carry what the slide does not")
+        for v in views:
+            n = len(v.get("blocks") or [])
+            if n > 4:
+                w(f"slide '{v.get('id')}' has {n} blocks; a slide carries one idea, split it")
+            if v.get("scenarios"):
+                w(f"slide '{v.get('id')}' has scenarios; the deck hides the controls, use separate slides")
 
 
 def needs(scene):

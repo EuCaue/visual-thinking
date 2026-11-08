@@ -200,6 +200,7 @@ body.panel-off { grid-template-columns: minmax(0, 1fr) 0px; } body.panel-off asi
 .btn svg, .icon svg { width: 16px; height: 16px; fill: currentColor; flex: 0 0 16px; }
 .icon { padding: 6px; }
 
+.stage { grid-area: canvas; min-height: 0; display: contents; }
 .canvas-wrap { position: relative; min-width: 0; min-height: 0; overflow: hidden; cursor: grab; touch-action: none; }
 .canvas-wrap:active { cursor: grabbing; }
 #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -313,6 +314,10 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
 .reader .d-added { color: var(--ok); } .reader .d-removed { color: var(--danger); text-decoration: line-through; } .reader .d-changed { color: var(--warn); }
 .reader .ann ul { color: var(--fg-muted); }
 
+@media (max-width: 700px) {
+  .reader table { table-layout: auto; width: max-content; min-width: 100%; }
+  .reader th:first-child, .reader td:first-child { width: auto; }
+}
 @media (max-width: 820px) {
   .reader { padding: 16px 16px 64px; } .reader .r-view { font-size: 21px; } .reader .r-sum { font-size: 16px; margin-bottom: 28px; } .reader section { margin-bottom: 28px; }
   body, body.panel-off { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "top" "canvas" "aside"; } body.panel-off aside { visibility: visible; }
@@ -325,6 +330,83 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   .grab { display: flex; align-items: center; justify-content: center; gap: 8px; position: sticky; top: 0; width: 100%; padding: 8px 0 6px; background: var(--bg-elev); border: 0; color: var(--fg-faint); cursor: pointer; font-size: var(--fs-xs); }
   .grab::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: var(--line-strong); }
   .btn, .seg button, .icon { min-height: 36px; }
+}
+
+/* ---------- deck: one view per 16:9 slide; the chrome stays outside the slide */
+body.deck { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "top" "canvas" "deckbar"; }
+body.deck .top { padding: 14px var(--sp-5) 8px; align-items: center; }
+body.deck .top h1 { font-size: var(--fs-xs); font-weight: 500; color: var(--fg-muted); letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52vw; }
+body.deck .top .sub, body.deck #views, body.deck #searchbox, body.deck #btnPanel { display: none; }
+body.deck .top > .seg { display: none; }
+body.deck aside { display: flex; position: fixed; z-index: 15; top: 80px; right: 24px; bottom: 72px; width: min(360px, calc(100vw - 48px)); padding: 44px 20px 24px; border: 1px solid var(--line); border-radius: var(--r-panel); box-shadow: var(--shadow-float); background: var(--bg-elev); visibility: hidden; opacity: 0; transform: translateX(8px); transition: opacity var(--t-base), transform var(--t-base), visibility var(--t-base); }
+body.deck:not(.panel-off) aside { visibility: visible; opacity: 1; transform: none; }
+body.deck aside .grab { display: none; }
+body.deck .deck-close { display: inline-flex; position: absolute; top: 10px; right: 10px; }
+.deck-close { display: none; }
+body.deck.reading aside { display: none; }
+body.deck .ext, body.deck .ext * { pointer-events: none !important; }
+body.deck .title-block { cursor: default; }
+body.deck .stage { display: flex; align-items: center; justify-content: center; padding: 8px var(--sp-5); }
+body.deck .canvas-wrap { width: min(100%, calc((100vh - 150px) * 16 / 9)); max-width: 1600px; aspect-ratio: 16 / 9; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-panel); overflow: hidden; cursor: default; touch-action: pan-y; }
+body.deck #canvas { position: relative; inset: auto; grid-row: 2; width: 100%; height: 100%; min-height: 0; }
+body.deck .float { display: none !important; }
+body.deck .status { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-control); padding: 8px 12px; }
+body.deck .slide-head { padding: clamp(20px, 3.4vh, 40px) clamp(28px, 4.4vw, 64px) 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+body.deck .slide-head h2 { font-size: clamp(24px, 2.6vw, 40px); line-height: 1.06; letter-spacing: -0.028em; font-weight: 600; max-width: 26ch; }
+body.deck .slide-head p { margin: 0; color: var(--fg-muted); font-size: clamp(14px, 1.05vw, 19px); line-height: 1.45; max-width: 62ch; }
+body.deck .deck-special { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: clamp(36px, 6vw, 88px); background: var(--bg-elev); }
+body.deck .deck-special .cover-title { font-size: clamp(38px, 5.4vw, 82px); line-height: 0.98; letter-spacing: -0.04em; font-weight: 600; max-width: 15ch; text-wrap: balance; }
+body.deck .deck-special .cover-sub { margin-top: clamp(16px, 2vw, 28px); font-size: clamp(16px, 1.5vw, 24px); line-height: 1.4; color: var(--fg-muted); max-width: 48ch; }
+body.deck .deck-special .cover-meta { margin-top: auto; padding-top: 32px; font-size: var(--fs-xs); color: var(--fg-faint); display: flex; gap: 14px; flex-wrap: wrap; }
+body.deck .deck-special.section { justify-content: center; background: var(--accent-soft); }
+body.deck .deck-special.section .cover-title { font-size: clamp(32px, 4.2vw, 64px); max-width: 20ch; }
+body.deck .deck-special.section .cover-sub { max-width: 54ch; color: var(--fg); opacity: .84; }
+body.deck .deck-bar { grid-area: deckbar; display: flex; align-items: center; gap: 10px; padding: 8px var(--sp-5) 14px; min-width: 0; }
+body.deck .deck-nav { display: flex; gap: 4px; }
+body.deck .deck-count { font-family: var(--font-data); font-variant-numeric: tabular-nums; font-size: var(--fs-xs); color: var(--fg-muted); min-width: 64px; text-align: center; }
+body.deck .deck-progress { flex: 0 0 min(220px, 28vw); height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; min-width: 40px; }
+body.deck .deck-progress span { display: block; height: 100%; background: var(--accent); transition: width var(--t-base); }
+body.deck #deckOverviewBtn { margin-left: auto; }
+body.deck .deck-bar .btn { padding: 7px 9px; }
+body.deck .deck-bar .btn.icon { padding: 7px; }
+body.deck .deck-notes { position: fixed; z-index: 20; right: var(--sp-5); bottom: 64px; width: min(380px, calc(100vw - 32px)); max-height: min(52vh, 440px); overflow: auto; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-panel); box-shadow: var(--shadow-float); padding: 18px 20px 20px; }
+body.deck .deck-notes h2 { font-size: var(--fs-xs); color: var(--fg-muted); margin-bottom: 8px; }
+body.deck .deck-notes p { margin: 0; font-size: var(--fs-md); line-height: 1.55; white-space: pre-wrap; }
+body.deck .deck-notes .btn { position: absolute; top: 10px; right: 10px; }
+body.deck .deck-overview { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: 0; border: 0; padding: clamp(24px, 5vw, 64px); background: var(--bg); color: var(--fg); overflow: auto; }
+body.deck .deck-overview::backdrop { background: transparent; }
+body.deck .deck-overview header { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; max-width: 1100px; margin: 0 auto 24px; }
+body.deck .deck-overview h2 { font-size: clamp(20px, 2vw, 28px); letter-spacing: -0.02em; }
+body.deck .deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px 24px; max-width: 1100px; margin: 0 auto; }
+body.deck .deck-grid button { display: grid; grid-template-columns: 34px 1fr; gap: 4px 12px; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 14px 8px 16px 0; color: var(--fg); cursor: pointer; transition: background var(--t-fast), border-color var(--t-fast); }
+body.deck .deck-grid button:hover { background: var(--bg-elev); border-color: var(--line-strong); }
+body.deck .deck-grid .n { font-family: var(--font-data); font-size: var(--fs-xs); color: var(--fg-faint); font-variant-numeric: tabular-nums; padding-top: 3px; }
+body.deck .deck-grid .t { font-size: var(--fs-md); font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
+body.deck .deck-grid .d { grid-column: 2; font-size: var(--fs-sm); color: var(--fg-muted); line-height: 1.4; }
+body.deck .deck-grid button[aria-current="true"] .t { color: var(--accent); }
+body.deck .canvas-wrap.in-next { animation: deck-in-next var(--d-slow) var(--ease); }
+body.deck .canvas-wrap.in-prev { animation: deck-in-prev var(--d-slow) var(--ease); }
+@keyframes deck-in-next { from { opacity: 0; transform: translateX(22px); } }
+@keyframes deck-in-prev { from { opacity: 0; transform: translateX(-22px); } }
+body.deck.reading { grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "top" "canvas" "deckbar"; }
+body.deck.reading .stage { display: none; }
+@media (max-width: 820px) {
+  body.deck .top { padding: 10px 12px 4px; }
+  body.deck .top h1 { max-width: 40vw; }
+  body.deck .stage { padding: 4px 8px; }
+  body.deck .canvas-wrap { width: 100%; }
+  body.deck .slide-head { padding: 18px 20px 0; }
+  body.deck .slide-head h2 { font-size: 24px; }
+  body.deck .deck-bar { padding: 6px 12px 10px; }
+  body.deck .deck-bar .btn span { display: none; }
+  body.deck .deck-overview { padding: 20px 16px; }
+  body.deck aside { top: 64px; right: 12px; bottom: 62px; width: calc(100vw - 24px); }
+}
+@media print {
+  body.deck { display: block; }
+  body.deck .top, body.deck .deck-bar, body.deck .deck-notes, body.deck .deck-overview, body.deck aside { display: none !important; }
+  body.deck .stage { display: block; padding: 0; }
+  body.deck .canvas-wrap { width: 100%; max-width: none; border: 0; border-radius: 0; }
 }
 
 /* ---------- drawing: every color is a token, so theme change is pure CSS */
@@ -522,6 +604,11 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   <symbol id="i-draw" viewBox="0 0 256 256"><path d="M200,152a31.84,31.84,0,0,0-19.53,6.68l-23.11-18A31.65,31.65,0,0,0,160,128c0-.74,0-1.48-.08-2.21l13.23-4.41A32,32,0,1,0,168,104c0,.74,0,1.48.08,2.21l-13.23,4.41A32,32,0,0,0,128,96a32.59,32.59,0,0,0-5.27.44L115.89,81A32,32,0,1,0,96,88a32.59,32.59,0,0,0,5.27-.44l6.84,15.4a31.92,31.92,0,0,0-8.57,39.64L73.83,165.44a32.06,32.06,0,1,0,10.63,12l25.71-22.84a31.91,31.91,0,0,0,37.36-1.24l23.11,18A31.65,31.65,0,0,0,168,184a32,32,0,1,0,32-32Zm0-64a16,16,0,1,1-16,16A16,16,0,0,1,200,88ZM80,56A16,16,0,1,1,96,72,16,16,0,0,1,80,56ZM56,208a16,16,0,1,1,16-16A16,16,0,0,1,56,208Zm56-80a16,16,0,1,1,16,16A16,16,0,0,1,112,128Zm88,72a16,16,0,1,1,16-16A16,16,0,0,1,200,200Z"/></symbol>
   <symbol id="i-play" viewBox="0 0 256 256"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"/></symbol>
   <symbol id="i-back" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></symbol>
+  <symbol id="i-next" viewBox="0 0 256 256"><path d="M32,128a8,8,0,0,1,8-8H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72a8,8,0,0,1,0,11.32l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40A8,8,0,0,1,32,128Z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 256 256"><path d="M72,40H40A16,16,0,0,0,24,56V88a16,16,0,0,0,16,16H72a16,16,0,0,0,16-16V56A16,16,0,0,0,72,40Zm144,0H184a16,16,0,0,0-16,16V88a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM72,152H40a16,16,0,0,0-16,16v32a16,16,0,0,0,16,16H72a16,16,0,0,0,16-16V168A16,16,0,0,0,72,152Zm144,0H184a16,16,0,0,0-16,16v32a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16V168A16,16,0,0,0,216,152Z"/></symbol>
+  <symbol id="i-notes" viewBox="0 0 256 256"><path d="M88,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H96A8,8,0,0,1,88,64Zm128,56H96a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Zm0,64H96a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM56,56H40a8,8,0,0,0-8,8V80a8,8,0,0,0,16,0V72H56a8,8,0,0,0,0-16Zm0,64H40a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V136H56a8,8,0,0,0,0-16Zm0,64H40a8,8,0,0,0-8,8v16a8,8,0,0,0,16,0V200H56a8,8,0,0,0,0-16Z"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 256 256"><path d="M216,48V88a8,8,0,0,1-16,0V64H176a8,8,0,0,1,0-16h32A8,8,0,0,1,216,48ZM88,192H64V168a8,8,0,0,0-16,0v32a8,8,0,0,0,8,8H88a8,8,0,0,0,0-16Zm128,0a8,8,0,0,1-8,8H176a8,8,0,0,1,0-16h24V168a8,8,0,0,1,16,0ZM88,40H56a8,8,0,0,0-8,8V80a8,8,0,0,0,16,0V56H88a8,8,0,0,0,0-16Z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 256 256"><path d="M136,128l56-56a8,8,0,0,0-11.32-11.32L128,116.69,72,60.68A8,8,0,0,0,60.68,72l56,56-56,56A8,8,0,0,0,72,195.32L128,139.31l56,56a8,8,0,0,0,11.32-11.32Z"/></symbol>
 </svg>
 <header class="top">
   <div class="title-block"><h1 id="title"></h1><p class="sub" id="subtitle"></p></div>
@@ -537,7 +624,10 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   </div>
 </header>
 <main>
+  <div class="stage" id="stage">
   <section class="canvas-wrap" id="wrap">
+    <div class="slide-head" id="deckSlideHead" hidden><h2 id="deckSlideTitle"></h2><p id="deckSlideLead"></p></div>
+    <div class="deck-special" id="deckSpecial" hidden></div>
     <svg id="canvas" role="img" aria-label="Canvas visual" aria-describedby="reader">
       <defs>
         <marker id="m-data" viewBox="0 0 10 10" refX="8.6" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M1.2 1.2L8.6 5L1.2 8.8z"/></marker>
@@ -569,14 +659,37 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     <div class="count" id="count" aria-live="polite"></div>
     <div class="tip" id="tip" role="tooltip"></div>
   </section>
-  <aside id="aside">
+  </div>
+  <aside id="aside" aria-label="Detalhes">
+    <button type="button" class="btn icon deck-close" id="deckInspectorClose" aria-label="Fechar detalhes"><svg><use href="#i-close"/></svg></button>
     <button type="button" class="grab" id="grab" aria-label="Mostrar ou esconder detalhes"></button>
     <section id="detail"></section>
     <section id="legend" hidden><h2>Legenda</h2><div class="lgd" id="legendList"></div></section>
     <section id="annotations" hidden><h2>Anotações</h2><ul id="annList"></ul></section>
   </aside>
-  <article class="reader sr-only" id="reader" aria-live="polite"></article>
+  <article class="reader sr-only" id="reader" aria-live="polite" tabindex="0"></article>
 </main>
+<footer class="deck-bar" id="deckBar" hidden>
+  <div class="deck-nav" id="deckNav" role="group" aria-label="Navegação dos slides">
+    <button type="button" class="btn icon" id="deckPrev" aria-label="Slide anterior" title="Slide anterior (←)"><svg><use href="#i-back"/></svg></button>
+    <button type="button" class="btn icon" id="deckNext" aria-label="Próximo slide" title="Próximo slide (→)"><svg><use href="#i-next"/></svg></button>
+  </div>
+  <span class="deck-count" id="deckCount"></span>
+  <span class="sr-only" id="deckStatus" aria-live="polite"></span>
+  <div class="deck-progress" aria-hidden="true"><span id="deckProgress"></span></div>
+  <button type="button" class="btn" id="deckOverviewBtn" aria-label="Visão geral dos slides" aria-haspopup="dialog" title="Visão geral (O)"><svg><use href="#i-grid"/></svg><span>Visão geral</span></button>
+  <button type="button" class="btn" id="deckNotesBtn" aria-label="Notas do apresentador" aria-expanded="false" aria-controls="deckNotes" title="Notas (N)"><svg><use href="#i-notes"/></svg><span>Notas</span></button>
+  <button type="button" class="btn icon" id="deckFull" aria-label="Tela cheia" aria-pressed="false" title="Tela cheia (F)"><svg><use href="#i-expand"/></svg></button>
+</footer>
+<section class="deck-notes" id="deckNotes" hidden aria-label="Notas do apresentador">
+  <button type="button" class="btn icon" id="deckNotesClose" aria-label="Fechar notas"><svg><use href="#i-close"/></svg></button>
+  <h2>Notas</h2>
+  <p id="deckNotesBody"></p>
+</section>
+<dialog class="deck-overview" id="deckOverview" aria-labelledby="deckOverviewTitle">
+  <header><h2 id="deckOverviewTitle">Slides</h2><button type="button" class="btn" id="deckOverviewClose">Fechar</button></header>
+  <div class="deck-grid" id="deckGrid"></div>
+</dialog>
 
 <script id="scene" type="application/json">
 {
@@ -990,7 +1103,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   var SC = JSON.parse(document.getElementById('scene').textContent);
   // interface language: the scene's lang, else the reader's browser (Portuguese stays Portuguese, everything else reads English)
   var LANG = String(SC.lang || (/^pt/i.test(navigator.language || '') ? 'pt' : 'en')).slice(0, 2).toLowerCase();
-  var EN = {"1-way (irreversível)": "1-way (irreversible)", "º": "", " a favor · ": " for · ", " contra": " against", "% do caminho de \"": "% of the way from \"", "\" a \"": "\" to \"", "º de ": " of ", " (mais próximo de ": " (closest to ", "Queda (low)": "Drop (low)", "Alta (high)": "Rise (high)", "Critérios e Pesos": "Criteria and weights", "Pontuação ponderada": "Weighted score", "corte < ": "cut < ", "Líder (": "Leader (", ") sob veto": ") vetoed", "Líder: ": "Leader: ", " · Margem: +": " · Margin: +", " · Virada: ": " · Flips on: ", "A favor": "For", "Contra": "Against", "Colunas": "Columns", "Linhas": "Rows", "tabela · ": "table · ", " linhas": " rows", "Copiar texto": "Copy text", "Texto copiado": "Text copied", "Limpar seleção": "Clear selection", " (Líder)": " (Leader)", " abaixo": " below", " campos": " fields", " colunas": " columns", " conjuntos": " sets", " consequências abaixo": " consequences below", " critérios": " criteria", " elementos": " elements", " estágios": " stages", " eventos": " events", " itens": " items", " no total": " in total", " opções": " options", " pontos": " points", " tarefas": " tasks", "% de chance": "% chance", "% do anterior": "% of previous", "% do total ": "% of total ", "% entre mín e máx": "% between min and max", ". Clique para alternar.": ". Click to switch.", "A biblioteca de fluxo (d3-sankey) não carregou.": "The flow library (d3-sankey) did not load.", "A biblioteca de gráficos (d3) não carregou.": "The chart library (d3) did not load.", "A biblioteca de layout (elkjs) não carregou.": "The layout library (elkjs) did not load.", "Abaixo": "Below", "Abaixo do corte mínimo (": "Below the minimum cut (", "Abrir vista": "Open view", "Acima": "Above", "Ajuste os sliders para simular cenários": "Move the sliders to simulate scenarios", "Alternar tema": "Switch theme", "Análise de Decisão Multi-Critério": "Multi-criteria decision analysis", "Aponta para": "Points to", "Atenção": "Warning", "Avaliação específica": "Specific assessment", "Ações da ligação": "Link actions", "Ações do bloco": "Block actions", "Ações do canvas": "Canvas actions", "Ações do elemento": "Element actions", "Balanço": "Balance", "Banco de dados": "Database", "Barra: proporção ao maior valor da linha": "Bar: share of the largest value in the row", "Base": "Basis", "Baseado em documentação": "Based on documentation", "Buscar no desenho": "Search the drawing", "Calendário": "Calendar", "Caminho crítico": "Critical path", "Caminho crítico (vermelho)": "Critical path (red)", "Caminho de consequência": "Consequence path", "Caminho de erro": "Error path", "Campo de destino": "Target field", "Campo de origem": "Source field", "Campos": "Fields", "Caso base": "Base case", "Chamada síncrona": "Synchronous call", "Chave primária": "Primary key", "Chave estrangeira": "Foreign key", "Ciclo": "Cycle", "Claro": "Light", "Clique para inspecionar ": "Click to inspect ", "Clique para mostrar ou esconder": "Click to show or hide", "Comparação": "Comparison", "Componente": "Component", "Composição": "Composition", "Concluído": "Done", "Confiança": "Confidence", "Conforme documentação": "Per documentation", "Conjuntos": "Sets", "Consequência de ": "Consequence of ", "Consequências no caminho": "Consequences on path", "Conversão total": "Total conversion", "Cor indica o lado, força indica a distância de ": "Color shows the side, strength the distance from ", "Critério": "Criterion", "Critério de corte (veto)": "Cut-off criterion (veto)", "Critério de veto": "Veto criterion", "Critérios": "Criteria", "Critérios e Avaliação": "Criteria and scores", "Critérios e Pesos": "Criteria and weights", "Critérios ponderados": "Weighted criteria", "Da esquerda para a direita": "Left to right", "Da origem": "Of source", "Data": "Date", "Decisão": "Decision", "Dentro": "Inside", "Depende de": "Depends on", "Descrição": "Description", "Desde o início": "Since start", "Desde o anterior": "Since previous", "Desenho": "Drawing", "Diagrama": "Diagram", "Dispor da esquerda para a direita": "Lay out left to right", "Dispor de cima para baixo": "Lay out top to bottom", "Do destino": "Of target", "Do estágio anterior": "Of previous stage", "Do grupo": "Of group", "Do primeiro": "Of first", "Do total": "Of total", "Duração": "Duration", "Duração total": "Total duration", "Elemento": "Element", "Elementos": "Elements", "Em aberto": "Open", "Em comum": "Shared", "Em comum com ": "Shared with ", "Entra": "In", "Entrada total": "Total input", "Entidades": "Entities", "Esconder painel de detalhes": "Hide details panel", "Escuro": "Dark", "Espectro": "Spectrum", "Estágio ": "Stage ", "Estágios": "Stages", "Etapa": "Step", "Etapa ": "Step ", "Etapas": "Steps", "Evento": "Event", "Evento anotado": "Annotated event", "Evento assíncrono": "Async event", "Eventos": "Events", "Eventos anotados": "Annotated events", "Evidência": "Evidence", "Evidência / Nota": "Evidence / note", "Exportar PNG": "Export PNG", "Exportar SVG": "Export SVG", "Exportar bloco (PNG)": "Export block (PNG)", "Copiar link para este elemento": "Copy link to this element", "Link copiado": "Link copied", "Faixa": "Range", "Faixa escura: parte concluída": "Dark band: done", "Fila ou broker": "Queue or broker", "Fim": "End", "Fluxo": "Flow", "Fonte": "Source", "Funil": "Funnel", "Gráfico": "Chart", "Indicadores": "Indicators", "Interpretação": "Interpretation", "Interseção": "Intersection", "Interseções": "Intersections", "Início": "Start", "Ir para a origem": "Go to source", "Ir para o destino": "Go to target", "Isolar vizinhança": "Isolate neighborhood", "Itens": "Items", "Largura da faixa = valor": "Band width = value", "Ler como texto": "Read as text", "Libera": "Unblocks", "Lido no código": "Read in code", "Ligação": "Link", "Ligações": "Links", "Linha de referência": "Reference line", "Linha do tempo": "Timeline", "Linhas × colunas": "Rows × columns", "Líder / Recomendado": "Leader / recommended", "Líder atual": "Current leader", "Maior": "Largest", "Maior é melhor": "Higher is better", "Maiores": "Largest", "Maiores fluxos": "Largest flows", "Mais forte = maior valor": "Stronger = higher value", "Mapa": "Map", "Mapa de calor": "Heatmap", "Mapa mental": "Mind map", "Marca": "Milestone", "Marco": "Milestone", "Marcas": "Marks", "Matriz de Decisão": "Decision matrix", "Melhor em": "Best at", "Menor é melhor": "Lower is better", "Mesmo ponto, outras séries": "Same point, other series", "Modelo de dados": "Data model", "Mostrar painel de detalhes": "Show details panel", "Mostrar tudo": "Show all", "Mudanças": "Changes", "Máximo": "Max", "Média": "Mean", "Mínimo": "Min", "Na série": "In series", "Nada encontrado para \"": "Nothing found for \"", "Negrito: melhor da linha": "Bold: best in row", "Negrito: melhor do critério": "Bold: best on criterion", "Nesta vista": "In this view", "No ciclo": "In cycle", "Nota": "Note", "Nota mínima de corte": "Minimum cut-off score", "Não documentado": "Not documented", "Níveis": "Levels", "Nível": "Level", "Nível ": "Level ", "Novo": "New", "Alterado": "Changed", "Removido": "Removed", "Observações": "Notes", "Opcional (aceita nulo)": "Optional (nullable)", "Opção Recomendada (1º lugar)": "Recommended option (1st)", "Opções": "Options", "Opções avaliadas": "Options assessed", "Pacotes em movimento": "Packets in motion", "Para": "To", "Parte do total": "Share of total", "Partes": "Parts", "Período": "Period", "Períodos": "Periods", "Peso do critério": "Criterion weight", "Pirâmide": "Pyramid", "Ponto crítico": "Critical point", "Ponto de entrada": "Entry point", "Pontos críticos": "Critical points", "Pontuação": "Score", "Pontuação final": "Final score", "Por opção": "By option", "Por quadrante": "By quadrant", "Porta de 1 via": "One-way door", "Porta de 1 via (irreversível)": "One-way door (irreversible)", "Porta de 1 via: alto custo de reversão": "One-way door: costly to reverse", "Porta de 2 vias": "Two-way door", "Porta de 2 vias (reversível)": "Two-way door (reversible)", "Porta de 2 vias: reversível": "Two-way door: reversible", "Posição": "Position", "Posição no ranking": "Rank", "Premissa de pesos": "Weight basis", "Primeiro nível": "First level", "Proporção": "Share", "Quadrante": "Quadrant", "Ranking de Opções": "Option ranking", "Recebe de": "Receives from", "Recomendação": "Recommendation", "Referenciada por": "Referenced by", "Referências": "References", "Relação": "Relation", "Relações": "Relations", "Reproduzir passo a passo": "Play step by step", "Responsável": "Owner", "Risco": "Risk", "Sai": "Out", "Sai para": "Goes to", "Saída de erro": "Error exit", "Sem dado": "No data", "Sem dados.": "No data.", "Sem tarefas.": "No tasks.", "Sequência": "Sequence", "Série": "Series", "Séries": "Series", "Só aqui": "Only here", "Só neste conjunto": "Only in this set", "Tarefas": "Tasks", "Tem · traço: não tem": "Has · dash: does not", "Tema: ": "Theme: ", "Tendência": "Trend", "Texto": "Text", "Total": "Total", "Vai para": "Goes to", "Valor": "Value", "Valor bruto": "Raw value", "Valores": "Values", "Variação": "Change", "Variável": "Variable", "Vem de": "Comes from", "Ver detalhes": "See details", "Ver o desenho": "See the drawing", "Ver resumo do bloco": "Block summary", "Ver tudo de uma vez": "See everything at once", "Verificado no código": "Verified in code", "Violação de Corte (Vetada)": "Cut-off violation (vetoed)", "Violou cláusula de corte": "Violated cut-off", "Visão geral": "Overview", "Válido": "Valid", "Vídeo": "Video", "Vizinhos": "Neighbors", "abrir ›": "open ›", "barras": "bars", "barras empilhadas": "stacked bars", "calendário": "calendar", "ciclo · ": "cycle · ", "decisão · ": "decision · ", "depois de ": "after ", "desenho": "drawing", "destino": "target", "diagrama · ": "diagram · ", "dispersão": "scatter", "espectro": "spectrum", "fluxo": "flow", "frequência": "frequency", "funil": "funnel", "gráfico": "chart", "histograma": "histogram", "indicadores": "indicators", "linha": "line", "mapa de calor": "heatmap", "mapa mental": "mind map", "matriz · ": "matrix · ", "melhor em ": "best at ", "máximo": "max", "mínimo": "min", "nota": "note", "não": "no", "origem": "source", "pirâmide": "pyramid", "pontos": "points", "próxima": "next", "anterior": "previous", "quadrante": "quadrant", "referência": "reference", "rosca": "donut", "sim": "yes", "texto": "text", "total": "total", "venn · ": "venn · ", "área": "area", "árvore": "tree", "hoje": "today", "marco": "milestone", "modelo · ": "model · ", "cronograma · ": "schedule · ", " entidades": " entities", "Cronograma": "Schedule", "Inferido": "Inferred", "Desconhecido": "Unknown", "Verificado": "Verified", "Decidido": "Decided", "Sugerido": "Suggested", "Proposta": "Proposal", "Sistema externo": "External system", "Destaque": "Highlight", "Ok": "Ok", "Dados": "Data", "Fronteiras": "Boundaries", "Extremos": "Ends", "Passo": "Step", "Probabilidade": "Probability", "Caminhos": "Paths", "Alcance": "Reach", "Ordem/polaridade": "Order/polarity", "Raiz": "Root", "Calculando layout…": "Computing layout…", "O desenho falhou. Veja o console.": "Drawing failed. See the console.", "Anotações": "Annotations", "Legenda": "Legend", "Dias": "Days", "Escala": "Scale", "Grupos": "Groups", "Entradas": "Inputs", "Intervalo": "Range", "Ordem": "Order", "Campo": "Field", "Tipo": "Type", "opcional": "optional", "Eixo horizontal: ": "Horizontal axis: ", " · vertical: ": " · vertical: ", "Tarefa": "Task", "De": "From", "Baixo": "Low", "Alto": "High", "Parte": "Part", "Peso": "Weight", "Pesos: ": "Weights: ", "Outras": "Other", "novo": "new", "removido": "removed", "alterado": "changed", "Cardinalidade ": "Cardinality ", "Do orçamento": "Of budget", "Hoje (": "Today (", "Parar": "Stop", "Passo ": "Step ", " de ": " of ", "Abrir no editor": "Open in editor", "Inspecionar": "Inspect", "Notas": "Notes", "A biblioteca ": "The library ", " não carregou.": " did not load.", "Fórmula": "Formula", "Código": "Code", "Linha ": "Line ", "Linguagem": "Language", "Linhas": "Lines", "Destaques": "Highlights", "Linha com nota": "Line with a note", "Coordenadas": "Coordinates", "Área do ponto = valor": "Dot area = value", "Ponto": "Point", "Regiões com dado": "Regions with data", "de mapas": "for maps", "código": "code", "fórmula": "formula", "mapa": "map", "Região": "Region", "O desenho próprio falhou: ": "The custom drawing failed: ", "desenho próprio": "custom drawing"};
+  var EN = {"1-way (irreversível)": "1-way (irreversible)", "º": "", " a favor · ": " for · ", " contra": " against", "% do caminho de \"": "% of the way from \"", "\" a \"": "\" to \"", "º de ": " of ", " (mais próximo de ": " (closest to ", "Queda (low)": "Drop (low)", "Alta (high)": "Rise (high)", "Critérios e Pesos": "Criteria and weights", "Pontuação ponderada": "Weighted score", "corte < ": "cut < ", "Líder (": "Leader (", ") sob veto": ") vetoed", "Líder: ": "Leader: ", " · Margem: +": " · Margin: +", " · Virada: ": " · Flips on: ", "A favor": "For", "Contra": "Against", "Colunas": "Columns", "Linhas": "Rows", "tabela · ": "table · ", " linhas": " rows", "Copiar texto": "Copy text", "Texto copiado": "Text copied", "Limpar seleção": "Clear selection", " (Líder)": " (Leader)", " abaixo": " below", " campos": " fields", " colunas": " columns", " conjuntos": " sets", " consequências abaixo": " consequences below", " critérios": " criteria", " elementos": " elements", " estágios": " stages", " eventos": " events", " itens": " items", " no total": " in total", " opções": " options", " pontos": " points", " tarefas": " tasks", "% de chance": "% chance", "% do anterior": "% of previous", "% do total ": "% of total ", "% entre mín e máx": "% between min and max", ". Clique para alternar.": ". Click to switch.", "A biblioteca de fluxo (d3-sankey) não carregou.": "The flow library (d3-sankey) did not load.", "A biblioteca de gráficos (d3) não carregou.": "The chart library (d3) did not load.", "A biblioteca de layout (elkjs) não carregou.": "The layout library (elkjs) did not load.", "Abaixo": "Below", "Abaixo do corte mínimo (": "Below the minimum cut (", "Abrir vista": "Open view", "Acima": "Above", "Ajuste os sliders para simular cenários": "Move the sliders to simulate scenarios", "Alternar tema": "Switch theme", "Análise de Decisão Multi-Critério": "Multi-criteria decision analysis", "Aponta para": "Points to", "Atenção": "Warning", "Avaliação específica": "Specific assessment", "Ações da ligação": "Link actions", "Ações do bloco": "Block actions", "Ações do canvas": "Canvas actions", "Ações do elemento": "Element actions", "Balanço": "Balance", "Banco de dados": "Database", "Barra: proporção ao maior valor da linha": "Bar: share of the largest value in the row", "Base": "Basis", "Baseado em documentação": "Based on documentation", "Buscar no desenho": "Search the drawing", "Calendário": "Calendar", "Caminho crítico": "Critical path", "Caminho crítico (vermelho)": "Critical path (red)", "Caminho de consequência": "Consequence path", "Caminho de erro": "Error path", "Campo de destino": "Target field", "Campo de origem": "Source field", "Campos": "Fields", "Caso base": "Base case", "Chamada síncrona": "Synchronous call", "Chave primária": "Primary key", "Chave estrangeira": "Foreign key", "Ciclo": "Cycle", "Claro": "Light", "Clique para inspecionar ": "Click to inspect ", "Clique para mostrar ou esconder": "Click to show or hide", "Comparação": "Comparison", "Componente": "Component", "Composição": "Composition", "Concluído": "Done", "Confiança": "Confidence", "Conforme documentação": "Per documentation", "Conjuntos": "Sets", "Consequência de ": "Consequence of ", "Consequências no caminho": "Consequences on path", "Conversão total": "Total conversion", "Cor indica o lado, força indica a distância de ": "Color shows the side, strength the distance from ", "Critério": "Criterion", "Critério de corte (veto)": "Cut-off criterion (veto)", "Critério de veto": "Veto criterion", "Critérios": "Criteria", "Critérios e Avaliação": "Criteria and scores", "Critérios e Pesos": "Criteria and weights", "Critérios ponderados": "Weighted criteria", "Da esquerda para a direita": "Left to right", "Da origem": "Of source", "Data": "Date", "Decisão": "Decision", "Dentro": "Inside", "Depende de": "Depends on", "Descrição": "Description", "Desde o início": "Since start", "Desde o anterior": "Since previous", "Desenho": "Drawing", "Diagrama": "Diagram", "Dispor da esquerda para a direita": "Lay out left to right", "Dispor de cima para baixo": "Lay out top to bottom", "Do destino": "Of target", "Do estágio anterior": "Of previous stage", "Do grupo": "Of group", "Do primeiro": "Of first", "Do total": "Of total", "Duração": "Duration", "Duração total": "Total duration", "Elemento": "Element", "Elementos": "Elements", "Em aberto": "Open", "Em comum": "Shared", "Em comum com ": "Shared with ", "Entra": "In", "Entrada total": "Total input", "Entidades": "Entities", "Esconder painel de detalhes": "Hide details panel", "Escuro": "Dark", "Espectro": "Spectrum", "Estágio ": "Stage ", "Estágios": "Stages", "Etapa": "Step", "Etapa ": "Step ", "Etapas": "Steps", "Evento": "Event", "Evento anotado": "Annotated event", "Evento assíncrono": "Async event", "Eventos": "Events", "Eventos anotados": "Annotated events", "Evidência": "Evidence", "Evidência / Nota": "Evidence / note", "Exportar PNG": "Export PNG", "Exportar SVG": "Export SVG", "Exportar bloco (PNG)": "Export block (PNG)", "Copiar link para este elemento": "Copy link to this element", "Link copiado": "Link copied", "Faixa": "Range", "Faixa escura: parte concluída": "Dark band: done", "Fila ou broker": "Queue or broker", "Fim": "End", "Fluxo": "Flow", "Fonte": "Source", "Funil": "Funnel", "Gráfico": "Chart", "Indicadores": "Indicators", "Interpretação": "Interpretation", "Interseção": "Intersection", "Interseções": "Intersections", "Início": "Start", "Ir para a origem": "Go to source", "Ir para o destino": "Go to target", "Isolar vizinhança": "Isolate neighborhood", "Itens": "Items", "Largura da faixa = valor": "Band width = value", "Ler como texto": "Read as text", "Libera": "Unblocks", "Lido no código": "Read in code", "Ligação": "Link", "Ligações": "Links", "Linha de referência": "Reference line", "Linha do tempo": "Timeline", "Linhas × colunas": "Rows × columns", "Líder / Recomendado": "Leader / recommended", "Líder atual": "Current leader", "Maior": "Largest", "Maior é melhor": "Higher is better", "Maiores": "Largest", "Maiores fluxos": "Largest flows", "Mais forte = maior valor": "Stronger = higher value", "Mapa": "Map", "Mapa de calor": "Heatmap", "Mapa mental": "Mind map", "Marca": "Milestone", "Marco": "Milestone", "Marcas": "Marks", "Matriz de Decisão": "Decision matrix", "Melhor em": "Best at", "Menor é melhor": "Lower is better", "Mesmo ponto, outras séries": "Same point, other series", "Modelo de dados": "Data model", "Mostrar painel de detalhes": "Show details panel", "Mostrar tudo": "Show all", "Mudanças": "Changes", "Máximo": "Max", "Média": "Mean", "Mínimo": "Min", "Na série": "In series", "Nada encontrado para \"": "Nothing found for \"", "Negrito: melhor da linha": "Bold: best in row", "Negrito: melhor do critério": "Bold: best on criterion", "Nesta vista": "In this view", "No ciclo": "In cycle", "Nota": "Note", "Nota mínima de corte": "Minimum cut-off score", "Não documentado": "Not documented", "Níveis": "Levels", "Nível": "Level", "Nível ": "Level ", "Novo": "New", "Alterado": "Changed", "Removido": "Removed", "Observações": "Notes", "Opcional (aceita nulo)": "Optional (nullable)", "Opção Recomendada (1º lugar)": "Recommended option (1st)", "Opções": "Options", "Opções avaliadas": "Options assessed", "Pacotes em movimento": "Packets in motion", "Para": "To", "Parte do total": "Share of total", "Partes": "Parts", "Período": "Period", "Períodos": "Periods", "Peso do critério": "Criterion weight", "Pirâmide": "Pyramid", "Ponto crítico": "Critical point", "Ponto de entrada": "Entry point", "Pontos críticos": "Critical points", "Pontuação": "Score", "Pontuação final": "Final score", "Por opção": "By option", "Por quadrante": "By quadrant", "Porta de 1 via": "One-way door", "Porta de 1 via (irreversível)": "One-way door (irreversible)", "Porta de 1 via: alto custo de reversão": "One-way door: costly to reverse", "Porta de 2 vias": "Two-way door", "Porta de 2 vias (reversível)": "Two-way door (reversible)", "Porta de 2 vias: reversível": "Two-way door: reversible", "Posição": "Position", "Posição no ranking": "Rank", "Premissa de pesos": "Weight basis", "Primeiro nível": "First level", "Proporção": "Share", "Quadrante": "Quadrant", "Ranking de Opções": "Option ranking", "Recebe de": "Receives from", "Recomendação": "Recommendation", "Referenciada por": "Referenced by", "Referências": "References", "Relação": "Relation", "Relações": "Relations", "Reproduzir passo a passo": "Play step by step", "Responsável": "Owner", "Risco": "Risk", "Sai": "Out", "Sai para": "Goes to", "Saída de erro": "Error exit", "Sem dado": "No data", "Sem dados.": "No data.", "Sem tarefas.": "No tasks.", "Sequência": "Sequence", "Série": "Series", "Séries": "Series", "Só aqui": "Only here", "Só neste conjunto": "Only in this set", "Tarefas": "Tasks", "Tem · traço: não tem": "Has · dash: does not", "Tema: ": "Theme: ", "Tendência": "Trend", "Texto": "Text", "Total": "Total", "Vai para": "Goes to", "Valor": "Value", "Valor bruto": "Raw value", "Valores": "Values", "Variação": "Change", "Variável": "Variable", "Vem de": "Comes from", "Ver detalhes": "See details", "Ver o desenho": "See the drawing", "Ver resumo do bloco": "Block summary", "Ver tudo de uma vez": "See everything at once", "Verificado no código": "Verified in code", "Violação de Corte (Vetada)": "Cut-off violation (vetoed)", "Violou cláusula de corte": "Violated cut-off", "Visão geral": "Overview", "Válido": "Valid", "Vídeo": "Video", "Vizinhos": "Neighbors", "abrir ›": "open ›", "barras": "bars", "barras empilhadas": "stacked bars", "calendário": "calendar", "ciclo · ": "cycle · ", "decisão · ": "decision · ", "depois de ": "after ", "desenho": "drawing", "destino": "target", "diagrama · ": "diagram · ", "dispersão": "scatter", "espectro": "spectrum", "fluxo": "flow", "frequência": "frequency", "funil": "funnel", "gráfico": "chart", "histograma": "histogram", "indicadores": "indicators", "linha": "line", "mapa de calor": "heatmap", "mapa mental": "mind map", "matriz · ": "matrix · ", "melhor em ": "best at ", "máximo": "max", "mínimo": "min", "nota": "note", "não": "no", "origem": "source", "pirâmide": "pyramid", "pontos": "points", "próxima": "next", "anterior": "previous", "quadrante": "quadrant", "referência": "reference", "rosca": "donut", "sim": "yes", "texto": "text", "total": "total", "venn · ": "venn · ", "área": "area", "árvore": "tree", "hoje": "today", "marco": "milestone", "modelo · ": "model · ", "cronograma · ": "schedule · ", " entidades": " entities", "Cronograma": "Schedule", "Inferido": "Inferred", "Desconhecido": "Unknown", "Verificado": "Verified", "Decidido": "Decided", "Sugerido": "Suggested", "Proposta": "Proposal", "Sistema externo": "External system", "Destaque": "Highlight", "Ok": "Ok", "Dados": "Data", "Fronteiras": "Boundaries", "Extremos": "Ends", "Passo": "Step", "Probabilidade": "Probability", "Caminhos": "Paths", "Alcance": "Reach", "Ordem/polaridade": "Order/polarity", "Raiz": "Root", "Calculando layout…": "Computing layout…", "O desenho falhou. Veja o console.": "Drawing failed. See the console.", "Anotações": "Annotations", "Legenda": "Legend", "Dias": "Days", "Escala": "Scale", "Grupos": "Groups", "Entradas": "Inputs", "Intervalo": "Range", "Ordem": "Order", "Campo": "Field", "Tipo": "Type", "opcional": "optional", "Eixo horizontal: ": "Horizontal axis: ", " · vertical: ": " · vertical: ", "Tarefa": "Task", "De": "From", "Baixo": "Low", "Alto": "High", "Parte": "Part", "Peso": "Weight", "Pesos: ": "Weights: ", "Outras": "Other", "novo": "new", "removido": "removed", "alterado": "changed", "Cardinalidade ": "Cardinality ", "Do orçamento": "Of budget", "Hoje (": "Today (", "Parar": "Stop", "Passo ": "Step ", " de ": " of ", "Abrir no editor": "Open in editor", "Inspecionar": "Inspect", "Notas": "Notes", "A biblioteca ": "The library ", " não carregou.": " did not load.", "Fórmula": "Formula", "Código": "Code", "Linha ": "Line ", "Linguagem": "Language", "Linhas": "Lines", "Destaques": "Highlights", "Linha com nota": "Line with a note", "Coordenadas": "Coordinates", "Área do ponto = valor": "Dot area = value", "Ponto": "Point", "Regiões com dado": "Regions with data", "de mapas": "for maps", "código": "code", "fórmula": "formula", "mapa": "map", "Região": "Region", "O desenho próprio falhou: ": "The custom drawing failed: ", "desenho próprio": "custom drawing", "Slides": "Slides", "Fechar": "Close", "Tela cheia": "Fullscreen", "Slide anterior": "Previous slide", "Próximo slide": "Next slide", "Visão geral dos slides": "Slide overview", "Notas do apresentador": "Speaker notes", "Fechar notas": "Close notes"};
   function T(s) { return LANG === 'en' && EN[s] != null ? EN[s] : s; }
   var views = SC.views || [Object.assign({ id: 'main', title: SC.title }, SC)];
   var root = document.documentElement, SVG = 'http://www.w3.org/2000/svg';
@@ -1026,10 +1139,12 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   // static chrome written in the HTML (pt-BR); English pages swap it once at start
   if (LANG === 'en') {
     document.documentElement.lang = 'en';
-    [['views', 'aria-label', 'Views'], ['levels', 'aria-label', 'Detail level'], ['btnSearch', 'aria-label', 'Search (/)'], ['btnSearch', 'title', 'Search (/)'], ['q', 'placeholder', 'Search'], ['q', 'aria-label', 'Search the drawing'], ['btnOut', 'aria-label', 'Zoom out'], ['btnOut', 'title', 'Zoom out (−)'], ['btnFit', 'aria-label', 'Fit to screen'], ['btnFit', 'title', 'Fit to screen (f)'], ['btnIn', 'aria-label', 'Zoom in'], ['btnIn', 'title', 'Zoom in (+)'], ['grab', 'aria-label', 'Show or hide details'], ['canvas', 'aria-label', 'Visual canvas'], ['btnPanel', 'aria-label', 'Details panel']].forEach(function (x) { var e = $(x[0]); if (e) e.setAttribute(x[1], x[2]); });
+    [['views', 'aria-label', 'Views'], ['levels', 'aria-label', 'Detail level'], ['btnSearch', 'aria-label', 'Search (/)'], ['btnSearch', 'title', 'Search (/)'], ['q', 'placeholder', 'Search'], ['q', 'aria-label', 'Search the drawing'], ['btnOut', 'aria-label', 'Zoom out'], ['btnOut', 'title', 'Zoom out (−)'], ['btnFit', 'aria-label', 'Fit to screen'], ['btnFit', 'title', 'Fit to screen (f)'], ['btnIn', 'aria-label', 'Zoom in'], ['btnIn', 'title', 'Zoom in (+)'], ['grab', 'aria-label', 'Show or hide details'], ['canvas', 'aria-label', 'Visual canvas'], ['btnPanel', 'aria-label', 'Details panel'], ['aside', 'aria-label', 'Details'], ['deckNav', 'aria-label', 'Slide navigation'], ['deckPrev', 'aria-label', 'Previous slide'], ['deckPrev', 'title', 'Previous slide (←)'], ['deckNext', 'aria-label', 'Next slide'], ['deckNext', 'title', 'Next slide (→)'], ['deckOverviewBtn', 'aria-label', 'Slide overview'], ['deckOverviewBtn', 'title', 'Overview (O)'], ['deckNotesBtn', 'aria-label', 'Speaker notes'], ['deckNotesBtn', 'title', 'Notes (N)'], ['deckFull', 'aria-label', 'Fullscreen'], ['deckFull', 'title', 'Fullscreen (F)'], ['deckNotes', 'aria-label', 'Speaker notes'], ['deckNotesClose', 'aria-label', 'Close notes'], ['deckInspectorClose', 'aria-label', 'Close details'], ['deckOverviewTitle', 'textContent', 'Slides'], ['deckOverviewClose', 'textContent', 'Close']].forEach(function (x) { var e = $(x[0]); if (e) { if (x[1] === 'textContent') e.textContent = x[2]; else e.setAttribute(x[1], x[2]); } });
     var LV = { 1: ['Map', 'Names and groups'], 2: ['Context', 'Responsibilities and labels'], 3: ['Details', 'Files, steps and status'] };
     Array.prototype.forEach.call($('levels').querySelectorAll('button'), function (b) { var l = LV[b.dataset.level]; b.textContent = l[0]; b.title = l[1]; });
-    var hs = { legend: 'Legend', annotations: 'Annotations' }; Object.keys(hs).forEach(function (id) { var h = $(id).querySelector('h2'); if (h) h.textContent = hs[id]; });
+    var hs = { legend: 'Legend', annotations: 'Annotations', deckNotes: 'Notes' }; Object.keys(hs).forEach(function (id) { var h = $(id).querySelector('h2'); if (h) h.textContent = hs[id]; });
+    var dns = document.querySelector('#deckNotesBtn span'); if (dns) dns.textContent = 'Notes';
+    var dos = document.querySelector('#deckOverviewBtn span'); if (dos) dos.textContent = 'Overview';
   }
   function applyTheme(t) { if (t === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t); var b = $('btnTheme'); b.querySelector('span').textContent = NAMES[t]; b.querySelector('use').setAttribute('href', ICONS[t]); b.title = T('Tema: ') + NAMES[t].toLowerCase() + T('. Clique para alternar.'); store.set('vt-theme', t); }
   $('btnTheme').onclick = function () { theme = THEMES[(THEMES.indexOf(theme) + 1) % 3]; applyTheme(theme); if (SC.style === 'sketch' && window.rough && current) setTimeout(function () { render(false); }, 30); };
@@ -1050,10 +1165,12 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   var STATUS = BASIS[SC.basis] || { verified: T('Verificado'), inferred: T('Inferido'), unknown: T('Desconhecido'), label: '' };
 
   // ---------- state
+  var DECK = SC.deck === true;
   var current = null, L = null, s = 1, tx = 0, ty = 0, level = 2;
   var hidden = {}, hiddenKinds = {}, blockPos = [], selectedNode = null, viewHasGraph = false;
   var world = $('world'), wrap_ = $('wrap'), canvas = $('canvas'), tip = $('tip'), statusEl = $('status'), detail = $('detail'), aside = $('aside');
   $('title').textContent = SC.title || ''; $('subtitle').textContent = SC.subtitle || ''; document.title = document.title || SC.title || 'Canvas';
+  if (DECK) { document.body.classList.add('deck'); $('deckBar').hidden = false; setPanel(false); }
   var viewsEl = $('views');
   function navFade() { var e = viewsEl; e.classList.toggle('fade-l', e.scrollLeft > 2); e.classList.toggle('fade-r', e.scrollLeft + e.clientWidth < e.scrollWidth - 2); }
   viewsEl.addEventListener('scroll', navFade, { passive: true }); window.addEventListener('resize', navFade);
@@ -1100,15 +1217,15 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     return h;
   }
   function setDetail(html) { detail.classList.remove('swap'); void detail.offsetWidth; detail.innerHTML = html; detail.querySelectorAll('[data-act]').forEach(function (b) { b.onclick = function (ev) { ev.stopPropagation(); ACT[+b.dataset.act](); }; }); detail.classList.add('swap'); }
-  function showInfo(info) { ACT = []; if (info.back !== false) info.actions = (info.actions || []).concat([{ label: T('Visão geral'), icon: '#i-back', onclick: resetState }]); setDetail(infoHtml(info)); if (window.innerWidth <= 820) aside.classList.remove('collapsed'); else setPanel(true); }
+  function showInfo(info) { ACT = []; if (info.back !== false) info.actions = (info.actions || []).concat([{ label: T('Visão geral'), icon: '#i-back', onclick: resetState }]); setDetail(infoHtml(info)); if (DECK) { aside.classList.remove('collapsed'); setPanel(true); $('deckInspectorClose').focus(); } else if (window.innerWidth <= 820) aside.classList.remove('collapsed'); else setPanel(true); }
   function setPanel(on, save) { var b = $('btnPanel'); document.body.classList.toggle('panel-off', !on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.title = on ? T('Esconder painel de detalhes') : T('Mostrar painel de detalhes'); if (save) store.set('vt-panel', on ? 'on' : 'off'); }
   $('btnPanel').onclick = function () { setPanel(document.body.classList.contains('panel-off'), true); };
   if (store.get('vt-panel') === 'off') setPanel(false);
   // back to the resting state: no selection, no lit neighborhood, no isolated subgraph, inspector on the view summary
   function hasState() { return !!(selectedNode || world.querySelector('.sel, .lit-on') || (current && current.blocks || []).some(function (b) { return b._focus; })); }
-  function resetState() { hideTip(); (current && current.blocks || []).forEach(function (b) { if (b._focus) { b._focus = null; redrawBlock(b); } }); clearSel(); if (document.activeElement && world.contains(document.activeElement)) document.activeElement.blur(); showSummary(); }
+  function resetState() { hideTip(); var back = selectedNode, fromPanel = DECK && aside.contains(document.activeElement); (current && current.blocks || []).forEach(function (b) { if (b._focus) { b._focus = null; redrawBlock(b); } }); clearSel(); if (document.activeElement && world.contains(document.activeElement)) document.activeElement.blur(); showSummary(); if (DECK && fromPanel) { if (back && document.contains(back)) back.focus(); else $('deckOverviewBtn').focus(); } }
   function clearSel() { world.querySelectorAll('.sel').forEach(function (x) { x.classList.remove('sel'); }); world.querySelectorAll('.lit-dim, .lit-on').forEach(function (x) { x.classList.remove('lit-dim', 'lit-on'); }); (current && current.blocks || []).forEach(function (b) { b._lit = null; }); selectedNode = null; }
-  function bindSelect(node, infoFn) { node.addEventListener('click', function (ev) { ev.stopPropagation(); if (dragMoved() || ev.altKey) return; clearSel(); node.classList.add('sel'); selectedNode = node; showInfo(typeof infoFn === 'function' ? infoFn() : infoFn); hashSet(node); }); node.setAttribute('tabindex', '0'); node.setAttribute('role', 'button'); node.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); node.dispatchEvent(new MouseEvent('click', { bubbles: true })); } }); }
+  function bindSelect(node, infoFn) { if (DECK && node.closest('.ext')) return; node.addEventListener('click', function (ev) { ev.stopPropagation(); if (dragMoved() || ev.altKey) return; clearSel(); node.classList.add('sel'); selectedNode = node; showInfo(typeof infoFn === 'function' ? infoFn() : infoFn); hashSet(node); }); node.setAttribute('tabindex', '0'); node.setAttribute('role', 'button'); node.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); node.dispatchEvent(new MouseEvent('click', { bubbles: true })); } }); }
   // sources read as short names (the last meaningful part of a path or URL); the full value stays in the link and its title
   function srcShort(x) { if (!/^https?:\/\//.test(String(x)) && /\s/.test(String(x))) return String(x); var t = String(x).replace(/^https?:\/\//, '').replace(/[?#].*$/, '').replace(/\/+$/, ''), parts = t.split(/[\/:]/).filter(Boolean), last = parts[parts.length - 1] || t; if (parts.length === 1) return last; return /^\d+$/.test(last) ? parts.slice(-2).join('/') : last; }
   function sourcesHtml(src) { var list = (Array.isArray(src) ? src : [src]).map(function (x) { var u = /^https?:\/\//.test(x), lb = esc(srcShort(x)); return '<span class="src">' + (u ? '<a href="' + esc(x) + '" title="' + esc(x) + '" target="_blank" rel="noopener">' + lb + '</a>' : '<span title="' + esc(x) + '">' + lb + '</span>') + '</span>'; }); return list.length > 3 ? list.slice(0, 2).join('') + '<details class="src-more"><summary>' + T('mais ') + (list.length - 2) + '</summary>' + list.slice(2).join('') + '</details>' : list.join(''); }
@@ -1119,9 +1236,9 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     return { title: v.title || SC.title, sub: v.summary || (isFirst ? SC.summary : ''), kv: kv, back: false,
       sections: [blocks.length > 1 ? { label: T('Nesta vista'), rows: blocks.map(function (x) { return { b: x.b.title, d: BLOCK_L[x.b.type] ? BLOCK_L[x.b.type](x.b) : '', onclick: function () { selectBlock(x.i); } }; }) } : null] };
   }
-  function showSummary() { ACT = []; setDetail(infoHtml(summaryInfo())); }
+  function showSummary() { ACT = []; setDetail(infoHtml(summaryInfo())); if (DECK) { if (aside.contains(document.activeElement)) $('deckOverviewBtn').focus(); setPanel(false); } }
   var BLOCK_L = { chart: function (b) { return ({ line: T('linha'), area: T('área'), bar: T('barras'), stackedBar: T('barras empilhadas'), scatter: T('dispersão'), dot: T('pontos'), histogram: T('histograma'), donut: T('rosca'), tornado: 'tornado' })[b.kind || 'line'] || T('gráfico'); }, kpi: function () { return T('indicadores'); }, matrix: function (b) { return T('tabela · ') + (b.rows || []).length + T(' linhas'); }, decision: function (b) { return T('decisão · ') + (b.options || []).length + T(' opções'); }, cards: function (b) { return (b.items || []).length + T(' colunas'); }, timeline: function (b) { return (b.events || []).length + T(' eventos'); }, steps: function (b) { return (b.items || []).length + ' etapas'; }, tree: function (b) { return b.layout === 'mindmap' ? T('mapa mental') : T('árvore'); }, mindmap: function () { return T('mapa mental'); }, quadrant: function () { return T('quadrante'); }, spectrum: function () { return T('espectro'); }, cycle: function (b) { return T('ciclo · ') + (b.items || []).length + T(' estágios'); }, funnel: function (b) { return (b.shape === 'pyramid' ? T('pirâmide') : T('funil')) + ' · ' + (b.items || []).length + T(' estágios'); }, venn: function (b) { return T('venn · ') + (b.sets || []).length + T(' conjuntos'); }, graph: function (b) { return T('diagrama · ') + (b.nodes || []).length + T(' elementos'); }, free: function () { return T('desenho'); }, custom: function () { return T('desenho próprio'); }, code: function (b) { return T('código') + (b.lang ? ' · ' + b.lang : ''); }, math: function () { return T('fórmula'); }, map: function () { return T('mapa'); }, entity: function (b) { return T('modelo · ') + (b.entities || []).length + T(' entidades'); }, heatmap: function (b) { return b.calendar ? T('calendário') : T('mapa de calor'); }, gantt: function (b) { return T('cronograma · ') + (b.tasks || []).length + T(' tarefas'); }, sankey: function () { return T('fluxo'); }, treemap: function (b) { return b.layout === 'sunburst' ? 'sunburst' : 'treemap'; }, callout: function () { return T('nota'); }, text: function () { return T('texto'); } };
-  function selectBlock(i) { var b = current.blocks[i], gb = world.children[i]; if (!gb) return; centerBlock(i); clearSel(); gb.classList.add('sel'); var info = gb._info ? gb._info() : { title: b.title, sub: b.caption }; info.crumb = current.title || SC.title; info.actions = (playable(b) ? [{ label: T('Reproduzir passo a passo'), icon: '#i-play', primary: true, onclick: function () { playBlock(i); } }] : []).concat(info.actions || []).concat([{ label: T('Exportar bloco (PNG)'), onclick: function () { exportPng(i); } }]); showInfo(info); hashSet(gb); }
+  function selectBlock(i) { var b = current.blocks[i], gb = world.children[i]; if (!gb) return; if (!DECK) centerBlock(i); clearSel(); gb.classList.add('sel'); var info = gb._info ? gb._info() : { title: b.title, sub: b.caption }; info.crumb = current.title || SC.title; info.actions = (playable(b) && !DECK ? [{ label: T('Reproduzir passo a passo'), icon: '#i-play', primary: true, onclick: function () { playBlock(i); } }] : []).concat(info.actions || []).concat([{ label: T('Exportar bloco (PNG)'), onclick: function () { exportPng(i); } }]); showInfo(info); hashSet(gb); }
 
   // ---------- legend: each block records what it drew; the inspector merges the blocks of the view; filters where filtering makes sense
   var LEG = [];
@@ -2094,7 +2211,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       else if (t === 'rect' || t === 'ellipse') { var ig = el('g', { 'class': 'nd item', 'data-id': e.id || '', 'data-i': idx }, g); if (t === 'rect') el('rect', { x: e.x, y: e.y, width: e.w, height: e.h, rx: e.rx == null ? 10 : e.rx, 'class': 'n-fill-' + (e.kind || 'component') }, ig); else el('ellipse', { cx: e.x + e.w / 2, cy: e.y + e.h / 2, rx: e.w / 2, ry: e.h / 2, 'class': 'n-fill-' + (e.kind || 'component') }, ig); if (e.text) { var lines = wrap(e.text, F.nm, e.w - 16); lines.forEach(function (l, i) { txt(ig, e.x + e.w / 2, e.y + e.h / 2 + 4 - (lines.length - 1) * 7 + i * 14, l, i === 0 ? 'nm b' : 'sb', 'middle'); }); } if (e.sub) txt(ig, e.x + e.w / 2, e.y + e.h - 8, e.sub, 'xs muted', 'middle'); items.push(e); var conns = (b.elements || []).filter(function (c) { return (c.type === 'arrow' || c.type === 'line') && (c.from === e.id || c.to === e.id); }); bindSelect(ig, function () { return { crumb: b.title || T('Desenho'), title: e.text || e.id, sub: e.sub || '', tags: e.kind && KIND_L[e.kind] ? [{ text: KIND_L[e.kind] }] : [], sections: [e.detail ? { prose: e.detail } : null, conns.length ? { label: T('Ligações'), rows: conns.map(function (c) { var other = c.from === e.id ? byId[c.to] : byId[c.from]; return { b: (other && (other.text || other.id)) || '', d: (c.from === e.id ? '→ ' : '← ') + (c.label || ''), sw: 'line e-' + (c.kind || 'plain') }; }) } : null] }; }); if (e.kind) legendAdd(T('Elementos'), e.kind, { sw: 'node k-' + e.kind + (e.kind === 'external' ? ' dashed' : ''), label: KIND_L[e.kind] || e.kind, count: 1 }); }
       else if (t === 'text') { para(g, e.x, e.y, e.text, e.size === 'lg' ? F.t : e.size === 'sm' ? F.sm : F.md, (e.size === 'lg' ? 'blk-title' : e.size === 'sm' ? 'small muted' : 'md') + (e.mono ? ' mono' : ''), e.w || 400, e.size === 'sm' ? 15 : 18); }
       else if (t === 'badge') { var bw2 = W(e.text, F.xs) + 16, bg = el('g', { 'class': 'item' }, g); el('rect', { x: e.x, y: e.y, width: bw2, height: 18, rx: 9, 'class': 'n-fill-' + (e.kind || 'accent') }, bg); txt(bg, e.x + bw2 / 2, e.y + 13, e.text, 'xs b', 'middle'); }
-      else if (t === 'image' || t === 'video') { var mi = el('g', { 'class': 'item', 'data-i': idx }, g); if (t === 'image') { var im = el('image', { x: e.x, y: e.y, width: e.w, height: e.h, preserveAspectRatio: 'xMidYMid meet' }, mi); im.setAttribute('href', e.src); } else { var fo = el('foreignObject', { x: e.x, y: e.y, width: e.w, height: e.h }, mi); var vd = document.createElement('video'); vd.setAttribute('controls', ''); vd.setAttribute('preload', 'none'); vd.setAttribute('src', e.src); vd.style.width = '100%'; vd.style.height = '100%'; vd.style.background = '#000'; fo.appendChild(vd); } if (t === 'image') el('rect', { 'class': 'item-hit', x: e.x, y: e.y, width: e.w, height: e.h, rx: 10 }, mi); items.push(e); bindSelect(mi, function () { var shortSrc = /^data:/.test(e.src || '') ? 'embutido na cena (data URI)' : (e.src || ''); return { crumb: b.title || T('Desenho'), title: e.alt || e.id || (t === 'image' ? 'Imagem' : T('Vídeo')), sub: e.sub || '', sections: [e.detail ? { prose: e.detail } : null, { label: T('Fonte'), prose: shortSrc }] }; }); }
+      else if (t === 'image' || t === 'video') { var mi = el('g', { 'class': 'item ext', 'data-i': idx }, g); if (DECK) mi.setAttribute('aria-hidden', 'true'); if (t === 'image') { var im = el('image', { x: e.x, y: e.y, width: e.w, height: e.h, preserveAspectRatio: 'xMidYMid meet' }, mi); im.setAttribute('href', e.src); } else { var fo = el('foreignObject', { x: e.x, y: e.y, width: e.w, height: e.h }, mi); var vd = document.createElement('video'); vd.setAttribute('controls', ''); vd.setAttribute('preload', 'none'); vd.setAttribute('src', e.src); vd.style.width = '100%'; vd.style.height = '100%'; vd.style.background = '#000'; fo.appendChild(vd); } if (t === 'image') el('rect', { 'class': 'item-hit', x: e.x, y: e.y, width: e.w, height: e.h, rx: 10 }, mi); items.push(e); bindSelect(mi, function () { var shortSrc = /^data:/.test(e.src || '') ? 'embutido na cena (data URI)' : (e.src || ''); return { crumb: b.title || T('Desenho'), title: e.alt || e.id || (t === 'image' ? 'Imagem' : T('Vídeo')), sub: e.sub || '', sections: [e.detail ? { prose: e.detail } : null, { label: T('Fonte'), prose: shortSrc }] }; }); }
       else if (t === 'line' || t === 'arrow') { var a = e.from && byId[e.from] ? center(byId[e.from]) : { x: e.x1, y: e.y1 }, z = e.to && byId[e.to] ? center(byId[e.to]) : { x: e.x2, y: e.y2 }; if (e.from && byId[e.from] && e.to && byId[e.to]) { var pair = edgePoints(byId[e.from], byId[e.to]); a = pair[0]; z = pair[1]; }
         // a pair going both ways runs as two parallel lines, each label on its own side
         var rev = e.from && e.to && (b.elements || []).some(function (c) { return (c.type === 'arrow' || c.type === 'line') && c.from === e.to && c.to === e.from; }), side = e.from < e.to ? -1 : 1, flip = e.from < e.to ? 1 : -1, ddx = (z.x - a.x) * flip, ddy = (z.y - a.y) * flip, dl0 = Math.sqrt(ddx * ddx + ddy * ddy) || 1, nx0 = -ddy / dl0, ny0 = ddx / dl0;  // normal of the pair, the same for both directions
@@ -2489,11 +2606,11 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       select: function (node, info) { node.classList.add('item'); bindSelect(node, typeof info === 'function' ? info : function () { return info; }); },
       tip: function (node, html) { hitTip(node, typeof html === 'function' ? html : function () { return html; }); },
       legend: function (group, key, item) { legendList.push([group, key, item]); } };
-    var done = function (sz) { sz = sz || {}; legendList.forEach(function (x) { legendAdd(x[0], x[1], x[2]); }); var k = wireCustom(g, b, gb); if (gb) gb._info = function () { return { title: b.title || T('Desenho'), sub: b.caption || '', sections: [b.alt ? { prose: b.alt } : null] }; }; return { w: sz.w || w, h: sz.h || h }; };
+    var done = function (sz) { sz = sz || {}; legendList.forEach(function (x) { legendAdd(x[0], x[1], x[2]); }); var k = wireCustom(g, b, gb); if (DECK) g.setAttribute('aria-hidden', 'true'); if (gb) gb._info = function () { return { title: b.title || T('Desenho'), sub: b.caption || '', sections: [b.alt ? { prose: b.alt } : null] }; }; return { w: sz.w || w, h: sz.h || h }; };
     var fail = function (err) { console.error('visual-thinking: custom block "' + b.id + '" failed', err); g.innerHTML = ''; txt(g, 0, 14, T('O desenho próprio falhou: ') + String(err && err.message || err), 'small muted'); return { w: 360, h: 20 }; };
     try {
       if (b.svg) { var doc = new DOMParser().parseFromString('<svg xmlns="' + SVG + '">' + b.svg + '</svg>', 'image/svg+xml'), bad = doc.querySelector('parsererror'); if (bad) throw new Error(bad.textContent.slice(0, 120)); Array.prototype.slice.call(doc.documentElement.childNodes).forEach(function (c) { g.appendChild(document.importNode(c, true)); }); g.querySelectorAll('script').forEach(function (s) { s.remove(); }); return done(); }
-      if (b.html) { foreign(g, 0, 0, w, h, b.html, 'vt-custom'); return done(); }
+      if (b.html) { var fo = foreign(g, 0, 0, w, h, b.html, 'vt-custom'); if (DECK && fo.firstChild) fo.firstChild.setAttribute('inert', ''); return done(); }
       if (b.draw) { var fn = new Function('g', 'api', b.draw), libs = (b.libs || []).map(function (n) { return needLib(n); }); return Promise.all(libs).then(function () { return fn(g, api); }).then(done, fail); }
     } catch (err) { return fail(err); }
     return fail(new Error('custom sem svg, html ou draw'));
@@ -2507,16 +2624,16 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     if (b.title) { var t = txt(gb, 0, 0, b.title, 'blk-title'); y0 = 30; }
     var inner = el('g', { transform: 'translate(0 ' + y0 + ')' }, gb);
     var fn = RENDER[b.type]; if (!fn) { txt(inner, 0, 14, 'Bloco desconhecido: ' + b.type, 'small muted'); return Promise.resolve({ w: 240, h: 20 }); }
-    return Promise.resolve(fn(b, inner, gb)).then(function (sz) { var yy = (sz.y0 || 0); if (yy) inner.setAttribute('transform', 'translate(0 ' + (y0 - yy) + ')'); var h = y0 + sz.h - yy; if (b.caption) { h += para(gb, 0, h + 18, b.caption, F.sm, 'blk-cap', Math.max(240, sz.w), 15) + 9; } if (b.title) { var hit = el('rect', { 'class': 'blk-hit', x: -6, y: -14, width: Math.max(sz.w, W(b.title, F.t)) + 12, height: 22, rx: 6 }, gb); gb.insertBefore(hit, gb.firstChild); hit.style.cursor = 'pointer'; hit.addEventListener('click', function (ev) { ev.stopPropagation(); if (!dragMoved()) selectBlock(i); }); } return { w: sz.w, h: h }; });
+    return Promise.resolve(fn(b, inner, gb)).then(function (sz) { var yy = (sz.y0 || 0); if (yy) inner.setAttribute('transform', 'translate(0 ' + (y0 - yy) + ')'); var h = y0 + sz.h - yy; if (b.caption) { h += para(gb, 0, h + 18, b.caption, F.sm, 'blk-cap', Math.max(240, sz.w), 15) + 9; } if (b.title && !(DECK && b.type === 'custom')) { var hit = el('rect', { 'class': 'blk-hit', x: -6, y: -14, width: Math.max(sz.w, W(b.title, F.t)) + 12, height: 22, rx: 6 }, gb); gb.insertBefore(hit, gb.firstChild); hit.style.cursor = 'pointer'; hit.setAttribute('tabindex', '0'); hit.setAttribute('role', 'button'); hit.setAttribute('aria-label', b.title); hit.addEventListener('click', function (ev) { ev.stopPropagation(); if (!dragMoved()) selectBlock(i); }); hit.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectBlock(i); } }); } return { w: sz.w, h: h }; });
   }
   // width blocks are laid out for. On desktop it ignores the inspector toggle (always the width beside an open panel),
   // so opening or closing the panel only refits the drawing and never reflows it; phones reflow to the real width
   var PANEL_W = 304;
-  function layoutW() { var vw = window.innerWidth; return vw > 820 ? vw - PANEL_W : (wrap_.clientWidth || vw); }
+  function layoutW() { if (DECK) return 800; var vw = window.innerWidth; return vw > 820 ? vw - PANEL_W : (wrap_.clientWidth || vw); }
   function narrow() { return layoutW() < 700; }
   // legibility floor: below this scale 12px text stops being readable, so blocks reflow to the width that keeps it
-  function minS() { return layoutW() < 700 ? 1 : 0.85; }
-  function availW() { var p = pad(), vw = layoutW(); return Math.max(280, Math.floor((vw * 0.92 - p.x) / minS())); }
+  function minS() { return DECK ? 1 : layoutW() < 700 ? 1 : 0.85; }
+  function availW() { if (DECK) return 704; var p = pad(), vw = layoutW(); return Math.max(280, Math.floor((vw * 0.92 - p.x) / minS())); }
   function fitW(w) { return Math.min(w, availW()); }
   function placeBlocks(forceStack) {
     var v = current, lay = v.layout || {}, type = narrow() || forceStack ? 'stack' : (lay.type || 'stack'), gap = lay.gap == null ? 44 : lay.gap, cols = lay.columns || 2, y = 0, rowH = 0, maxW = 0, sizes = blockPos, blocks = v.blocks || [];
@@ -2531,18 +2648,28 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     if (type !== 'stack' && maxW > availW() * 1.05) return placeBlocks(true);
     L = { w: maxW, h: y };
   }
+  function deckFreeze() {
+    if (!DECK) return;
+    world.querySelectorAll('.ext a, .ext button, .ext input, .ext select, .ext textarea, .ext iframe, .ext audio[controls], .ext video[controls], .ext object, .ext embed, .ext summary, .ext [tabindex], .ext [contenteditable]').forEach(function (el) {
+      el.setAttribute('tabindex', '-1');
+      if (el.tagName === 'A') el.removeAttribute('href');
+      if (el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') el.setAttribute('disabled', '');
+      if (el.tagName === 'VIDEO' || el.tagName === 'AUDIO') el.removeAttribute('controls');
+      el.style.pointerEvents = 'none';
+    });
+  }
   function render(fitAfter) {
     var seq = ++renderSeq, v = current, lay = v.layout || {}, type = lay.type || 'stack', gap = lay.gap == null ? 44 : lay.gap, cols = lay.columns || 2;
     world.innerHTML = ''; blockPos = []; setStatus(''); (v.blocks || []).forEach(function (b) { b._autoDir = null; });
     var busy = setTimeout(function () { if (seq === renderSeq) setStatus(T('Calculando layout…')); }, 400);
-    var groups = (v.blocks || []).map(function (b, i) { return { b: b, g: el('g', { 'class': 'blk', 'data-block': b.id || '' }, world), i: i }; });
+    var groups = (v.blocks || []).map(function (b, i) { return { b: b, g: el('g', { 'class': 'blk' + (b.type === 'custom' ? ' ext' : ''), 'data-block': b.id || '' }, world), i: i }; });
     return Promise.all(groups.map(function (x) { return renderBlock(x.b, x.g, x.i); })).then(function (sizes) {
       clearTimeout(busy); if (seq !== renderSeq) return;
-      blockPos = sizes.map(function (sz) { return { w: sz.w, h: sz.h }; }); placeBlocks(); renderLegend(); sketchify(world);
+      blockPos = sizes.map(function (sz) { return { w: sz.w, h: sz.h }; }); placeBlocks(); renderLegend(); sketchify(world); if (DECK) deckFreeze();
       if (fitAfter) fit(false);
     }).catch(function (err) { clearTimeout(busy); console.error('visual-thinking: render failed', err); setStatus('<div>O desenho falhou. Veja o console.</div>'); });
   }
-  function redrawBlock(b, tween) { var i = (current.blocks || []).indexOf(b), gb = world.children[i]; if (!gb) return render(false); var old = tween ? geometryOf(gb) : null; gb.style.animation = 'none'; return renderBlock(b, gb, i).then(function (sz) { sketchify(gb); if (old) tweenFrom(gb, old); if (b.type === 'graph') gb.querySelectorAll('.ed, .el, .grp').forEach(function (e) { e.style.animation = 'blk-in var(--d-base) var(--ease)'; }); if (blockPos[i] && (Math.abs(sz.w - blockPos[i].w) > 1 || Math.abs(sz.h - blockPos[i].h) > 1)) { blockPos[i].w = sz.w; blockPos[i].h = sz.h; world.classList.add('glide'); placeBlocks(); setTimeout(function () { world.classList.remove('glide'); }, ms('--d-slow') + 20); } renderLegend(); }); }
+  function redrawBlock(b, tween) { var i = (current.blocks || []).indexOf(b), gb = world.children[i]; if (!gb) return render(false); var old = tween ? geometryOf(gb) : null; gb.style.animation = 'none'; return renderBlock(b, gb, i).then(function (sz) { sketchify(gb); if (old) tweenFrom(gb, old); if (b.type === 'graph') gb.querySelectorAll('.ed, .el, .grp').forEach(function (e) { e.style.animation = 'blk-in var(--d-base) var(--ease)'; }); if (blockPos[i] && (Math.abs(sz.w - blockPos[i].w) > 1 || Math.abs(sz.h - blockPos[i].h) > 1)) { blockPos[i].w = sz.w; blockPos[i].h = sz.h; world.classList.add('glide'); placeBlocks(); setTimeout(function () { world.classList.remove('glide'); }, ms('--d-slow') + 20); } renderLegend(); if (DECK) { deckFreeze(); fit(true); } }); }
   // ---------- reading mode: the view as an outline in normal flow. Same text as the inspector, no zoom.
   // Also the accessible description of the canvas (aria-describedby), hidden off-screen while the drawing shows.
   function cellV(c) { return c && typeof c === 'object' && !Array.isArray(c) ? c.value : c; }
@@ -2584,10 +2711,14 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   OUTLINE.mindmap = OUTLINE.tree;
   function outlineHtml(v) {
     var h = '<h1 class="sr-only">' + esc(SC.title || '') + '</h1>';
-    if (views.length > 1) h += '<h2 class="r-view">' + esc(v.title || '') + '</h2>';
-    if (v.summary || (v === views[0] && SC.summary)) h += '<p class="r-sum">' + esc(v.summary || SC.summary) + '</p>';
-    (v.blocks || []).forEach(function (b) { var fn = OUTLINE[b.type], body = ''; try { body = fn ? fn(b) : ''; } catch (err) { body = ''; } if (!body && !b.title) return; h += '<section>' + (b.title ? '<h2>' + esc(b.title) + '</h2>' : '') + body + (b.caption ? '<p class="cap">' + esc(b.caption) + '</p>' : '') + '</section>'; });
+    var isCover = DECK && v.cover, isSection = DECK && v.section;
+    var title = isCover ? (SC.title || '') : (v.title || '');
+    var lead = isCover ? (v.summary || SC.subtitle || '') : (v.summary || (!DECK && v === views[0] ? SC.summary : ''));
+    if (views.length > 1 || DECK) h += '<h2 class="r-view">' + esc(title) + '</h2>';
+    if (lead) h += '<p class="r-sum">' + esc(lead) + '</p>';
+    if (!isCover && !isSection) (v.blocks || []).forEach(function (b) { var fn = OUTLINE[b.type], body = ''; try { body = fn ? fn(b) : ''; } catch (err) { body = ''; } if (!body && !b.title) return; h += '<section>' + (b.title ? '<h2>' + esc(b.title) + '</h2>' : '') + body + (b.caption ? '<p class="cap">' + esc(b.caption) + '</p>' : '') + '</section>'; });
     var A = v.annotations || (v === views[0] ? SC.annotations : null); if (A && A.length) h += '<section class="ann"><h2>' + T('Anotações') + '</h2><ul>' + A.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul></section>';
+    var notes = DECK ? deckNotes(v) : ''; if (notes) h += '<section class="ann"><h2>' + T('Notas') + '</h2><p>' + esc(notes).replace(/\n/g, '<br>') + '</p></section>';
     var meta = [STATUS.label, SC.source, SC.date].filter(Boolean); if (meta.length) h += '<p class="cap">' + esc(meta.join(' · ')) + '</p>';
     return h;
   }
@@ -2638,8 +2769,143 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
       wrap.appendChild(seg); bar.appendChild(wrap);
     });
   }
+  // ---------- deck: views are slides; a cover and section dividers are views without blocks
+  function deckNotes(v) { var n = v && v.notes; return Array.isArray(n) ? n.join('\n\n') : (n || ''); }
+  function deckIndex() { return Math.max(0, views.indexOf(current)); }
+  function setDeckHead(v) {
+    $('deckSlideHead').hidden = false;
+    $('deckSlideTitle').textContent = v.title || '';
+    var lead = $('deckSlideLead'); lead.textContent = v.summary || ''; lead.hidden = !v.summary;
+  }
+  function hideDeckSpecial() { var box = $('deckSpecial'); box.hidden = true; box.innerHTML = ''; canvas.removeAttribute('hidden'); }
+  function showDeckSpecial(v) {
+    if (aside.contains(document.activeElement)) $('deckOverviewBtn').focus();
+    setPanel(false);
+    var box = $('deckSpecial'); box.innerHTML = ''; box.className = 'deck-special ' + (v.cover ? 'cover' : 'section');
+    var t = document.createElement(v.cover ? 'div' : 'h2');
+    t.className = 'cover-title'; t.textContent = v.cover ? (SC.title || '') : (v.title || '');
+    if (v.cover) t.setAttribute('aria-hidden', 'true');
+    box.appendChild(t);
+    var sub = v.cover ? (v.summary || SC.subtitle || '') : (v.summary || '');
+    if (sub) { var p = document.createElement('p'); p.className = 'cover-sub'; p.textContent = sub; box.appendChild(p); }
+    if (v.cover) {
+      var meta = document.createElement('div'); meta.className = 'cover-meta';
+      [SC.date, SC.source].filter(Boolean).forEach(function (x) { var s = document.createElement('span'); s.textContent = x; meta.appendChild(s); });
+      if (meta.children.length) box.appendChild(meta);
+    }
+    box.hidden = false; canvas.setAttribute('hidden', ''); $('deckSlideHead').hidden = true;
+  }
+  function updateDeckChrome(v) {
+    var i = deckIndex(), n = views.length, notes = deckNotes(v), btn = $('deckNotesBtn'), panel = $('deckNotes');
+    $('deckCount').textContent = (i + 1) + ' / ' + n;
+    $('deckStatus').textContent = (i + 1) + ' / ' + n + ' · ' + (v.cover ? (SC.title || '') : (v.title || ''));
+    $('deckProgress').style.width = (n ? ((i + 1) / n * 100) : 0) + '%';
+    $('deckPrev').disabled = i <= 0; $('deckNext').disabled = i >= n - 1;
+    $('deckNotesBody').textContent = notes;
+    btn.disabled = !notes;
+    if (!notes) {
+      if (!panel.hidden && panel.contains(document.activeElement)) $('deckOverviewBtn').focus();
+      panel.hidden = true; btn.setAttribute('aria-expanded', 'false');
+    } else btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+    Array.prototype.forEach.call($('deckGrid').children, function (b) { b.setAttribute('aria-current', +b.dataset.i === i ? 'true' : 'false'); });
+  }
+  function goSlide(i) {
+    i = Math.max(0, Math.min(views.length - 1, i));
+    var from = deckIndex(); if (i === from) return Promise.resolve();
+    var dir = i > from ? 'next' : 'prev', p = loadView(views[i].id), stage = $('wrap');
+    stage.classList.remove('in-next', 'in-prev'); void stage.offsetWidth; stage.classList.add('in-' + dir);
+    setTimeout(function () { stage.classList.remove('in-next', 'in-prev'); }, ms('--d-slow') + 40);
+    return p;
+  }
+  function buildDeckGrid() {
+    var grid = $('deckGrid'); grid.innerHTML = '';
+    views.forEach(function (v, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.dataset.i = i; b.setAttribute('aria-current', i === deckIndex() ? 'true' : 'false');
+      var n = document.createElement('span'); n.className = 'n'; n.textContent = String(i + 1).padStart(2, '0');
+      var t = document.createElement('span'); t.className = 't'; t.textContent = v.cover ? (SC.title || '') : (v.title || v.id);
+      b.appendChild(n); b.appendChild(t);
+      var d = v.summary || (v.cover ? SC.subtitle : '');
+      if (d) { var ds = document.createElement('span'); ds.className = 'd'; ds.textContent = d; b.appendChild(ds); }
+      b.onclick = function () { var dlg = $('deckOverview'); if (dlg.open) dlg.close(); goSlide(i); };
+      grid.appendChild(b);
+    });
+  }
+  function openOverview() {
+    buildDeckGrid();
+    var d = $('deckOverview');
+    if (typeof d.showModal === 'function') { if (!d.open) d.showModal(); } else { d.hidden = false; d.setAttribute('open', ''); }
+    $('deckOverviewBtn').setAttribute('aria-expanded', 'true');
+    $('deckOverviewClose').focus();
+  }
+  function closeOverview() {
+    var d = $('deckOverview');
+    if (d.open && typeof d.close === 'function') d.close(); else { d.hidden = true; d.removeAttribute('open'); }
+    $('deckOverviewBtn').setAttribute('aria-expanded', 'false'); $('deckOverviewBtn').focus();
+  }
+  function toggleNotes(force) {
+    var panel = $('deckNotes'), btn = $('deckNotesBtn'); if (!deckNotes(current)) return;
+    var on = force == null ? panel.hidden : !!force;
+    panel.hidden = !on; btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (on) $('deckNotesClose').focus(); else btn.focus();
+  }
+  function toggleFull() {
+    if (document.fullscreenElement) { document.exitFullscreen().catch(function () {}); }
+    else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(function () {}); }
+  }
+  $('deckPrev').onclick = function () { goSlide(deckIndex() - 1); };
+  $('deckNext').onclick = function () { goSlide(deckIndex() + 1); };
+  $('deckOverviewBtn').onclick = openOverview;
+  $('deckOverviewClose').onclick = closeOverview;
+  $('deckNotesBtn').onclick = function () { toggleNotes(); };
+  $('deckNotesClose').onclick = function () { toggleNotes(false); };
+  $('deckInspectorClose').onclick = function () { resetState(); };
+  $('deckFull').onclick = toggleFull;
+  $('deckOverview').addEventListener('close', function () { $('deckOverviewBtn').setAttribute('aria-expanded', 'false'); $('deckOverviewBtn').focus(); });
+  document.addEventListener('fullscreenchange', function () { $('deckFull').setAttribute('aria-pressed', document.fullscreenElement ? 'true' : 'false'); });
+  document.addEventListener('keydown', function (ev) {
+    if (!DECK) return;
+    var inField = /INPUT|TEXTAREA|SELECT/.test((document.activeElement && document.activeElement.tagName) || '');
+    if (inField && ev.key !== 'Escape') return;
+    if ($('deckOverview').open) return;
+    if (ev.key === 'Escape' && !$('deckNotes').hidden) { ev.preventDefault(); toggleNotes(false); return; }
+    if (reading) {
+      if (ev.key === 'ArrowRight') { ev.preventDefault(); goSlide(deckIndex() + 1); }
+      else if (ev.key === 'ArrowLeft') { ev.preventDefault(); goSlide(deckIndex() - 1); }
+      else if (ev.key === 'o' || ev.key === 'O') { ev.preventDefault(); openOverview(); }
+      else if (ev.key === 'n' || ev.key === 'N') { ev.preventDefault(); toggleNotes(); }
+      else if (ev.key === 'f' || ev.key === 'F') { ev.preventDefault(); toggleFull(); }
+      else if (ev.key === 't' || ev.key === 'T') { ev.preventDefault(); $('btnTheme').click(); }
+      return;
+    }
+    if (ev.key === 'Escape') { ev.preventDefault(); resetState(); return; }
+    var onButton = document.activeElement && document.activeElement.closest && document.activeElement.closest('button, a, [role="button"]');
+    if (ev.key === ' ' && onButton) return;
+    if (ev.key === 'ArrowRight' || ev.key === 'PageDown' || ev.key === ' ') { ev.preventDefault(); goSlide(deckIndex() + 1); }
+    else if (ev.key === 'ArrowLeft' || ev.key === 'PageUp') { ev.preventDefault(); goSlide(deckIndex() - 1); }
+    else if (ev.key === 'Home') { ev.preventDefault(); goSlide(0); }
+    else if (ev.key === 'End') { ev.preventDefault(); goSlide(views.length - 1); }
+    else if (ev.key === 'o' || ev.key === 'O') { ev.preventDefault(); openOverview(); }
+    else if (ev.key === 'n' || ev.key === 'N') { ev.preventDefault(); toggleNotes(); }
+    else if (ev.key === 'f' || ev.key === 'F') { ev.preventDefault(); toggleFull(); }
+    else if (ev.key === 't' || ev.key === 'T') { ev.preventDefault(); $('btnTheme').click(); }
+  });
+  var deckSwipe = null;
+  wrap_.addEventListener('pointerdown', function (e) { if (!DECK) return; deckSwipe = e.target.closest('input, button, select, textarea, a, .vt-dec-slider') ? null : { x: e.clientX, y: e.clientY, id: e.pointerId }; });
+  wrap_.addEventListener('pointerup', function (e) {
+    if (!DECK || !deckSwipe || e.pointerId !== deckSwipe.id) return;
+    var dx = e.clientX - deckSwipe.x, dy = e.clientY - deckSwipe.y; deckSwipe = null;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) goSlide(deckIndex() + (dx < 0 ? 1 : -1));
+  });
+  wrap_.addEventListener('pointercancel', function () { deckSwipe = null; });
+
   function loadView(id) {
+    hideTip(); setStatus('');
     var v = views.filter(function (x) { return x.id === id; })[0] || views[0]; current = v; hidden = {}; hiddenKinds = {}; clearSel(); closeMenu(); (v.blocks || []).forEach(function (b) { b._focus = null; b._dir = null; });
+    if (DECK) {
+      updateDeckChrome(v);
+      if (v.cover || v.section) { showDeckSpecial(v); renderReader(); hashSet(null); return Promise.resolve(); }
+      hideDeckSpecial(); setDeckHead(v);
+    }
     v._scenarioSel = null; applyScenarios(v, false); renderScenarios();
     Array.prototype.forEach.call(viewsEl.children, function (bt) { bt.setAttribute('aria-selected', bt.dataset.view === v.id ? 'true' : 'false'); });
     var onTab = viewsEl.querySelector('[aria-selected="true"]');
@@ -2660,13 +2926,21 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   function apply(animated) { if (animated && ms('--d-slow') && !document.hidden) { world.style.transition = 'transform ' + tok('--t-slow') + ', opacity ' + tok('--t-base'); setTimeout(function () { world.style.transition = ''; }, ms('--d-slow') + 20); commit(); return; } commit(); }
   // gestures (drag, pinch, wheel) fire faster than the screen; they write once per frame
   function applyFrame() { if (document.hidden) { commit(); return; } if (!applyQ) applyQ = requestAnimationFrame(function () { applyQ = 0; commit(); }); }
-  function pad() { var small = (wrap_.clientWidth || window.innerWidth) < 700, wr = wrap_.getBoundingClientRect(), tl = document.querySelector('.float.tl'), br = document.querySelector('.float.br'), tb = tl && wr.height ? tl.getBoundingClientRect().bottom - wr.top : 48, bb = br && wr.height ? wr.bottom - br.getBoundingClientRect().top : 48;
+  function pad() { if (DECK) return { x: 0, top: 0, bottom: 0 }; var small = (wrap_.clientWidth || window.innerWidth) < 700, wr = wrap_.getBoundingClientRect(), tl = document.querySelector('.float.tl'), br = document.querySelector('.float.br'), tb = tl && wr.height ? tl.getBoundingClientRect().bottom - wr.top : 48, bb = br && wr.height ? wr.bottom - br.getBoundingClientRect().top : 48;
     // content starts below the floating search/levels/scenario bars and stops above the zoom buttons
     return { x: small ? 24 : 96, top: Math.max(small ? 56 : 48, tb + 16), bottom: Math.max(40, bb + 12) }; }
   // fit: the whole view when it stays legible; otherwise the legible scale, anchored at the top, and the reader pans or scrolls.
   // overview: everything on screen whatever the scale (second press of f or the fit button).
   var fitMode = 'legible';
-  function fit(animated, mode) { if (!L) return; fitMode = mode || 'legible'; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, p = pad(), sw = (vw * 0.92 - p.x) / L.w, sh = (vh - p.top - p.bottom) / L.h, all = Math.min(sw, sh, 1.15);
+  function fit(animated, mode) {
+    if (!L) return;
+    if (DECK && current && (current.cover || current.section)) return;
+    fitMode = mode || 'legible';
+    if (DECK) {
+      var cr = canvas.getBoundingClientRect(), dw = cr.width || wrap_.clientWidth, dh = cr.height || wrap_.clientHeight, dp = Math.max(16, Math.min(56, dw * 0.06, dh * 0.09)), ds = Math.min((dw - 2 * dp) / L.w, (dh - 2 * dp) / L.h);
+      s = Math.max(0.1, ds); tx = (dw - L.w * s) / 2; ty = (dh - L.h * s) / 2; fitS = s; fitTx = tx; fitTy = ty; apply(animated); return;
+    }
+    var vw = wrap_.clientWidth, vh = wrap_.clientHeight, p = pad(), sw = (vw * 0.92 - p.x) / L.w, sh = (vh - p.top - p.bottom) / L.h, all = Math.min(sw, sh, 1.15);
     if (fitMode === 'overview' || all >= minS()) { s = all; tx = (vw - L.w * s) / 2; ty = Math.max(p.top, Math.min(p.top + (vh - p.top - p.bottom - L.h * s) / 2, p.top + vh * 0.08)); }
     else { s = sw >= 0.75 && sw < minS() ? sw : Math.max(minS(), Math.min(sw, 0.95)); var radial = (current.blocks || []).some(function (b) { return b.layout === 'mindmap' || b.type === 'mindmap' || b.type === 'cycle' || b.type === 'venn'; }); tx = L.w * s <= vw - p.x / 2 || radial ? (vw - L.w * s) / 2 : p.x / 2; ty = p.top; }  // radial drawings open on their center
     fitS = s; fitTx = tx; fitTy = ty; apply(animated); }
@@ -2676,7 +2950,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   function zoomBy(k, cx, cy, animated) { var r = wrap_.getBoundingClientRect(), mx = cx == null ? r.width / 2 : cx, my = cy == null ? r.height / 2 : cy, ns = Math.min(3, Math.max(0.15, s * k)); k = ns / s; tx = mx - (mx - tx) * k; ty = my - (my - ty) * k; s = ns; if (animated === 'frame') applyFrame(); else apply(animated); }
   // navigate to an element: when it is not comfortably inside the free canvas (below the floating bars, above the zoom group),
   // glide the view so it lands centered at a legible scale; an element already in view does not move
-  function reveal(node) { if (!node || !node.getBoundingClientRect) return; commit(); var r = node.getBoundingClientRect(), wr = wrap_.getBoundingClientRect(), p = pad(), m = 24;
+  function reveal(node) { if (DECK || !node || !node.getBoundingClientRect) return; commit(); var r = node.getBoundingClientRect(), wr = wrap_.getBoundingClientRect(), p = pad(), m = 24;
     var safe = { l: wr.left + m, r: wr.right - m, t: wr.top + p.top, b: wr.bottom - p.bottom };
     var ns = Math.max(s, minS()), k = ns / s, w = r.width * k, h = r.height * k;
     if (k === 1 && r.left >= safe.l && r.right <= safe.r && r.top >= safe.t && r.bottom <= safe.b) return;
@@ -2684,10 +2958,10 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     tx = gx - (cx - tx) * k; ty = gy - (cy - ty) * k; s = ns; apply(true); }
   function centerBlock(i) { var p = blockPos[i]; if (!p) return; var vw = wrap_.clientWidth, vh = wrap_.clientHeight, pd = pad(); s = Math.max(Math.min((vw * 0.92 - pd.x) / p.w, (vh - pd.top - pd.bottom) / (p.h + 24), 1.15), minS()); tx = p.w * s <= vw ? (vw - p.w * s) / 2 - p.x * s : pd.x / 2 - p.x * s; ty = pd.top + Math.max(0, (vh - pd.top - pd.bottom - (p.h + 24) * s) / 2) - (p.y - 24) * s; apply(true); }
   // wheel zooms at the pointer; shift or a sideways trackpad swipe pans; dragging pans
-  wrap_.addEventListener('wheel', function (e) { e.preventDefault(); var r = wrap_.getBoundingClientRect(); if (e.ctrlKey || (Math.abs(e.deltaY) >= Math.abs(e.deltaX) && !e.shiftKey)) { var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1); zoomBy(Math.min(1.25, Math.max(0.8, Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0022)))), e.clientX - r.left, e.clientY - r.top, 'frame'); } else { var k = e.deltaMode === 1 ? 16 : 1; tx -= (e.shiftKey ? e.deltaY : e.deltaX) * k; applyFrame(); } }, { passive: false });
+  wrap_.addEventListener('wheel', function (e) { if (DECK) return; e.preventDefault(); var r = wrap_.getBoundingClientRect(); if (e.ctrlKey || (Math.abs(e.deltaY) >= Math.abs(e.deltaX) && !e.shiftKey)) { var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1); zoomBy(Math.min(1.25, Math.max(0.8, Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0022)))), e.clientX - r.left, e.clientY - r.top, 'frame'); } else { var k = e.deltaMode === 1 ? 16 : 1; tx -= (e.shiftKey ? e.deltaY : e.deltaX) * k; applyFrame(); } }, { passive: false });
   var drag = null, pointers = {}, pinch = null;
   function dragMoved() { return !!(drag && drag.moved); }
-  wrap_.addEventListener('pointerdown', function (e) { if (e.altKey || e.target.closest('.float, .status, .count, input, button, select, textarea, video, .vt-dec-slider')) return; pointers[e.pointerId] = { x: e.clientX, y: e.clientY }; var ids = Object.keys(pointers); if (ids.length === 2) { var a = pointers[ids[0]], b = pointers[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: s, tx: tx, ty: ty, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; drag = null; try { wrap_.setPointerCapture(e.pointerId); } catch (err) {} return; } if (e.button !== 0) return; drag = { x: e.clientX - tx, y: e.clientY - ty, sx: e.clientX, sy: e.clientY, id: e.pointerId, moved: false }; });
+  wrap_.addEventListener('pointerdown', function (e) { if (DECK || e.altKey || e.target.closest('.float, .status, .count, input, button, select, textarea, video, .vt-dec-slider')) return; pointers[e.pointerId] = { x: e.clientX, y: e.clientY }; var ids = Object.keys(pointers); if (ids.length === 2) { var a = pointers[ids[0]], b = pointers[ids[1]]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: s, tx: tx, ty: ty, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; drag = null; try { wrap_.setPointerCapture(e.pointerId); } catch (err) {} return; } if (e.button !== 0) return; drag = { x: e.clientX - tx, y: e.clientY - ty, sx: e.clientX, sy: e.clientY, id: e.pointerId, moved: false }; });
   wrap_.addEventListener('pointermove', function (e) { if (pointers[e.pointerId]) pointers[e.pointerId] = { x: e.clientX, y: e.clientY }; if (pinch) { var ids = Object.keys(pointers); if (ids.length < 2) return; var a = pointers[ids[0]], b = pointers[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y), r = wrap_.getBoundingClientRect(), cx = (a.x + b.x) / 2 - r.left, cy = (a.y + b.y) / 2 - r.top, k = Math.min(3, Math.max(0.15, pinch.s * d / pinch.d)) / pinch.s; tx = cx - ((pinch.cx - r.left) - pinch.tx) * k; ty = cy - ((pinch.cy - r.top) - pinch.ty) * k; s = pinch.s * k; applyFrame(); return; } if (!drag) return; if (!drag.moved) { if (Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) < 4) return; drag.moved = true; try { wrap_.setPointerCapture(drag.id); } catch (err) {} hideTip(); } tx = e.clientX - drag.x; ty = e.clientY - drag.y; applyFrame(); });
   var endDrag = function (e) { delete pointers[e.pointerId]; if (Object.keys(pointers).length < 2) pinch = null; var was = drag; setTimeout(function () { if (drag === was) drag = null; }, 0); }; wrap_.addEventListener('pointerup', endDrag); wrap_.addEventListener('pointercancel', endDrag);
   canvas.addEventListener('click', function (e) { if (dragMoved() || e.altKey) return; if (e.target === canvas || e.target === world) resetState(); });
@@ -2701,7 +2975,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   function runSearch() { var t = q.value.trim().toLowerCase(), n = 0, tot = 0; world.querySelectorAll('.item, .nd, .lg').forEach(function (x) { if (x.closest('.item, .nd, .lg') !== x) return; tot++; var hitm = !t || x.textContent.toLowerCase().indexOf(t) >= 0; if (hitm) n++; x.classList.toggle('dim', !hitm); }); world.querySelectorAll('.ed, .el').forEach(function (x) { x.classList.toggle('dim', !!t); }); countEl.textContent = t ? (n ? n + T(' de ') + tot + T(' itens') : T('Nada encontrado para "') + q.value.trim() + '"') : ''; countEl.classList.toggle('on', !!t); }
   $('btnSearch').onclick = function () { if (sb.classList.contains('open')) closeSearch(); else openSearch(); };
   q.addEventListener('input', runSearch); q.addEventListener('blur', function () { if (!q.value) setTimeout(function () { if (document.activeElement !== q && !q.value) closeSearch(); }, 120); });
-  document.addEventListener('keydown', function (ev) { var inInput = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA'); if (inInput) { if (ev.key === 'Escape') closeSearch(); return; } if (ev.key === 'f') fitToggle(); else if (ev.key === '+' || ev.key === '=') zoomBy(1.25, null, null, true); else if (ev.key === '-') zoomBy(0.8, null, null, true); else if (ev.key === '/') { ev.preventDefault(); openSearch(); } else if (ev.key === 'Escape') { if (sb.classList.contains('open')) closeSearch(); resetState(); } else if (ev.key === 'd' && viewHasGraph) { var gbk = (current.blocks || []).filter(function (b) { return b.type === 'graph'; })[0]; gbk._dir = (gbk._dir || gbk.direction || 'RIGHT') === 'RIGHT' ? 'DOWN' : 'RIGHT'; redrawBlock(gbk); } else if (ev.key >= '1' && ev.key <= '3' && viewHasGraph) { $('levels').querySelector('[data-level="' + ev.key + '"]').click(); } else if (ev.key.indexOf('Arrow') === 0) { ev.preventDefault(); var st = 48; if (ev.key === 'ArrowLeft') tx += st; if (ev.key === 'ArrowRight') tx -= st; if (ev.key === 'ArrowUp') ty += st; if (ev.key === 'ArrowDown') ty -= st; apply(true); } });
+  document.addEventListener('keydown', function (ev) { if (DECK) return; var inInput = document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA'); if (inInput) { if (ev.key === 'Escape') closeSearch(); return; } if (ev.key === 'f') fitToggle(); else if (ev.key === '+' || ev.key === '=') zoomBy(1.25, null, null, true); else if (ev.key === '-') zoomBy(0.8, null, null, true); else if (ev.key === '/') { ev.preventDefault(); openSearch(); } else if (ev.key === 'Escape') { if (sb.classList.contains('open')) closeSearch(); resetState(); } else if (ev.key === 'd' && viewHasGraph) { var gbk = (current.blocks || []).filter(function (b) { return b.type === 'graph'; })[0]; gbk._dir = (gbk._dir || gbk.direction || 'RIGHT') === 'RIGHT' ? 'DOWN' : 'RIGHT'; redrawBlock(gbk); } else if (ev.key >= '1' && ev.key <= '3' && viewHasGraph) { $('levels').querySelector('[data-level="' + ev.key + '"]').click(); } else if (ev.key.indexOf('Arrow') === 0) { ev.preventDefault(); var st = 48; if (ev.key === 'ArrowLeft') tx += st; if (ev.key === 'ArrowRight') tx -= st; if (ev.key === 'ArrowUp') ty += st; if (ev.key === 'ArrowDown') ty -= st; apply(true); } });
 
   // ---------- context menu: right-click reuses the click handlers, adds nothing new
   var menuEl = null;
@@ -2710,6 +2984,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   function menuBtn(menu, label, hint, run) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'menuitem'); b.textContent = label; if (hint) { var k = document.createElement('span'); k.className = 'k'; k.textContent = hint; b.appendChild(k); } b.onclick = function (ev) { ev.stopPropagation(); closeMenu(); run(); }; menu.appendChild(b); return b; }
   function menuSep(menu) { var last = menu.lastElementChild; if (!last || last.className !== 'sep') { var s = document.createElement('div'); s.className = 'sep'; menu.appendChild(s); } }
   canvas.addEventListener('contextmenu', function (ev) {
+    if (DECK) return;
     ev.preventDefault(); closeMenu(); hideTip();
     var t = ev.target, menu = document.createElement('div');
     menu.className = 'vt-menu'; menu.setAttribute('role', 'menu');
@@ -2771,7 +3046,18 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   function hashSet(node) { if (!current) return; var h = views.length > 1 || node ? 'v=' + encodeURIComponent(current.id) : ''; if (node) { var gb = node.closest && node.closest('.blk'), key = node.dataset && (node.dataset.id ? node.dataset.id : node.dataset.i != null ? 'i' + node.dataset.i : node.dataset.e ? node.dataset.e : ''); if (gb && gb.dataset.block && key) h += '&b=' + encodeURIComponent(gb.dataset.block) + '&k=' + encodeURIComponent(key); } try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (err) {} }
   function linkTo(node) { hashSet(node); return location.href; }
   function findKey(gb, key) { if (!gb || !key) return null; var k = key.replace(/["\\]/g, ''), n = gb.querySelector('.nd[data-id="' + k + '"]') || gb.querySelector('[data-id="' + k + '"]'); if (n) return n; if (/^i\d+$/.test(k)) return gb.querySelector('.item[data-i="' + k.slice(1) + '"], .nd[data-i="' + k.slice(1) + '"]'); if (/^e\d+$/.test(k)) return gb.querySelector('.ed-hit[data-e="' + k + '"]'); return null; }
-  function restoreHash(h) { if (!h.b) return; var gb = world.querySelector('.blk[data-block="' + h.b.replace(/["\\]/g, '') + '"]'), n = findKey(gb, h.k); if (n) { var bi = Array.prototype.indexOf.call(world.children, gb); if (bi >= 0) centerBlock(bi); fireClick(n); } else if (gb) selectBlock(Array.prototype.indexOf.call(world.children, gb)); }
+  function restoreHash(h) {
+    if (!h.b || (DECK && current && (current.cover || current.section))) return;
+    var gb = world.querySelector('.blk[data-block="' + h.b.replace(/["\\]/g, '') + '"]'), n = findKey(gb, h.k);
+    if (n) {
+      var bi = Array.prototype.indexOf.call(world.children, gb);
+      if (!DECK && bi >= 0) centerBlock(bi);
+      fireClick(n);
+    } else if (gb) {
+      if (DECK) { var hit = gb.querySelector('.blk-hit'); if (hit) fireClick(hit); }
+      else selectBlock(Array.prototype.indexOf.call(world.children, gb));
+    }
+  }
   // the text an element shows, one line per text mark, in reading order
   function elementText(n) { var lines = []; n.querySelectorAll('text').forEach(function (t) { var v = t.textContent.trim(); if (v) lines.push(v); }); return lines.join('\n'); }
   // Alt (Option) held: dragging selects canvas text instead of panning; letting go returns to pan
@@ -2822,7 +3108,7 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
     tick();
   }
   canvas.addEventListener('pointerdown', function () { if (playing && !playing.prog) stopPlay(); }, true);
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') stopPlay(); else if (ev.key === 'p' && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) { var bi = (current.blocks || []).findIndex(playable); if (bi >= 0) { if (playing) stopPlay(); else playBlock(bi); } } });
+  document.addEventListener('keydown', function (ev) { if (DECK) return; if (ev.key === 'Escape') stopPlay(); else if (ev.key === 'p' && !(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName))) { var bi = (current.blocks || []).findIndex(playable); if (bi >= 0) { if (playing) stopPlay(); else playBlock(bi); } } });
 
   // ---------- small screens: the inspector is a sheet that collapses to its handle
   $('grab').onclick = function () { aside.classList.toggle('collapsed'); setTimeout(function () { if (L && !selectedNode) fit(true); }, ms('--d-slow') + 20); };
@@ -2832,8 +3118,8 @@ body.reading .reader { display: block; } body.reading .canvas-wrap, body.reading
   setReading(qMode ? qMode === 'read' : readPref ? readPref === 'on' : SC.mode ? SC.mode === 'read' : window.innerWidth < 700);
 
   setFonts();
-  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { setFonts(); var pre = []; if (SC.math) pre.push(needLib('katex').catch(function () {})); if (SC.style === 'sketch') pre.push(needLib('rough').catch(function () {})); if ((SC.views || []).some(function (v) { return (v.blocks || []).some(function (b) { return b.type === 'graph' && b.engine === 'dagre'; }); })) pre.push(needLib('dagre').catch(function () {})); Promise.all(pre).then(function () { var h = hashParse(), v0 = views.some(function (v) { return v.id === h.v; }) ? h.v : views[0].id; Promise.resolve(loadView(v0)).then(function () { if (h.b) { setReading(false); restoreHash(h); } }); }); });
-  window.addEventListener('hashchange', function () { var h = hashParse(); if (h.v && current && h.v !== current.id && views.some(function (v) { return v.id === h.v; })) Promise.resolve(loadView(h.v)).then(function () { restoreHash(h); }); });
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () { setFonts(); var pre = []; if (SC.math) pre.push(needLib('katex').catch(function () {})); if (SC.style === 'sketch') pre.push(needLib('rough').catch(function () {})); if ((SC.views || []).some(function (v) { return (v.blocks || []).some(function (b) { return b.type === 'graph' && b.engine === 'dagre'; }); })) pre.push(needLib('dagre').catch(function () {})); Promise.all(pre).then(function () { var h = hashParse(), v0 = views.some(function (v) { return v.id === h.v; }) ? h.v : views[0].id; Promise.resolve(loadView(v0)).then(function () { if (h.b) { if (!DECK) setReading(false); if (!reading) restoreHash(h); } }); }); });
+  window.addEventListener('hashchange', function () { var h = hashParse(); if (h.v && current && h.v !== current.id && views.some(function (v) { return v.id === h.v; })) Promise.resolve(loadView(h.v)).then(function () { if (!reading) restoreHash(h); }); });
 })();
 </script>
 

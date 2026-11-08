@@ -45,13 +45,13 @@ Every block owns its inspector: the right panel (a bottom sheet on phones) shows
 }
 ```
 
-Scene fields: `title` (the finding), `subtitle` (scope, date, source in short), `basis` (`code`, `docs`, `proposal`; sets the status vocabulary), `source` (URLs render as clickable links in the inspector), `date`, `period` (shown under the summary), `summary`, `views`, optional top-level `annotations` for the first view. Optional: `lang` (`pt`, default, or `en`: interface strings, number and date formats), `root` (absolute path of the repository; every `file` becomes an editor link, `path:line` included), `editor` (`vscode` default, `vscode-insiders`, `vscodium`, `cursor`, `windsurf`, `zed`, `idea`), `mode` (`read` opens in reading mode everywhere), `style` (`sketch` redraws boxes, bars and lines by hand with rough.js; good for early ideas, wrong for numbers someone will quote), `math` (`true` turns `$...$` in text, details and the reading mode into formulas), `libs` (`[{name, url, global}]`: extra pinned libraries from jsDelivr, cdnjs or unpkg for `custom` blocks; inlined by the build).
+Scene fields: `title` (the finding), `subtitle` (scope, date, source in short), `basis` (`code`, `docs`, `proposal`; sets the status vocabulary), `source` (URLs render as clickable links in the inspector), `date`, `period` (shown under the summary), `summary`, `views`, optional top-level `annotations` for the first view. Optional: `lang` (`pt`, default, or `en`: interface strings, number and date formats), `root` (absolute path of the repository; every `file` becomes an editor link, `path:line` included), `editor` (`vscode` default, `vscode-insiders`, `vscodium`, `cursor`, `windsurf`, `zed`, `idea`), `mode` (`read` opens in reading mode everywhere), `style` (`sketch` redraws boxes, bars and lines by hand with rough.js; good for early ideas, wrong for numbers someone will quote), `math` (`true` turns `$...$` in text, details and the reading mode into formulas), `deck` (`true` renders the scene as a 16:9 presentation: one view per slide, with a cover, section dividers, speaker notes, overview and fullscreen), `libs` (`[{name, url, global}]`: extra pinned libraries from jsDelivr, cdnjs or unpkg for `custom` blocks; inlined by the build).
 
 Optional libraries load only when a scene uses them: the build adds the script for `style: sketch` (rough.js 4.6.6), `code` (highlight.js 11.12), `math` (KaTeX 0.19, MathML output, no fonts), `map` (topojson-client 3.1 plus the geometry, embedded in the page) and `engine: dagre` (dagre 3.1). A page assembled by hand loads them from the CDN on first use. The build inlines them (offline by default; `--cdn` keeps links).
 
-Text budget, warned by the build (`text:` lines, `--no-text-lint` silences them): page `title` and `subtitle` 12 words, block `title` 8, node `sub` and card `meta` 6, `text` 15, `detail`, `note`, summaries and annotations 25, a whole view 250. Summaries and details that talk about the page or the navigation, details that repeat their node, and summaries that list the drawing's labels are flagged too.
+Text budget, warned by the build (`text:` lines, `--no-text-lint` silences them): page `title` and `subtitle` 12 words, block `title` 8, node `sub` and card `meta` 6, `text` 15, `detail`, `note`, summaries and annotations 25, a whole view 250. In a deck, a slide `title` is 10 words, its `notes` 120 and the whole slide 100. Summaries and details that talk about the page or the navigation, details that repeat their node, and summaries that list the drawing's labels are flagged too.
 
-`layout.type`: `stack` (one below the other, narrative order), `row` (side by side, for things to compare), `grid` with `columns` (a block with `"full": true` takes a whole row). On screens under 700px every layout stacks and graphs flow top-down; on wider screens a layout wider than the legible width stacks too.
+`layout.type`: `stack` (one below the other, narrative order), `row` (side by side, for things to compare), `grid` with `columns` (a block with `"full": true` takes a whole row). On screens under 700px every layout stacks and graphs flow top-down; on wider screens a layout wider than the legible width stacks too. A deck `cover` or `section` view ignores its layout and blocks.
 
 A view may carry `scenarios: {controls: [{id, label, options, default}], overrides: {"<controlId>:<option>": <patch>, or "<option>": <patch>}}`. The runtime renders one segmented control per entry above the canvas; switching applies the matching patch onto the view (arrays of objects with `id` merge by id, objects merge key by key) and re-renders without reload. Switching views restores defaults.
 
@@ -93,6 +93,30 @@ Graph rules: `engine: dagre` swaps ELK for dagre (synchronous, lighter on big gr
 Chart rules: bars and areas start at zero; lines may start above zero only when the data never approach zero; up to 6 series; donut only up to 5 parts; a block the data does not support is left out, not filled. Value labels that would sit on another label are dropped; the tooltip and the inspector keep every number.
 
 Decision rules: no matrix without weights — every `decision` states `weightBasis`; eliminatory constraints are `vetoBelow`, not low scores; every score carries its evidence in `raw`/`note` or is tagged `inferred`/`unknown`; the title names the recommendation and the inspector traces it.
+
+## Deck mode: the same scene as a presentation
+
+Set `"deck": true` at the top of the scene and each view becomes one 16:9 slide. The blocks, tokens, themes and reading mode are the same; the runtime adds a slide player around them:
+
+- The slide stage is 16:9. Content is laid out at 800 logical pixels and scaled to the stage, so the same 12–15px canvas type reads as 18–24px on a screen. The slide `title` and `summary` sit above the drawing; the block title stays with the drawing.
+- The scene `title`, `subtitle`, `date` and `source` become the cover. A view with `"cover": true` renders that cover full-bleed; a view with `"section": true` renders a divider on the accent field. Both ignore their blocks.
+- `notes` on a view is a string or a list of strings, up to 120 words. It opens with `n` and appears in reading mode under "Notas". The panel is an overlay, not a second screen; the notes are not on the slide.
+- Navigation: arrows, space, Page Up/Down, Home/End; `o` opens the slide grid; `n` toggles notes; `f` fullscreen; `t` cycles theme. On touch, a horizontal swipe moves one slide. `#v=<view>` deep-links a slide.
+- The overview lists every slide with its number, title and summary. The current slide is marked in accent.
+- Skill-rendered blocks stay interactive: hover, click to inspect, legend filters, decision sliders and block summaries. The inspector floats over the slide; `Esc`, the close button or an empty-canvas click returns to rest. The slide itself never pans or zooms.
+- External content stays inert: `custom` blocks and `free` image/video elements render but do not receive pointer or keyboard interaction. The skill did not generate their internals, so a deck cannot navigate, play or inspect them; put the source and detail in `notes` or in a skill-rendered block.
+- Phones open in reading mode, where the same slide is an outline with its notes; `?mode=draw` forces the 16:9 stage.
+- `@media print` prints the current slide without the player chrome. There is no multi-slide PDF export: the deliverable is the HTML deck.
+
+View fields used by a deck:
+
+| Field | Holds |
+|---|---|
+| `cover` | `true` on the first view: renders the scene title, subtitle, date and source as a cover. |
+| `section` | `true` on a divider: renders the view title and summary on the accent field. |
+| `notes` | String or list of strings: what the speaker says; max 120 words. |
+
+Deck rules the build warns on: no cover in a deck over two slides, a cover that is not first, more than one cover, no notes anywhere, more than 12 slides, more than four blocks on a slide, a slide over 100 words, a slide title over 10 words, and `scenarios` on a slide (the deck hides the controls; use separate slides). A deck is not a canvas with pages: one claim and one visual per slide.
 
 ## templates/svg.html: composed drawing
 

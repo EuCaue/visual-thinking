@@ -20,7 +20,7 @@ An example is a scene JSON plus its built HTML. Start from an existing scene, ke
 sh scripts/build-examples.sh
 ```
 
-Open the page in a browser in both themes before committing. Anything you cannot explain why it is on the page gets deleted.
+Open the page in a browser in both themes before committing. Anything you cannot explain why it is on the page gets deleted. For a deck (`"deck": true`), also check the cover, the slide grid (`o`), notes (`n`) and phone text mode; one claim and one visual per slide. Click a skill-rendered node to open the inspector; custom blocks and media must stay inert.
 
 ## Writing docs
 

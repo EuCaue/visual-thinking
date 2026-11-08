@@ -1,0 +1,139 @@
+{
+  "title": "The email worker left the API",
+  "subtitle": "Example · illustrative data · 2026",
+  "deck": true,
+  "basis": "proposal",
+  "summary": "The API answers Stripe before sending; the worker owns the retry.",
+  "source": "visual-thinking repository example",
+  "date": "2026-11-08",
+  "lang": "en",
+  "views": [
+    {
+      "id": "cover",
+      "title": "Cover",
+      "cover": true,
+      "summary": "An architecture decision in six slides.",
+      "notes": "Start with the problem, not the solution. The Stripe webhook waited for SMTP before answering. The whole deck fits in one sentence: the API answers before the email."
+    },
+    {
+      "id": "problem",
+      "title": "The problem",
+      "section": true,
+      "summary": "The Stripe response waited for SMTP.",
+      "notes": "An email provider timeout became a Stripe retry. There was no job; the API owned the failure."
+    },
+    {
+      "id": "flow",
+      "title": "Synchronous sending couples three failures",
+      "summary": "The response waits for the provider; the retry starts on the other side.",
+      "notes": "Follow the error edge: SMTP is slow, the API does not answer, Stripe retries. Postgres and the provider sit in the same response.",
+      "blocks": [
+        {
+          "type": "graph",
+          "id": "sync",
+          "title": "The synchronous path",
+          "direction": "RIGHT",
+          "nodes": [
+            { "id": "stripe", "label": "Stripe", "sub": "sends the event", "kind": "external" },
+            { "id": "api", "label": "API", "sub": "answers the webhook", "kind": "entry" },
+            { "id": "smtp", "label": "SMTP", "sub": "delivers the email", "kind": "external" },
+            { "id": "db", "label": "Postgres", "sub": "orders", "kind": "store" }
+          ],
+          "edges": [
+            { "from": "stripe", "to": "api", "label": "POST /webhooks", "kind": "control" },
+            { "from": "api", "to": "smtp", "label": "sendMail", "kind": "control", "main": true },
+            { "from": "api", "to": "db", "label": "updateOrder", "kind": "data" },
+            { "from": "smtp", "to": "api", "label": "timeout", "kind": "error" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "latency",
+      "title": "p95 fell from 2.4 s to 180 ms",
+      "summary": "After the worker, the API answers before SMTP.",
+      "notes": "The chart is illustrative, but the shape matters: the drop happens at the worker deploy, not at the volume. The 300 ms target is the reference line.",
+      "blocks": [
+        {
+          "type": "chart",
+          "id": "p95",
+          "title": "p95 of the webhook per month",
+          "kind": "line",
+          "height": 300,
+          "marks": ["line", "point", "area"],
+          "x": { "type": "category", "label": "month" },
+          "y": { "label": "p95", "unit": " ms", "min": 0 },
+          "series": [
+            { "name": "p95", "data": [["Jul", 2380], ["Aug", 2420], ["Sep", 2310], ["Oct", 2360], ["Nov", 410], ["Dec", 190], ["Jan", 180], ["Feb", 175]] }
+          ],
+          "refLines": [{ "y": 300, "label": "target 300 ms" }],
+          "annotations": [{ "x": "Nov", "y": 410, "text": "worker in production" }],
+          "caption": "Illustrative data, not a production measurement."
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "title": "A single queue won on isolation and cost",
+      "summary": "Retry left the API; the single queue won by a small margin.",
+      "notes": "The queue per channel isolates more, but doubles the operational cost. The single queue already takes SMTP out of the response and keeps one worker. The weights come from a team of four: isolation first, cost next.",
+      "blocks": [
+        {
+          "type": "decision",
+          "id": "queue",
+          "title": "Three options, three criteria",
+          "mode": "weighted",
+          "weightBasis": "Isolation weighs most: an email failure cannot take down the webhook. Cost reflects the team of four; latency breaks the tie.",
+          "options": [
+            { "id": "inline", "label": "Send in the API", "sub": "no queue", "reversibility": "two-way" },
+            { "id": "single", "label": "Single queue", "sub": "one worker", "reversibility": "two-way" },
+            { "id": "per", "label": "Queue per channel", "sub": "email, push, SMS", "reversibility": "one-way" }
+          ],
+          "criteria": [
+            {
+              "id": "isolation",
+              "label": "Failure isolation",
+              "weight": 0.45,
+              "scores": {
+                "inline": { "score": 1, "raw": "timeout blocks the response" },
+                "single": { "score": 4, "raw": "one failure does not affect the API" },
+                "per": { "score": 5, "raw": "each channel is isolated" }
+              }
+            },
+            {
+              "id": "cost",
+              "label": "Operational cost",
+              "weight": 0.3,
+              "scores": {
+                "inline": { "score": 5, "raw": "no new service" },
+                "single": { "score": 4, "raw": "one worker" },
+                "per": { "score": 2, "raw": "three workers" }
+              }
+            },
+            {
+              "id": "latency",
+              "label": "Webhook latency",
+              "weight": 0.25,
+              "scores": {
+                "inline": { "score": 2, "raw": "waits for SMTP" },
+                "single": { "score": 5, "raw": "immediate response" },
+                "per": { "score": 4, "raw": "immediate response" }
+              }
+            }
+          ],
+          "recommendation": {
+            "optionId": "single",
+            "rationale": "The queue per channel isolates more but doubles the cost; the single queue already takes SMTP out of the response."
+          }
+        }
+      ]
+    },
+    {
+      "id": "close",
+      "title": "The API answers before the email",
+      "section": true,
+      "summary": "The worker owns the retry; Stripe gets 200 in under 200 ms.",
+      "notes": "Close on the contract: the API only marks the order and enqueues. Delivery, retries and provider failures stay in the worker."
+    }
+  ]
+}

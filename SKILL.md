@@ -3,13 +3,14 @@ name: visual-thinking
 description: >-
   Use when the user asks to draw, sketch, diagram, chart or show visually
   anything (an architecture, a concept, a comparison, a trend, numbers, a
-  timeline, a process, ideas to organize, a pasted text). Also when an
-  explanation of how parts connect, how values compare or what happens over
-  time would take more than three paragraphs of prose.
+  timeline, a process, ideas to organize, a pasted text, a slide deck or a
+  presentation). Also when an explanation of how parts connect, how values
+  compare or what happens over time would take more than three paragraphs of
+  prose.
 license: MIT
 metadata:
   opencode/slash: "true"
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Visual thinking
@@ -70,7 +71,7 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 
 **Assumption beats question.** Draw what the context settles, and carry every guess openly: state it in the subtitle or tag it `inferred` / `unknown` in the scene. Ask one short sentence only in two cases: two readings lead to materially different pictures, or a data-driven chart has no real numbers in reach (never invent an axis, a series or a metric; draw the underlying structure instead — matrix, steps, graph — with the values marked `unknown`, or ask for the numbers).
 
-## Seven modes
+## Eight modes
 
 | Mode | Trigger | What changes |
 |---|---|---|
@@ -81,6 +82,22 @@ Borderline choices, compositions of several blocks, the anti-choices and the "wh
 | Compare | two or more options, before and after | Comparison strategies in strategy.md: matrix, aligned cards, side by side with the difference marked, bars for metrics. Never a wall of cards, never boxes and arrows. |
 | Summarize | a pasted text plus "preguiça de ler", "resume visualmente" | Draw only what the text says. Nothing added, nothing inferred beyond the text. |
 | Decide | "qual escolher", "vale a pena", trade-off, buy vs build, risk, scenarios | `basis: "decision"`. `decision` block with weights and a stated `weightBasis` (never equal weights by default), `tornado` for what flips the answer, `graph` with consequence paths, `scenarios` for alternative futures. The title names the recommendation; the reader must trace it to criteria. |
+| Present | "monta uma apresentação", "slide deck", "pitch", "apresente isso", a deck to show | Set `deck: true`: one view is one 16:9 slide. The first view sets `cover: true`, turns in the argument set `section: true`, and `notes` carry the spoken part. One claim and one visual per slide; the runtime gives arrows, an overview, notes and fullscreen. |
+
+## Presentations
+
+A deck is a scene with `"deck": true`; the canvas template becomes a 16:9 player. One view is one slide. The first view usually sets `"cover": true` (the deck title), a turn in the argument sets `"section": true`, and any view can carry `"notes"` for what the speaker says. Nothing else changes: the same blocks, tokens and reading mode.
+
+Rules:
+
+- One claim per slide, in the view `title`; the `summary` is the line under it. If a slide needs two claims, split it.
+- One visual per slide, two when one is a callout. A graph with more than 8 nodes, a matrix with more than 5 options or a table with more than 8 rows belongs on a canvas, not on a slide.
+- 6 to 12 slides. The cover names the deck and its scope; section slides mark the turns; the last slide closes on the decision.
+- `notes` carry the detail the slide does not show: the source, the caveat, the sentence to say. They are not projected; press `n`.
+- A deck is not a canvas with pages. No pan or zoom; the slide stays fitted. The inspector and block interactions stay: click a skill-rendered element, filter a legend, move a decision slider. External content (custom blocks, media) is inert; the skill did not generate its internals.
+- The build warns on a deck without a cover, without notes, with a slide over 100 words or with more than four blocks. Fix the warning, do not silence it.
+
+Build it like any scene: `python3 scripts/build-scene.py deck.json out.html`. The page works offline; arrows and space move, Home/End jump, `o` opens the slide grid, `n` opens notes, `f` goes fullscreen, `t` switches theme, and `#v=<view>` links to a slide. Phones open in reading mode with the same notes.
 
 ## When no block fits
 
@@ -113,7 +130,7 @@ Whatever you draw keeps the contract: both themes, labels and units, nothing ess
 
 | Template | Use for |
 |---|---|
-| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut, tornado), kpi, matrix, decision, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas (with image and video elements), graph (architecture with groups, typed edges, three information levels, legend as filter; decision nodes with consequence paths), entity (data model), heatmap, gantt, sankey, treemap. Views as tabs, with optional `scenarios` controls; one inspector per block; right-click menu with per-target actions; reading mode; deep links; PNG/SVG export; step playback; `lang: "en"`. |
+| `templates/canvas.html` | The default, for everything. A scene of composable blocks: chart (line, area, bar, stacked bar, scatter, dot, histogram, donut, tornado), kpi, matrix, decision, cards, timeline, steps, tree, mindmap, quadrant, spectrum, cycle, funnel, venn, callout, text, free canvas (with image and video elements), graph (architecture with groups, typed edges, three information levels, legend as filter; decision nodes with consequence paths), entity (data model), heatmap, gantt, sankey, treemap. Views as tabs, with optional `scenarios` controls; one inspector per block; right-click menu with per-target actions; reading mode; deep links; PNG/SVG export; step playback; `lang: "en"`. With `deck: true` the same blocks become 16:9 slides with a cover, section dividers, notes, overview and fullscreen. |
 | `templates/svg.html` | Hand-composed drawings with exact placement: two architectures side by side, annotated screens, packet layouts, an SVG from `d2` or `dot`. |
 | `templates/mermaid.html` | Sequence diagrams and state machines. |
 
@@ -121,7 +138,7 @@ Schemas, slots and what each block shows at each level: [formats.md](formats.md)
 
 ## Build the page
 
-1. Write the scene JSON. Fill only the schema: `title` (the finding), `subtitle`, `basis`, `source`, `date`, `summary`, views, blocks. Do not restyle: tokens, type, theme, controls and inspector are the design system.
+1. Write the scene JSON. Fill only the schema: `title` (the finding), `subtitle`, `basis`, `source`, `date`, `summary`, views, blocks. For a deck, also set `deck: true` and use `cover`, `section` and `notes` on the views (see Presentations). Do not restyle: tokens, type, theme, controls and inspector are the design system.
 2. Fill the levels within the text budget (below). Level 1 is the drawing: every block has a `title` that says what the reader learns, axes carry a label or `unit`, edges carry a label of at most 4 words, nodes carry `sub`. Level 2 and 3 are the fields the inspector reads: `note`, `detail`, `evidence`, `notes`, `text`, `source`. They are optional: fill one only with a fact the shape does not show. A `summary` states the finding of the page or the view in one sentence; it never describes the page, its tabs or its audience. Groups hold at least one node. In sketch mode this shrinks to the minimum: page `title`, block titles and content; `summary`, `source`, `date` and level-3 fields stay out.
 3. Keep nothing essential behind a click: the default view answers the question. Interaction adds depth, never the core. When the scene names files, set `root` (the absolute repo path) so every `file` opens in the editor.
 4. Build: `python3 scripts/build-scene.py scene.json out.html "Title"` (standalone document). The build validates the scene first: dangling ids, unlabeled edges, unknown kinds, empty groups, out-of-range values; exit 1 lists each problem with the block it belongs to, and nothing is built until they are fixed. On success the first output line is the absolute path of the page. The page works offline by default: the build inlines the libraries the scene uses (fetched once into `.vt-libs/`; without network it keeps the CDN tags and warns). `--cdn` keeps the tags for a lighter file. Without Python, copy the template and replace the JSON in `<script id="scene">` and the `<title>`.
@@ -144,7 +161,10 @@ The drawing carries the meaning; text only labels it. Every string must add a fa
 | `text` (cards, steps, kpi, events) | 15 words | one fact |
 | `detail`, `note` | 25 words | a fact NOT on the node: file, failure mode, number, example |
 | page or view `summary`, annotation | 25 words | the finding; optional |
+| deck slide `title` | 10 words | the claim; one line or two |
+| deck slide `notes` | 120 words | the spoken part; not on the slide |
 | whole view | 250 words | past this the page became prose |
+| whole slide (deck) | 100 words | past this the slide is a document; split it |
 
 Never write:
 
@@ -207,6 +227,8 @@ For any Decide page, before delivering: can the reader trace the recommendation 
 | Data invented to fill a chart | The numbers must be real; with none in reach, draw the underlying structure with values marked `unknown` or ask for the numbers |
 | Asking before trying | Draw with a stated assumption unless two readings differ materially |
 | Drawing for a one-line answer | Answer in prose |
+| Deck built as a canvas: five blocks and a paragraph per view | One claim, one visual, the rest in `notes`; split the slide |
+| Deck without a cover or without notes | First view `cover: true`, every slide `notes`; the build warns |
 | Hand-edited scene renders broken | Run the build; fix every dangling id it points at, rebuild |
 | Element the reader cannot make sense of | Fix or delete it before delivering; the sense test in "Build the page" |
 | Decision matrix with equal or missing weights | State every weight in `weightBasis`; infer from context when the user did not give them, never default to equal |

@@ -36,16 +36,16 @@ PROBE = r"""
 """
 
 
-def build(scene, tmp, name="page", pre="", act=""):
+def build(scene, tmp, name="page", pre="", act="", probe=None):
     src = pathlib.Path(tmp) / (name + ".json")
     out = pathlib.Path(tmp) / (name + ".html")
     src.write_text(json.dumps(scene, ensure_ascii=False))
     r = subprocess.run(["python3", str(ROOT / "scripts/build-scene.py"), str(src), str(out), "--no-text-lint"], capture_output=True, text=True, cwd=ROOT)
     assert r.returncode == 0, r.stdout + r.stderr
     page = out.read_text()
-    probe = PROBE + ("<script>window.__probeAct = function () { " + act + " };</script>" if act else "")
+    probe = (probe or PROBE) + ("<script>window.__probeAct = function () { " + act + " };</script>" if act else "")
     # `pre` runs before the runtime (e.g. to set localStorage); the probe after it
-    page = page.replace('<script id="scene"', pre + '<script id="scene"', 1).replace("</body>", probe + "</body>")
+    page = page.replace('<script id="scene" type="application/json">', pre + '<script id="scene" type="application/json">', 1).replace("</body>", probe + "</body>")
     out.write_text(page)
     return out
 

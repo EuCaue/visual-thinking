@@ -19,7 +19,9 @@ from _headless import build, CHROME
 
 PROBE = r"""<script>
 (function () {
-  var results = [], views = Array.prototype.map.call(document.querySelectorAll('#views button'), function (b) { return b.dataset.view; });
+  var scene = {}; try { scene = JSON.parse(document.getElementById('scene').textContent); } catch (e) {}
+  var deck = !!scene.deck, results = [];
+  var views = deck ? (scene.views || []).filter(function (v) { return !v.cover && !v.section; }).map(function (v) { return v.id; }) : Array.prototype.map.call(document.querySelectorAll('#views button'), function (b) { return b.dataset.view; });
   if (!views.length) views = [null];
   var SHAPE = 'rect:not(.hit):not(.item-hit):not(.sel-ring):not(.blk-hit):not(.grp-hit):not(.row-hit):not(.col-hit):not(.er-row), ellipse, circle.mk-arc';
   function box(e) { var r = e.getBoundingClientRect(); return { x: r.left, y: r.top, r: r.right, b: r.bottom, w: r.width, h: r.height }; }
@@ -60,8 +62,9 @@ PROBE = r"""<script>
   var i = 0;
   (function next() {
     if (i >= views.length) { var pre = document.createElement('pre'); pre.id = 'vt-audit'; pre.textContent = JSON.stringify(results); document.body.appendChild(pre); return; }
-    var v = views[i++], b = v && document.querySelector('#views [data-view="' + v + '"]'); if (b) b.click();
-    setTimeout(function () { results = results.concat(audit(v)); next(); }, 900);
+    var v = views[i++], b = v && document.querySelector('#views [data-view="' + v + '"]');
+    if (deck && v) location.hash = 'v=' + encodeURIComponent(v); else if (b) b.click();
+    setTimeout(function () { results = results.concat(audit(v)); next(); }, deck ? 1500 : 900);
   })();
 })();
 </script>"""

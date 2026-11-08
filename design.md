@@ -12,6 +12,7 @@ Technical documentation, read and operated, not a dashboard and not a marketing 
 |---|---|---|---|
 | UI, headings, labels | `--font-ui` | system font stack (`system-ui`, fallback `-apple-system` / `sans-serif`) | 11 to 22px |
 | Files, symbols, numbers, edge labels, ticks | `--font-data` | system `monospace` | 10.5 to 12.5px |
+| Deck cover, slide title, lead | `--font-ui` | system font stack | cover 38 to 82px, slide 34 to 44px, lead 18 to 20px |
 
 Page title 22px weight 600, tracking −0.02em; inspector name 17px, tracking −0.012em; block title 13.5px weight 600; body 12.5 to 14px; captions and ticks 10.5 to 11.5px muted. No label is set in capitals: inspector sections, graph group titles, scenario labels and callout labels are sentence case, weight 600; hierarchy comes from weight, size and hairlines, never from uppercase tracking. Numbers use tabular figures. Mono is for code, paths and data, never as a costume.
 
@@ -62,6 +63,12 @@ The canvas leads; the inspector is a tool beside it. It is 304px wide with 20px 
 
 One centered 880px column. Prose keeps a 66ch measure at 15px/1.6; the view title is 24px, its summary a 17px muted lead, each block opens with a hairline and an 18px title. KPIs become a row of figures (28px value over a 13px label). Tables take the full column with fixed widths, so grouped tables line up, and long codes break after `_`.
 
+## Deck
+
+A deck is the same design system at presentation scale. The stage is 16:9, `--bg-elev` on `--bg`, one 1px `--line` border, the panel radius, no shadow. Content is laid out at 800 logical pixels and scaled to the stage, so canvas type reads at presentation size: the slide title above the drawing is 34–44px, the lead 18–20px, the block title stays with the drawing, and most node, tick and card text lands around 17–24px. A dense table can drop to 13–14px at 1280px wide; that is the signal to split the slide. The cover is typographic: the deck title at 38–82px, the scope line under it, date and source at the bottom; no label, badge or decorative rule. A section divider fills the stage with `--accent-soft`, the title at 32–64px and the lead at 84% of the ink; it is the one deliberate rest in the deck.
+
+The player chrome lives outside the slide. The header keeps only the deck title, the theme and the text toggle. The footer is one row: previous/next, the counter, a 220px progress line in `--accent`, then overview, notes and fullscreen. The inspector is a floating panel over the slide, hidden until a skill-rendered element is selected; it never reflows the slide. The notes panel is a floating material with `--shadow-float`; the overview is a full `--bg` dialog listing slides with a number, title and summary, the current one in accent. The drawing stays fitted: no pan, no zoom. External content (custom blocks, images and video) is present but inert; only the skill's own marks answer. One claim per slide, one visual; a deck is not a canvas with pages.
+
 ## Information architecture: three levels per block
 
 Every block decides what the reader sees at once, on hover and on click. The runtime enforces the split; the agent fills the fields.
@@ -111,7 +118,7 @@ A row in the inspector, "Ir para a origem" or "Ir para o destino" selects the el
 
 ## Motion
 
-One ease (`--ease`, an ease-out) and three durations: `--d-fast` 120ms for hover, press and selection; `--d-base` 200ms for inspector swaps and fades; `--d-slow` 320ms for lines drawing in, bars growing from the baseline, marks gliding to a new scale after a legend toggle, nodes gliding to a new layout (FLIP), and programmatic zoom or fit. Entrance and swaps use keyframes that end in the element's natural state, so a frame that is never painted (hidden tab) costs nothing. Wheel zoom, drag and pinch track the pointer 1:1 with no easing. Press states scale to 0.97. Nothing moves on its own. `prefers-reduced-motion` sets the durations to zero and disables keyframes; `prefers-reduced-transparency` makes the floating chrome opaque. The one exception that stays opt-in: a graph block with `motion: true` sends small packets along its data and event edges every 2.2 seconds; an undirected edge kind carries nothing, and the same reduced-motion switch stops the packets.
+One ease (`--ease`, an ease-out) and three durations: `--d-fast` 120ms for hover, press and selection; `--d-base` 200ms for inspector swaps and fades; `--d-slow` 320ms for lines drawing in, bars growing from the baseline, marks gliding to a new scale after a legend toggle, nodes gliding to a new layout (FLIP), and programmatic zoom or fit. Entrance and swaps use keyframes that end in the element's natural state, so a frame that is never painted (hidden tab) costs nothing. Wheel zoom, drag and pinch track the pointer 1:1 with no easing. Press states scale to 0.97. Nothing moves on its own. `prefers-reduced-motion` sets the durations to zero and disables keyframes; `prefers-reduced-transparency` makes the floating chrome opaque. The one exception that stays opt-in: a graph block with `motion: true` sends small packets along its data and event edges every 2.2 seconds; an undirected edge kind carries nothing, and the same reduced-motion switch stops the packets. A deck adds one transition: the stage enters 22px from the side of travel in `--d-slow`, and the progress line moves with `--t-base`; reduced motion removes the travel.
 
 ## Blocks added for decisions and media
 
@@ -123,7 +130,7 @@ One ease (`--ease`, an ease-out) and three durations: `--d-fast` 120ms for hover
 
 ## Responsive
 
-Over 1100px the header is one row; below, the view tabs drop to their own row and scroll sideways. On desktop blocks are laid out for the width beside an open inspector, so opening or closing it refits the drawing and never reflows it. Under 820px the inspector becomes a bottom sheet with a handle, collapsed until something is selected; controls grow to 36px targets; the theme button keeps its icon only. Under 700px of canvas width every `row` or `grid` layout stacks, graphs flow top-down, KPIs wrap two per row, and pinch zooms. The canvas never scrolls the page sideways.
+Over 1100px the header is one row; below, the view tabs drop to their own row and scroll sideways. On desktop blocks are laid out for the width beside an open inspector, so opening or closing it refits the drawing and never reflows it. Under 820px the inspector becomes a bottom sheet with a handle, collapsed until something is selected; controls grow to 36px targets; the theme button keeps its icon only. Under 700px of canvas width every `row` or `grid` layout stacks, graphs flow top-down, KPIs wrap two per row, and pinch zooms. The canvas never scrolls the page sideways. A deck opens in text mode under 700px and keeps the player at the bottom; `?mode=draw` shows the 16:9 stage, which is intentional letterboxing, not the reading experience.
 
 ## Theme
 

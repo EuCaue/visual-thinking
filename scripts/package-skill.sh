@@ -1,7 +1,7 @@
 #!/bin/sh
 # Package the skill for a release: dist/visual-thinking-<version>.zip holds one visual-thinking/
-# folder with what an agent needs (instructions, templates, scripts, example scenes), without
-# tests, docs or built pages. Unzip it into a skills folder to install.
+# folder with what an agent needs (instructions, templates, scripts, example scenes) plus the
+# README assets it links, without tests or built pages. Unzip it into a skills folder to install.
 cd "$(dirname "$0")/.." || exit 1
 version=$(sed -n 's/^ *version: *"\{0,1\}\([0-9][0-9.]*\)"\{0,1\}$/\1/p' SKILL.md | head -1)
 [ -n "$version" ] || { echo "no version in SKILL.md metadata" >&2; exit 1; }
@@ -12,6 +12,8 @@ mkdir -p "$stage/visual-thinking/examples" dist
 cp SKILL.md strategy.md formats.md design.md examples.md README.md LICENSE "$stage/visual-thinking/"
 cp -r templates scripts "$stage/visual-thinking/"
 cp examples/*.json "$stage/visual-thinking/examples/"
+mkdir -p "$stage/visual-thinking/docs"
+cp -r docs/readme "$stage/visual-thinking/docs/"
 find "$stage" -name __pycache__ -prune -exec rm -rf {} +
 rm -f "$out"
 (cd "$stage" && zip -qr -X "$OLDPWD/$out" visual-thinking) || exit 1

@@ -56,6 +56,7 @@ Ask for what you want to see. The skill takes over when a drawing beats a few pa
 | "Kafka, RabbitMQ or SQS? Throughput matters most." | A weighted decision matrix with weights you can drag and see the winner change ([example](examples/11-architecture-decision.json)) |
 | "Did the catalog cache fix our p95?" + a CSV | Line charts with the SLO, the deploy marked, and the reason it moved ([example](examples/03-time-series.json)) |
 | "Plan the database migration" | A Gantt chart with dependencies and the critical path ([example](examples/14-schedule.json)) |
+| "Build a six-slide deck about the migration" | A 16:9 deck with a cover, section dividers, the same diagrams and speaker notes ([example](examples/22-presentation.json)) |
 
 Short questions still get short answers. The agent skips the page when one sentence would do.
 
@@ -78,6 +79,18 @@ The agent picks the shape that fits the question. A few of the 28 blocks:
 
 Plus architecture graphs, comparison tables, weighted decisions, charts, timelines, steps, code and formulas. When nothing fits, the agent draws its own SVG.
 
+## Presentations
+
+The same scene can be a deck. Set `"deck": true` and each view becomes one 16:9 slide; the first view can be a cover, a turn in the argument can be a section divider, and every slide can carry speaker notes. The blocks do not change, so the chart on a canvas page is the chart on the slide, with presentation-size type.
+
+The slides stay interactive like the canvas: click a skill-rendered chart, diagram or table element to open the same inspector, and legend filters and decision sliders keep working. Content that came from outside the skill, custom HTML and images or videos, stays inert.
+
+<p align="center">
+  <img src="docs/readme/deck.gif" alt="An animated deck: the cover, a p95 chart, a graph node inspector, the slide overview and speaker notes">
+</p>
+
+The page is still one HTML file that works offline. Use arrows or space to move, Home/End to jump, `o` for the slide grid, `n` for notes, `f` for fullscreen and `t` for the theme. On a phone it opens as text with the same notes. Deep links point at one slide: `#v=latencia`.
+
 ## What you can do on a page
 
 - **Click anything** to read its details, source file and connections in the side panel. Press `Esc` to clear.
@@ -86,6 +99,7 @@ Plus architecture graphs, comparison tables, weighted decisions, charts, timelin
 - **Read it as text** with the text-mode button. Phones open in this mode, and screen readers get it too.
 - **Share a link** to a single element. Selecting something puts it in the URL.
 - **Export** PNG or SVG from the right-click menu.
+- **Present** a scene built with `deck: true` as 16:9 slides: arrows or space move, `o` opens the slide grid, `n` opens notes, `f` goes fullscreen, and clicking a skill-rendered element opens the inspector.
 
 Pages work offline, follow the system's light or dark theme, and fit a phone screen. Hold `Alt` (`Option`) and drag to select text on the canvas.
 
@@ -154,10 +168,12 @@ Every example is a scene in [`examples/`](examples) with its built page beside i
 - [`15-budget-flow`](examples/15-budget-flow.json): where the money goes, as a Sankey and a treemap.
 - [`19-sketch`](examples/19-sketch.json): the hand-drawn style for early ideas.
 - [`21-custom-drawing`](examples/21-custom-drawing.json): what the agent draws when no built-in block fits.
+- [`22-presentation`](examples/22-presentation.json): a six-slide deck with a cover, section dividers, speaker notes and a weighted decision.
 
 ## Good to know
 
 - The agent doesn't make up numbers. With no real data in reach, it draws the structure and marks values as unknown, or asks you for them.
+- A deck is the same scene with `deck: true`. Speaker notes travel inside the HTML, and printing prints the slide on screen without the player chrome.
 - The first build downloads the libraries once into `.vt-libs/`, so it needs a connection. After that, building and viewing work offline.
 - Two helpers write scenes for you. `scripts/extract-deps.py <repo>` drafts a graph from real imports in Python, JS/TS or Go. `scripts/scene-diff.py before.json after.json out.json` marks what changed between two versions.
 
